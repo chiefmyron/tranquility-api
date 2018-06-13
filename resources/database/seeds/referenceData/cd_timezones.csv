@@ -1,0 +1,75 @@
+"Africa/Cairo", "(UTC+02:00) Cairo", 1, 37
+"Africa/Casablanca", "(UTC) Casablanca, Monrovia", 0, 26
+"Africa/Johannesburg", "(UTC+02:00) Harare, Pretoria", 0, 33
+"Africa/Lagos", "(UTC+01:00) West Central Africa", 0, 28
+"Africa/Nairobi", "(UTC+03:00) Nairobi", 0, 39
+"America/Anchorage", "(UTC-09:00) Alaska", 1, 4
+"America/Bogota", "(UTC-05:00) Bogota, Lima, Quito", 0, 14
+"America/Buenos_Aires", "(UTC-03:00) Buenos Aires, Georgetown", 0, 20
+"America/Caracas", "(UTC-04:00) Caracas, La Paz", 0, 16
+"America/Chicago", "(UTC-06:00) Central Time (US & Canada)", 1, 12
+"America/Chihuahua", "(UTC-07:00) Chihuahua, La Paz, Mazatlan", 1, 8
+"America/Denver", "(UTC-07:00) Mountain Time (US & Canada)", 1, 7
+"America/Godthab", "(UTC-03:00) Greenland", 1, 21
+"America/Halifax", "(UTC-04:00) Atlantic Time (Canada)", 1, 18
+"America/Indianapolis", "(UTC-05:00) Indiana (East)", 0, 13
+"America/Los_Angeles", "(UTC-08:00) Pacific Time (US & Canada); Tijuana", 1, 5
+"America/Managua", "(UTC-06:00) Central America", 0, 9
+"America/Mexico_City", "(UTC-06:00) Guadalajara, Mexico City, Monterrey", 1, 11
+"America/New_York", "(UTC-05:00) Eastern Time (US & Canada)", 1, 15
+"America/Noronha", "(UTC-02:00) Mid-Atlantic", 1, 23
+"America/Phoenix", "(UTC-07:00) Arizona", 0, 6
+"America/Regina", "(UTC-06:00) Saskatchewan", 0, 10
+"America/Santiago", "(UTC-04:00) Santiago", 1, 17
+"America/Sao_Paulo", "(UTC-03:00) Brasilia", 1, 22
+"America/St_Johns", "(UTC-03:30) Newfoundland", 1, 19
+"Asia/Baghdad", "(UTC+03:00) Baghdad", 1, 42
+"Asia/Bangkok", "(UTC+07:00) Bangkok, Hanoi, Jakarta", 0, 55
+"Asia/Calcutta", "(UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi", 0, 49
+"Asia/Colombo", "(UTC+06:00) Sri Jayawardenepura", 0, 51
+"Asia/Dhaka", "(UTC+06:00) Astana, Dhaka", 0, 52
+"Asia/Hong_Kong", "(UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi", 0, 60
+"Asia/Irkutsk", "(UTC+08:00) Irkutsk, Ulaan Bataar", 1, 61
+"Asia/Jerusalem", "(UTC+02:00) Jerusalem", 0, 34
+"Asia/Kabul", "(UTC+04:30) Kabul", 0, 46
+"Asia/Karachi", "(UTC+05:00) Islamabad, Karachi, Tashkent", 0, 47
+"Asia/Katmandu", "(UTC+05:45) Kathmandu", 0, 50
+"Asia/Krasnoyarsk", "(UTC+07:00) Krasnoyarsk", 1, 56
+"Asia/Magadan", "(UTC+11:00) Magadan, Solomon Is., New Caledonia", 0, 72
+"Asia/Muscat", "(UTC+04:00) Abu Dhabi, Muscat", 0, 44
+"Asia/Novosibirsk", "(UTC+06:00) Almaty, Novosibirsk", 1, 53
+"Asia/Rangoon", "(UTC+06:30) Rangoon", 0, 54
+"Asia/Riyadh", "(UTC+03:00) Kuwait, Riyadh", 0, 40
+"Asia/Seoul", "(UTC+09:00) Seoul", 0, 63
+"Asia/Singapore", "(UTC+08:00) Kuala Lumpur, Singapore", 0, 59
+"Asia/Taipei", "(UTC+08:00) Taipei", 0, 58
+"Asia/Tbilisi", "(UTC+04:00) Baku, Tbilisi, Yerevan", 1, 45
+"Asia/Tehran", "(UTC+03:30) Tehran", 1, 43
+"Asia/Tokyo", "(UTC+09:00) Osaka, Sapporo, Tokyo", 0, 62
+"Asia/Vladivostok", "(UTC+10:00) Vladivostok", 1, 69
+"Asia/Yakutsk", "(UTC+09:00) Yakutsk", 1, 64
+"Asia/Yekaterinburg", "(UTC+05:00) Ekaterinburg", 1, 48
+"Atlantic/Azores", "(UTC-01:00) Azores", 1, 25
+"Atlantic/Cape_Verde", "(UTC-01:00) Cape Verde Is.", 0, 24
+"Australia/Adelaide", "(UTC+09:30) Adelaide", 1, 66
+"Australia/Brisbane", "(UTC+10:00) Brisbane", 0, 68
+"Australia/Darwin", "(UTC+09:30) Darwin", 0, 65
+"Australia/Hobart", "(UTC+10:00) Hobart", 1, 70
+"Australia/Perth", "(UTC+08:00) Perth", 0, 57
+"Australia/Sydney", "(UTC+10:00) Canberra, Melbourne, Sydney", 1, 71
+"Etc/GMT+12", "(UTC-12:00) International Date Line West", 0, 1
+"Europe/Belgrade", "(UTC+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague", 1, 32
+"Europe/Berlin", "(UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna", 1, 29
+"Europe/Bucharest", "(UTC+02:00) Bucharest", 1, 38
+"Europe/Helsinki", "(UTC+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius", 1, 36
+"Europe/Istanbul", "(UTC+02:00) Athens, Istanbul, Minsk", 1, 35
+"Europe/London", "(UTC) Greenwich Mean Time, Dublin, Edinburgh, Lisbon, London", 1, 27
+"Europe/Moscow", "(UTC+03:00) Moscow, St. Petersburg, Volgograd", 1, 41
+"Europe/Paris", "(UTC+01:00) Brussels, Copenhagen, Madrid, Paris", 1, 30
+"Europe/Sarajevo", "(UTC+01:00) Sarajevo, Skopje, Warsaw, Zagreb", 1, 31
+"Pacific/Apia", "(UTC-11:00) Midway Island, Samoa", 0, 2
+"Pacific/Auckland", "(UTC+12:00) Auckland, Wellington", 1, 74
+"Pacific/Fiji", "(UTC+12:00) Fiji, Kamchatka, Marshall Is.", 0, 73
+"Pacific/Guam", "(UTC+10:00) Guam, Port Moresby", 0, 67
+"Pacific/Honolulu", "(UTC-10:00) Hawaii", 0, 3
+"Pacific/Tongatapu", "(UTC+13:00) Nuku''alofa", 0, 75
