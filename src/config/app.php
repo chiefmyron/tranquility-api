@@ -24,8 +24,8 @@ return [
     // Logging
     'logging' => [
         'level' => env('APP_LOG_LEVEL', 400),
-        'path' => env('APP_LOG_PATH', TRANQUIL_PATH_BASE.'/logs/tranquil-api.log'),
-        'name' => 'tranquil-api'
+        'path' => env('APP_LOG_PATH', TRANQUIL_PATH_BASE.'/logs/tranquility-api.log'),
+        'name' => 'tranquility-api'
     ],
 
     // Services
@@ -33,5 +33,14 @@ return [
         'logger'     => '\Tranquility\Services\LoggingService',
         'em'         => '\Tranquility\Services\EntityManagerService',
         'controller' => '\Tranquility\Services\ControllerService'
+    ],
+
+    // Application middleware
+    // NOTE: Middlewares are executed on a LIFO (Last In, First Out) basis. Therefore, middlewares that need to be 
+    // executed earlier in the dispatch process should be added towards the bottom of the array.
+    'middleware' => [
+        '\Tranquility\Middlewares\JsonApiDocumentFormatMiddleware',
+        '\Tranquility\Middlewares\ExceptionHandlerMiddleware',
+        '\Tranquility\Middlewares\JsonContentTypeMiddleware'
     ]
 ];

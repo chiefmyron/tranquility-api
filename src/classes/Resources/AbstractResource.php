@@ -7,6 +7,7 @@ use Valitron\Validator as Validator;
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility class libraries
+use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 use Tranquility\System\Enums\TransactionSourceEnum as TransactionSourceEnum;
 
 abstract class AbstractResource {
@@ -84,7 +85,22 @@ abstract class AbstractResource {
         // Perform the validation
         $result = $validator->validate();
         if ($result === false) {
-            return $validator->errors();
+            $errors = $validator->errors();
+            $errorCollection = array();
+            foreach ($errors as $field => $messages) {
+                foreach ($messages as $message) {
+                    $errorDetail = array();
+                    $errorDetail['source'] = ["pointer" => "/data/attributes/".$field];
+                    $errorDetail['status'] = HttpStatus::UnprocessableEntity;
+                    $errorDetail['code'] = "10002";
+                    $errorDetail['title'] = "Field validation error";
+                    $errorDetail['detail'] = $message;
+                    $errorCollection[] = $errorDetail;
+                }
+                
+            }
+
+            return $errorCollection;
         }
 
         return true;

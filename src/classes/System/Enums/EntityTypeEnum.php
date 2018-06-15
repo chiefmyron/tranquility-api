@@ -1,11 +1,11 @@
 <?php namespace Tranquility\System\Enums;
 
-use \Tranquility\System\Enums\AbstractEnum as AbstractEnum;
+use Tranquility\System\Enums\AbstractEnum as AbstractEnum;
 
 /**
  * Enumeration of entity types
  *
- * @package \Tranquility\System\Enums
+ * @package Tranquility\System\Enums
  * @author  Andrew Patterson <patto@live.com.au>
  */
 

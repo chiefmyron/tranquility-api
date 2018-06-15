@@ -29,4 +29,10 @@ foreach ($services as $name => $class) {
     $service->register($name);
 }
 
+// Register application middleware
+$middlewares = $container->config->get('app.middleware', array());
+foreach ($middlewares as $middleware) {
+    $app->add(new $middleware());
+}
+
 return $app;

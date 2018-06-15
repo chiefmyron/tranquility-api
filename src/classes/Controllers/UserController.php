@@ -9,6 +9,7 @@ use League\Fractal\Resource\Collection;
 use Tranquility\Data\Entities\UserEntity;
 use Tranquility\Resources\UserResource;
 use Tranquility\Transformers\UserTransformer;
+use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 class UserController extends AbstractController {
 
@@ -19,7 +20,7 @@ class UserController extends AbstractController {
         // Transform for output
         $resource = new Collection($users, new UserTransformer);
         $payload = $this->manager->createData($resource)->toArray();
-        return $response->withJson($payload, 201);
+        return $response->withJson($payload, HttpStatus::OK);
     }
 
     public function create($request, $response, $args) {
@@ -28,13 +29,13 @@ class UserController extends AbstractController {
         $user = $this->resource->create($data);
         if (!($user instanceof UserEntity)) {
             // If a user was not created, generate error response
-            return $this->generateValidationErrorResponse($response, $user);
+            return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
         }
 
         // Transform for output
         $resource = new Item($user, new UserTransformer);
         $payload = $this->manager->createData($resource)->toArray();
-        return $response->withJson($payload, 201);
+        return $response->withJson($payload, HttpStatus::Created);
     }
 
     public function update($request, $response, $args) {
