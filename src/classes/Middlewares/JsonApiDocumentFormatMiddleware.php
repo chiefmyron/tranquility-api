@@ -39,7 +39,7 @@ class JsonApiDocumentFormatMiddleware extends AbstractMiddleware {
                 $error['source'] = ["pointer" => ""];
                 $error['status'] = HttpStatus::BadRequest;
                 $error['title']  = "The request body for this type of request cannot be empty.";
-                return $this->withError($request, $error);
+                return $this->withError($response, $error);
             }
 
             // Check that only valid top-level members have been supplied in the request body
@@ -51,7 +51,7 @@ class JsonApiDocumentFormatMiddleware extends AbstractMiddleware {
                 $error['status'] = HttpStatus::BadRequest;
                 $error['title']  = "One or more top level member elements in the request body are invalid.";
                 $error['detail'] = "Invalid member names are: ".implode(", ", $invalidMemberNames);
-                return $this->withError($request, $error);
+                return $this->withError($response, $error);
             }
         }
 

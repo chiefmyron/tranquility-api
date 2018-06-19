@@ -25,8 +25,8 @@ class UserController extends AbstractController {
 
     public function create($request, $response, $args) {
         // Get data from request
-        $data = $request->getParsedBody();
-        $user = $this->resource->create($data);
+        $body = $request->getParsedBody();
+        $user = $this->resource->create($body['data']);
         if (!($user instanceof UserEntity)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
@@ -45,4 +45,6 @@ class UserController extends AbstractController {
     public function delete($request, $response, $args) {
 
     }
+
+
 }

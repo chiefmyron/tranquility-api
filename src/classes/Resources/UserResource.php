@@ -1,6 +1,8 @@
 <?php namespace Tranquility\Resources;
 
 use \Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
+
+use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 use \Tranquility\Data\Entities\UserEntity as UserEntity;
 
 class UserResource extends AbstractResource {
@@ -15,13 +17,13 @@ class UserResource extends AbstractResource {
         parent::registerValidationRules();
 
         // Add validation rules specific for this resource
-        $this->validationRuleGroups['default'][] = array('field' => 'username', 'ruleType' => 'required', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'timezoneCode', 'ruleType' => 'required', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'localeCode', 'ruleType' => 'required', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'required', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'boolean', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'required', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
-        $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'integer', 'params' => [], 'message' => 'message_10002_mandatory_input_field_missing');
+        $this->validationRuleGroups['default'][] = array('field' => 'username', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'timezoneCode', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'localeCode', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'boolean', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'integer', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
     }
 
     /**

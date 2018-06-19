@@ -32,9 +32,10 @@ abstract class AbstractEnum {
 		if (!$reflector->isSubclassOf('\Tranquility\System\Enums\AbstractEnum')) {
 			throw new Exception('Specified class "'.$className.'" does not extend \Tranquility\System\Enums\AbstractEnum');
 		}
-		
+
 		// Return the set of values
-		return $reflector->getConstants();
+		$values = array_values($reflector->getConstants());
+		return $values;
 	}
 	
 	/**

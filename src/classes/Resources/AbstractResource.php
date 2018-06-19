@@ -7,7 +7,9 @@ use Valitron\Validator as Validator;
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility class libraries
-use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
+use Tranquility\System\Utility as Utility;
+use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
+//use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 use Tranquility\System\Enums\TransactionSourceEnum as TransactionSourceEnum;
 
 abstract class AbstractResource {
@@ -43,8 +45,10 @@ abstract class AbstractResource {
      */
     public function registerValidationRules() {
         // Define standard validation rules that are required for all entities
-        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime', 'ruleType' => 'dateFormat', 'params' => ['Y-m-d H:i:s'], 'message' => 'message_10010_invalid_datetime_format');
-        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'in', 'params' => [TransactionSourceEnum::getValues(), 'message' => 'message_10009_invalid_transaction_source_code']);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'required',   'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'dateFormat', 'message' => MessageCodes::ValidationInvalidDateTimeFormat, 'params' => ['Y-m-d H:i:s']);
+        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'required',   'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'in',         'message' => MessageCodes::ValidationInvalidTransactionSource, 'params' => [TransactionSourceEnum::getValues()]);
     }
 
     /**
@@ -65,7 +69,7 @@ abstract class AbstractResource {
     public function validate($data, $groups = array('default')) {
         // Create validator instance for the input data
         $validator = new Validator($data);
-
+        
         // Get rules from the specified validation groups
         $rules = array();
         foreach ($groups as $group) {
@@ -76,7 +80,17 @@ abstract class AbstractResource {
 
         // Add validation rules
         foreach ($rules as $rule) {
-            $validationRule = $validator->rule($rule['ruleType'], $rule['field'], $rule['params']);
+            $params = Utility::extractValue($rule, 'params', array());
+            if (is_array($params)) {
+                // Handle multiple parameters for a validation rule
+                $params = array_merge(array($rule['ruleType'], $rule['field']), $params);
+                $validationRule = call_user_func_array(array($validator, 'rule'), $params);
+            } else if (is_null($params)) {
+                // No parameters
+                $validationRule = $validator->rule($rule['ruleType'], $rule['field']);
+            }
+            
+            // Add message to rule
             if (isset($rule['message'])) {
                 $validationRule->message($rule['message']);
             }
@@ -88,21 +102,24 @@ abstract class AbstractResource {
             $errors = $validator->errors();
             $errorCollection = array();
             foreach ($errors as $field => $messages) {
-                foreach ($messages as $message) {
+                foreach ($messages as $code) {
+                    // Get message details for error code
+                    $messageDetails = MessageCodes::getMessageDetails($code);
+
+                    // Build JSON API compliant error                     
                     $errorDetail = array();
                     $errorDetail['source'] = ["pointer" => "/data/attributes/".$field];
-                    $errorDetail['status'] = HttpStatus::UnprocessableEntity;
-                    $errorDetail['code'] = "10002";
-                    $errorDetail['title'] = "Field validation error";
-                    $errorDetail['detail'] = $message;
+                    $errorDetail['status'] = $messageDetails['httpStatusCode'];
+                    $errorDetail['code'] = $code;
+                    $errorDetail['title'] = $messageDetails['titleMessage'];
+                    if ($messageDetails['detailMessage'] != '') {
+                        $errorDetail['detail'] = $messageDetails['detailMessage'];
+                    }
                     $errorCollection[] = $errorDetail;
                 }
-                
             }
-
             return $errorCollection;
         }
-
         return true;
     }
 
@@ -187,12 +204,15 @@ abstract class AbstractResource {
      * @return Tranquility\Data\Entities\AbstractEntity
      */
     public function create(array $data) {
+        // Get input attributes from data
+        $attributes = $data['attributes'];
+
         // Validate input
         $validationRuleGroups = array('default', 'create');
-        $result = $this->validate($data, $validationRuleGroups);
+        $result = $this->validate($attributes, $validationRuleGroups);
         if ($result === true) {
             // Data is valid - create the entity
-            $entity = $this->getRepository()->create($data);
+            $entity = $this->getRepository()->create($attributes);
             return $entity;
         } else {
             // Data is not valid - return error messages
