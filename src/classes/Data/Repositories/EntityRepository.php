@@ -1,7 +1,7 @@
 <?php namespace Tranquility\Data\Repositories;
 
-use Tranquility\Data\Entities\Extensions\TagEntityExtension        as Tag;
-use Tranquility\Data\Entities\Extensions\AuditTrailEntityExtension as AuditTrail;
+use Tranquility\Data\Entities\Extensions\TagExtension        as Tag;
+use Tranquility\Data\Entities\Extensions\AuditTrailExtension as AuditTrail;
 
 class EntityRepository extends AbstractRepository {
 
@@ -32,14 +32,14 @@ class EntityRepository extends AbstractRepository {
      */
     public function create(array $data) {
 		// Create new audit trail record
-		//$auditTrail = new AuditTrail($data);
-        //$this->_em->persist($auditTrail);
+		$auditTrail = new AuditTrail($data);
+        $this->_em->persist($auditTrail);
         
         // Create new entity record, with the audit trail attached
         $entityName = $this->getEntityName();
         $entity = new $entityName($data);
         $entity->version = 1; // Force version for new records to be 1
-        //$entity->setAuditTrail($auditTrail);
+        $entity->setAuditTrail($auditTrail);
         $this->_em->persist($entity);
         $this->_em->flush();
 		

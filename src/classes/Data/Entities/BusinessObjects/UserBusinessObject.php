@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\Entities;
+<?php namespace Tranquility\Data\Entities\BusinessObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 // Entity repository
 use Tranquility\Data\Repositories\EntityRepository;
 
-class UserEntity extends AbstractEntity {
+class UserBusinessObject extends AbstractBusinessObject {
 
     // Entity properties
     protected $username;

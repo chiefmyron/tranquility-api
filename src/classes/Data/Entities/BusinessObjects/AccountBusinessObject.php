@@ -3,7 +3,7 @@
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
-class AccountEntity extends Entity {
+class AccountBusinessObject extends AbstractBusinessObject {
 
     // Entity properties
     protected $name;

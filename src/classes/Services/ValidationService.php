@@ -1,0 +1,23 @@
+<?php namespace Tranquility\Services;
+
+// Validation library
+use Valitron\Validator;
+
+// Custom validation classes
+use Tranquility\Validators\EntityExistsValidator;
+
+class ValidationService extends AbstractService {
+    /**
+     * Registers the service with the application container
+     * 
+     * @return void
+     */
+    public function register(string $name) {
+        // Get the dependency injection container
+        $container = $this->app->getContainer();
+        $em = $container->get('em');
+
+        // Register custom validation rules with the main validation class
+        Validator::addRule('entityExists', [new EntityExistsValidator($em), 'validate'], "Error occurred in EntityExistsValidator class.");
+    }
+}

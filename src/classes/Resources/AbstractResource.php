@@ -6,10 +6,12 @@ use Valitron\Validator as Validator;
 // ORM class libraries
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
+// Tranquility data entities
+use \Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
-//use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 use Tranquility\System\Enums\TransactionSourceEnum as TransactionSourceEnum;
 
 abstract class AbstractResource {
@@ -45,10 +47,11 @@ abstract class AbstractResource {
      */
     public function registerValidationRules() {
         // Define standard validation rules that are required for all entities
-        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'required',   'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'dateFormat', 'message' => MessageCodes::ValidationInvalidDateTimeFormat, 'params' => ['Y-m-d H:i:s']);
-        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'required',   'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'in',         'message' => MessageCodes::ValidationInvalidTransactionSource, 'params' => [TransactionSourceEnum::getValues()]);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'required',     'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'dateFormat',   'message' => MessageCodes::ValidationInvalidDateTimeFormat, 'params' => ['Y-m-d H:i:s']);
+        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'required',     'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'in',           'message' => MessageCodes::ValidationInvalidTransactionSource, 'params' => [TransactionSourceEnum::getValues()]);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateUserId'     , 'ruleType' => 'entityExists', 'message' => MessageCodes::ValidationInvalidAuditTrailUser, 'params' => [User::class]);
     }
 
     /**

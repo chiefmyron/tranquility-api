@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\EntityExtensions;
+<?php namespace Tranquility\Data\Entities\Extensions;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -6,13 +6,13 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\UserEntity as User;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class AuditTrailEntityExtension extends AbstractEntityExtension {
+class AuditTrailExtension extends AbstractExtension {
     // Entity properties
     protected $transactionId;
     protected $transactionSource;
-    protected $updateBy;
+    protected $updateUserId;
     protected $updateDateTime;
     protected $updateReason;
 
@@ -20,7 +20,7 @@ class AuditTrailEntityExtension extends AbstractEntityExtension {
     protected $publicFields = array(
         'transactionId',
         'transactionSource',
-        'updateBy',
+        'updateUserId',
         'updateDateTime',
         'updateReason'
     );
@@ -52,6 +52,6 @@ class AuditTrailEntityExtension extends AbstractEntityExtension {
         $builder->addField('updateReason', 'string');
         
         // Add relationships
-        $builder->createOneToOne('updateBy', User::class)->addJoinColumn('updateBy','id')->build();
+        $builder->createOneToOne('updateUserId', User::class)->addJoinColumn('updateUserId','id')->build();
     }
 }

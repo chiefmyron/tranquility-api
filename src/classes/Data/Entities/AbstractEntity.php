@@ -2,39 +2,8 @@
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
-
-// Entity classes
-use Tranquility\Data\Entities\UserEntity as User;
-use Tranquility\Data\EntityExtensions\AuditTrailEntityExtension as AuditTrail;
-
-// Tranquility class libraries
-use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-use Tranquility\Data\Repositories\EntityRepository as EntityRepository;
 
 abstract class AbstractEntity {
-    // Entity properties
-    protected $id;
-    protected $version;
-    protected $type;
-    protected $subType;
-    protected $deleted;
-    protected $locks;
-
-    // Related extension data objects
-    protected $auditTrail;
-    protected $tagCollection;
-
-    // Define the set of fields that are publically accessible
-    protected $entityPublicFields = array(
-        'id',
-        'version',
-        'type',
-        'subType',
-        'deleted',
-        'locks'
-    );
-
     /**
      * Create a new instance of the entity
      *
@@ -47,18 +16,6 @@ abstract class AbstractEntity {
         if (count($data) > 0) {
             // Populate common entity data
             $this->populate($data);
-
-            // Add audit trail details
-            $auditTrail = new AuditTrail($data);
-            $this->setAuditTrail($auditTrail);
-        }
-        
-        // Ensure version and deleted properties are initialised
-        if (!isset($this->version)) {
-            $this->version = 1;
-        }
-        if (!isset($this->deleted)) {
-            $this->deleted = 0;
         }
     }
 
@@ -109,10 +66,10 @@ abstract class AbstractEntity {
      * Sets values for entity fields, based on the inputs provided
      * 
      * @param mixed $data  May be an array or an instance of an Entity
-     * @return Tranquility\Data\Entity
+     * @return Tranquility\Data\Entities\AbstractEntity
      */
     public function populate($data) {
-        if ($data instanceof Entity) {
+        if ($data instanceof AbstractEntity) {
             $data = $data->toArray();
         } elseif (is_object($data)) {
             $data = (array) $data;
@@ -132,29 +89,6 @@ abstract class AbstractEntity {
         return $this;
     }
 
-    /**
-     * Set the audit trail details for an entity
-     *
-     * @param $auditTrail \Tranquility\Data\BusinessObject\Extensions\AuditTrail
-     * @return void
-     */
-    protected function setAuditTrail($auditTrail) {
-        if (!($auditTrail instanceof AuditTrail)) {
-            throw new \Exception('Audit trail information must be provided as a Tranquility\Data\EntityExtensions\AuditTrailEntityExtension object');
-        }
-        
-        $this->auditTrail = $auditTrail;
-    }
-    
-    /**
-     * Retrieve audit trail details for the entity as an array
-     *
-     * @return Tranquility\Data\EntityExtensions\AuditTrailEntityExtension
-     */
-    protected function getAuditTrail() {
-        return $this->auditTrail;
-    }
-
     /** 
      * Retrieves the set of publically accessible fields for the entity
      * 
@@ -162,37 +96,4 @@ abstract class AbstractEntity {
      * @abstract
      */
     abstract public function getPublicFields();
-
-    /**
-     * Metadata used to define object relationship to database
-     *
-     * @var \Doctrine\ORM\Mapping\ClassMetadata $metadata  Metadata to be passed to Doctrine
-     * @return void
-     */
-    public static function loadMetadata(ClassMetadata $metadata) {
-        $builder = new ClassMetadataBuilder($metadata);
-        // Define table name
-        $builder->setTable('entity');
-        $builder->setCustomRepositoryClass(EntityRepository::class);
-        
-        // Define inheritence
-        $builder->setJoinedTableInheritance();
-        $builder->setDiscriminatorColumn('type');
-        $builder->addDiscriminatorMapClass(EntityTypeEnum::User, User::class);
-
-        //$builder->addDiscriminatorMapClass(EntityTypeEnum::Person, Person::class);
-        //$builder->addDiscriminatorMapClass(EntityTypeEnum::Account, Account::class);
-        //$builder->addDiscriminatorMapClass(EntityTypeEnum::Address, Address::class);
-        //$builder->addDiscriminatorMapClass(EntityTypeEnum::AddressPhysical, AddressPhysical::class);
-        
-        // Define fields
-        $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
-        $builder->addField('version', 'integer');
-        $builder->addField('deleted', 'boolean');
-        
-        // Add relationships
-        $builder->createOneToOne('auditTrail', AuditTrail::class)->addJoinColumn('transactionId','transactionId')->build();
-        //$builder->createManyToMany('tags', Tag::class)->inversedBy('entities')->setJoinTable('entity_tags_xref')->addJoinColumn('entityId', 'id')->addInverseJoinColumn('tagId', 'id')->build();
-        //$builder->createManyToMany('relatedEntities', BusinessObject::class)->setJoinTable('entity_entity_xref')->addJoinColumn('parentId', 'id')->addInverseJoinColumn('childId', 'id')->build();
-    }
 }

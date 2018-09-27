@@ -1,5 +1,8 @@
 <?php namespace Tranquility\Controllers;
 
+// Utility libraries
+use Carbon\Carbon;
+
 // Fractal class libraries
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
@@ -34,6 +37,17 @@ class AbstractController {
     public function __construct(AbstractResource $resource, Manager $manager) {
         $this->resource = $resource;
         $this->manager = $manager;
+    }
+
+    protected function parseRequestBody($request) {
+        // Get body from request
+        $body = $request->getParsedBody();
+        $data = $body['data'];
+
+        // Inject system-generated audit trail values
+        $data['attributes']['updateUserId'] = 1;
+        $data['attributes']['updateDateTime'] = Carbon::now();
+        return $data;
     }
 
     /**

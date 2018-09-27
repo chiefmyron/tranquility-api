@@ -6,7 +6,7 @@ use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\UserEntity;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Resources\UserResource;
 use Tranquility\Transformers\UserTransformer;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
@@ -25,9 +25,9 @@ class UserController extends AbstractController {
 
     public function create($request, $response, $args) {
         // Get data from request
-        $body = $request->getParsedBody();
-        $user = $this->resource->create($body['data']);
-        if (!($user instanceof UserEntity)) {
+        $data = $this->parseRequestBody($request);
+        $user = $this->resource->create($data);
+        if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
         }

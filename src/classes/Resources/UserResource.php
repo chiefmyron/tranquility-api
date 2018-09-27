@@ -3,7 +3,7 @@
 use \Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
-use \Tranquility\Data\Entities\UserEntity as UserEntity;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class UserResource extends AbstractResource {
 
@@ -32,6 +32,6 @@ class UserResource extends AbstractResource {
      * @return string
      */
     public function getEntityClassname() {
-        return UserEntity::class;
+        return User::class;
     }
 }

@@ -32,7 +32,8 @@ return [
     'services' => [
         'logger'     => '\Tranquility\Services\LoggingService',
         'em'         => '\Tranquility\Services\EntityManagerService',
-        'controller' => '\Tranquility\Services\ControllerService'
+        'controller' => '\Tranquility\Services\ControllerService',
+        'validation' => '\Tranquility\Services\ValidationService',
     ],
 
     // Application middleware
