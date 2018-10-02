@@ -12,7 +12,7 @@ class InitialSeedData extends AbstractSeed {
      * http://docs.phinx.org/en/latest/seeding.html
      */
     public function run() {
-        $referenceDataPath = "./resources/database/seeds/referenceData/";
+        $referenceDataPath = TRANQUIL_PATH_BASE."/resources/database/seeds/referenceData/";
 
         // Add reference data for locales from CSV
         $records = [];
@@ -64,6 +64,45 @@ class InitialSeedData extends AbstractSeed {
             fclose($handle);
         }
         $table = $this->table('cd_countries');
+        $table->insert($records)->save();
+
+        // Add initial user data
+        $records = [];
+        if (($handle = fopen($referenceDataPath."entity.csv", "r")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $row = array(
+                    'id' => $data[0],
+                    'version' => $data[1],
+                    'type' => $data[2],
+                    'subType' => $data[3],
+                    'deleted' => $data[4],
+                    'transactionId' => $data[5]
+                );
+                $records[] = $row;
+            }
+            fclose($handle);
+        }
+        $table = $this->table('entity');
+        $table->insert($records)->save();
+
+        $records = [];
+        if (($handle = fopen($referenceDataPath."entity_users.csv", "r")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $row = array(
+                    'id' => $data[0],
+                    'username' => $data[1],
+                    'password' => $data[2],
+                    'timezoneCode' => $data[3],
+                    'localeCode' => $data[4],
+                    'active' => $data[5],
+                    'securityGroupId' => $data[6],
+                    'registeredDateTime' => date('Y-m-d H:i:s')
+                );
+                $records[] = $row;
+            }
+            fclose($handle);
+        }
+        $table = $this->table('entity_users');
         $table->insert($records)->save();
     }
 }
