@@ -11,7 +11,7 @@ use Tranquility\Data\Entities\Extensions\AuditTrailExtension as AuditTrail;
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Repositories\EntityRepository as EntityRepository;
+use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
 abstract class AbstractBusinessObject extends AbstractEntity {
     // Entity properties
@@ -103,7 +103,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         $builder = new ClassMetadataBuilder($metadata);
         // Define table name
         $builder->setTable('entity');
-        $builder->setCustomRepositoryClass(EntityRepository::class);
+        $builder->setCustomRepositoryClass(BusinessObjectRepository::class);
         
         // Define inheritence
         $builder->setJoinedTableInheritance();

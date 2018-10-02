@@ -1,9 +1,10 @@
-<?php namespace Tranquility\Data\Repositories;
+<?php namespace Tranquility\Data\Repositories\BusinessObjects;
 
+use Tranquility\Data\Repositories\AbstractRepository;
 use Tranquility\Data\Entities\Extensions\TagExtension        as Tag;
 use Tranquility\Data\Entities\Extensions\AuditTrailExtension as AuditTrail;
 
-class EntityRepository extends AbstractRepository {
+class BusinessObjectRepository extends AbstractRepository {
 
     /**
      * Finds entities by a set of criteria.
