@@ -39,13 +39,19 @@ class AbstractController {
         $this->manager = $manager;
     }
 
+    /**
+     * Extracts data payload from an incoming request and injects required audit trail information
+     *
+     * @param Slim\Http\Request $request
+     * @return array
+     */
     protected function parseRequestBody($request) {
         // Get body from request
         $body = $request->getParsedBody();
         $data = $body['data'];
 
         // Inject system-generated audit trail values
-        $data['attributes']['updateUserId'] = 1;
+        $data['attributes']['updateUserId'] = 1;  // TODO: Implement authorisation and use current user object here
         $data['attributes']['updateDateTime'] = Carbon::now();
         return $data;
     }

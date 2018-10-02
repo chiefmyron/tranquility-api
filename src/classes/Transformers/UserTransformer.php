@@ -1,15 +1,15 @@
 <?php namespace Tranquility\Transformers;
 
-use Tranquility\Data\Entities\UserEntity as User;
-use Tranquility\Data\Entities\AbstractEntity as Entity;
 use Tranquility\Transformers\AbstractEntityTransformer;
+use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class UserTransformer extends AbstractEntityTransformer {
     
-    public function transform(Entity $user) {
+    public function transform(BusinessObject $user) {
         // Make sure that a User entity has been provided
         if (!($user instanceof User)) {
-            throw new \Exception("The supplied object must be an instance of UserEntity to be used with this transformer.");
+            throw new \Exception("The supplied object must be an instance of ".User::class." to be used with this transformer.");
         }
 
         // Get standard schema for entities

@@ -1,10 +1,10 @@
 <?php namespace Tranquility\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Tranquility\Data\Entities\AbstractEntity as Entity;
+use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
 
 class AbstractEntityTransformer extends TransformerAbstract {
-    public function transform(Entity $entity) {
+    public function transform(BusinessObject $entity) {
         return array(
             'id'      => (int) $entity->id,
 	        'version' => (int) $entity->version,

@@ -8,7 +8,7 @@ use Tranquility\Controllers\PersonController as PersonController;
 use Tranquility\Controllers\AccountController as AccountController;
 
 // Version 1 API routes (unauthenticated)
-$app->get('/v1/auth/login', AuthController::class.':login');
+$app->post('/v1/auth/login', AuthController::class.':login');
 
 // Version 1 API route group (authenticated)
 $app->group('/v1', function() {

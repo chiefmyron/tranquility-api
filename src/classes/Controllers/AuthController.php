@@ -1,8 +1,19 @@
 <?php namespace Tranquility\Controllers;
 
-class AuthController {
+use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
+
+class AuthController extends AbstractController {
     public function login($request, $response, $args) {
-        $response->getBody()->write("This is the login service!");
-        return $response;
+        // Attempt to login user
+        $data = $this->parseRequestBody($request);
+        $result = $this->resource->login($data);
+
+        return $response->withJson($result, HttpStatus::Created);
     }
+
+    public function logout($request, $response, $args) {
+
+    }
+
+
 }

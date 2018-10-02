@@ -63,4 +63,8 @@ class UserBusinessObject extends AbstractBusinessObject {
     public function getPublicFields() {
         return array_merge($this->entityPublicFields, $this->publicFields);
     }
+
+    public function getPassword() {
+        return $this->password;
+    }
 }

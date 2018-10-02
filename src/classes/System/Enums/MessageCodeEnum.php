@@ -22,6 +22,7 @@ class MessageCodeEnum extends AbstractEnum {
 	const ValidationMismatchedPasswordValues = '10005';
     const ValidationFormInputsInvalid = '10006';
     const ValidationInvalidAuditTrailUser = '10007';
+    const ValidationInvalidUserCredentials = '10008';
 
 	private static $_messageDetails = array(
         // Generic form validation messages
@@ -32,7 +33,8 @@ class MessageCodeEnum extends AbstractEnum {
         self::ValidationInsufficientPasswordStrength => array('type' => 'field',  'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10004_insufficient_password_strength', 'detailMessage' => ''),
         self::ValidationMismatchedPasswordValues => array('type' => 'field',  'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10005_mismatched_passwords', 'detailMessage' => ''),
         self::ValidationFormInputsInvalid => array('type' => 'header', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10006_form_validation_failed', 'detailMessage' => ''),
-        self::ValidationInvalidAuditTrailUser => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10007_invalid_update_by_user', 'detailMessage' => '')
+        self::ValidationInvalidAuditTrailUser => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10007_invalid_update_by_user', 'detailMessage' => ''),
+        self::ValidationInvalidUserCredentials => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10008_invalid_user_credentials', 'detailMessage' => '')
 	);
 	
 	/**
