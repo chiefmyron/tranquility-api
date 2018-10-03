@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
 use Tranquility\Data\Entities\AbstractEntity;
-use Tranquility\Data\Entities\OAuth\ClientOAuthEntity;
+use Tranquility\Data\Entities\OAuth\ClientOAuth;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
-use Tranquility\Data\Repositories\OAuthRepository as OAuthRepository;
+use Tranquility\Data\Repositories\OAuth\AccessTokenOAuthRepository;
 
-class ClientOAuthEntity extends AbstractEntity {
+class AccessTokenOAuth extends AbstractEntity {
     // Entity properties
     private $id;
     private $token;
@@ -31,6 +31,10 @@ class ClientOAuthEntity extends AbstractEntity {
         'client',
 
     );
+
+    public function getPublicFields() {
+        return $this->entityPublicFields;
+    }
 
     public function setToken($token) {
         $this->token = $token;
@@ -86,7 +90,7 @@ class ClientOAuthEntity extends AbstractEntity {
 
         // Define table name
         $builder->setTable('sys_auth_access_tokens');
-        $builder->setCustomRepositoryClass(OAuthRepository::class);
+        $builder->setCustomRepositoryClass(AccessTokenOAuthRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
@@ -97,7 +101,7 @@ class ClientOAuthEntity extends AbstractEntity {
         $builder->addField('scope', 'string');
 
         // Define relationships
-        $builder->createManyToOne('client', ClientOAuthEntity::class)->mappedBy('id')->build();
+        $builder->createManyToOne('client', ClientOAuth::class)->mappedBy('id')->build();
         $builder->createManyToOne('user', UserBusinessObject::class)->mappedBy('id')->build();
     }
 }

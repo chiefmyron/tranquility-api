@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity repository
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
+use Tranquility\Data\Repositories\OAuth\UserOAuthRepository;
 
 class UserBusinessObject extends AbstractBusinessObject {
 
@@ -42,9 +43,10 @@ class UserBusinessObject extends AbstractBusinessObject {
      */
    public static function loadMetadata(ClassMetadata $metadata) {
         $builder = new ClassMetadataBuilder($metadata);
+        
         // Define table name
         $builder->setTable('entity_users');
-        $builder->setCustomRepositoryClass(BusinessObjectRepository::class);
+        $builder->setCustomRepositoryClass(UserOAuthRepository::class);
         
         // Define fields
         $builder->addField('username', 'string');

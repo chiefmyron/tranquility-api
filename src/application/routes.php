@@ -2,15 +2,21 @@
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
+// Tranquility route-specific middlewares
+use Tranquility\Middlewares\AuthenticationMiddleware;
+use Tranquility\Middlewares\JsonApiDocumentFormatMiddleware;
+
+// Tranquility controllers
 use Tranquility\Controllers\AuthController as AuthController;
 use Tranquility\Controllers\UserController as UserController;
 use Tranquility\Controllers\PersonController as PersonController;
 use Tranquility\Controllers\AccountController as AccountController;
 
 // Version 1 API routes (unauthenticated)
-$app->post('/v1/auth/login', AuthController::class.':login');
+$app->post('/v1/auth/token', AuthController::class.':token');
 
 // Version 1 API route group (authenticated)
+$routeMiddlewares = [AuthenticationMiddleware::class, JsonApiDocumentFormatMiddleware::class];
 $app->group('/v1', function() {
     // User resource
     $this->get('/users', UserController::class.':list')->setName('users-list');
@@ -32,4 +38,4 @@ $app->group('/v1', function() {
     $this->get('/accounts/{id}', AccountController::class.':show');
     $this->put('/accounts/{id}', AccountController::class.':update');
     $this->delete('/accounts/{id}', AccountController::class.':delete');
-});
+})->add($routeMiddlewares);

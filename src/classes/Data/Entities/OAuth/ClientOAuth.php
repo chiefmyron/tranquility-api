@@ -5,10 +5,10 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\OAuth\HashableFieldOAuth as HashableFieldOAuth;
-use Tranquility\Data\Repositories\OAuthRepository as OAuthRepository;
+use Tranquility\Data\Entities\OAuth\HashableFieldOAuth;
+use Tranquility\Data\Repositories\OAuth\ClientOAuthRepository;
 
-class ClientOAuthEntity extends HashableFieldOAuth {
+class ClientOAuth extends HashableFieldOAuth {
     // Entity properties
     private $id;
     private $clientIdentifier;
@@ -21,6 +21,10 @@ class ClientOAuthEntity extends HashableFieldOAuth {
         'clientSecret',
         'redirectUri'
     );
+
+    public function getPublicFields() {
+        return $this->entityPublicFields;
+    }
 
     private function _getId() {
         return $this->id;
@@ -64,7 +68,7 @@ class ClientOAuthEntity extends HashableFieldOAuth {
 
         // Define table name
         $builder->setTable('sys_auth_clients');
-        $builder->setCustomRepositoryClass(OAuthRepository::class);
+        $builder->setCustomRepositoryClass(ClientOAuthRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();

@@ -1,9 +1,9 @@
 <?php namespace Tranquility\Data\Repositories\OAuth;
 
+use Doctrine\ORM\EntityRepository;
 use OAuth2\Storage\ClientCredentialsInterface;
-use Tranquility\Data\Repositories\AbstractRepository;
 
-class ClientOAuthRepository extends AbstractRepository implements ClientCredentialsInterface {
+class ClientOAuthRepository extends EntityRepository implements ClientCredentialsInterface {
     public function getClientDetails($clientId) {
         $client = $this->findOneBy(['clientId' => $clientId]);
         if ($client) {
@@ -12,8 +12,8 @@ class ClientOAuthRepository extends AbstractRepository implements ClientCredenti
         return $client;
     }
 
-    public function checkClientCredentials($clientIdentifier, $clientSecret = null) {
-        $client = $this->findByOne(['clientId' => $clientId]);
+    public function checkClientCredentials($clientId, $clientSecret = null) {
+        $client = $this->findOneBy(['clientId' => $clientId]);
         if ($client) {
             return $client->verifyClientSecret($clientSecret);
         }

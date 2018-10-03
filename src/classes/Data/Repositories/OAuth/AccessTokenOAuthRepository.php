@@ -1,12 +1,13 @@
 <?php namespace Tranquility\Data\Repositories\OAuth;
 
+use Doctrine\ORM\EntityRepository;
 use OAuth2\Storage\AccessTokenInterface;
+
 use Tranquility\Data\Entities\OAuth\AccessTokenOAuth;
 use Tranquility\Data\Entities\OAuth\ClientOAuth;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
-use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
 
-class AccessTokenOAuthRepository extends BusinessObjectRepository implements AccessTokenInterface {
+class AccessTokenOAuthRepository extends EntityRepository implements AccessTokenInterface {
     public function getAccessToken($oauthToken) {
         $token = $this->findOneBy(['token' -> $oauthToken]);
         if ($token) {
