@@ -12,24 +12,20 @@ use Tranquility\Data\Repositories\OAuth\AccessTokenOAuthRepository;
 
 class AccessTokenOAuth extends AbstractEntity {
     // Entity properties
-    private $id;
-    private $token;
-    private $clientId;
-    private $userId;
-    private $expires;
-    private $scope;
-    private $client;
-    private $user;
+    protected $id;
+    protected $token;
+    protected $expires;
+    protected $scope;
+    protected $client;
+    protected $user;
 
     // Define the set of fields that are publically accessible
     private $entityPublicFields = array(
         'token',
-        'clientId',
-        'userId',
         'expires',
         'scope',
         'client',
-
+        'user'
     );
 
     public function getPublicFields() {
@@ -72,8 +68,8 @@ class AccessTokenOAuth extends AbstractEntity {
     public function toArray() {
         return [
             'token' => $this->token,
-            'clientId' => $this->clientId,
-            'userId' => $this->userId,
+            'clientId' => $this->client->id,
+            'userId' => $this->user->id,
             'expires' => $this->expires,
             'scope' => $this->scope
         ];
@@ -95,13 +91,11 @@ class AccessTokenOAuth extends AbstractEntity {
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
         $builder->addField('token', 'string');
-        $builder->addField('clientId', 'string');
-        $builder->addField('userId', 'string');
         $builder->addField('expires', 'datetime');
         $builder->addField('scope', 'string');
 
         // Define relationships
-        $builder->createManyToOne('client', ClientOAuth::class)->mappedBy('id')->build();
-        $builder->createManyToOne('user', UserBusinessObject::class)->mappedBy('id')->build();
+        $builder->createManyToOne('client', ClientOAuth::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('user', UserBusinessObject::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
     }
 }

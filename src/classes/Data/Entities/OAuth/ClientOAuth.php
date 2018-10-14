@@ -11,13 +11,13 @@ use Tranquility\Data\Repositories\OAuth\ClientOAuthRepository;
 class ClientOAuth extends HashableFieldOAuth {
     // Entity properties
     private $id;
-    private $clientIdentifier;
+    private $clientId;
     private $clientSecret;
     private $redirectUri;
 
     // Define the set of fields that are publically accessible
     private $entityPublicFields = array(
-        'clientIdentifier',
+        'clientId',
         'clientSecret',
         'redirectUri'
     );
@@ -30,8 +30,8 @@ class ClientOAuth extends HashableFieldOAuth {
         return $this->id;
     }
 
-    public function setClientIdentifier($clientIdentifier) {
-        $this->clientIdentifier = $clientIdentifier;
+    public function setClientId($clientId) {
+        $this->clientId = $clientId;
         return $this;
     }
 
@@ -51,7 +51,7 @@ class ClientOAuth extends HashableFieldOAuth {
 
     public function toArray() {
         return [
-            'clientId' => $this->clientIdentifier,
+            'clientId' => $this->clientId,
             'clientSecret' => $this->clientSecret,
             'redirectUri' => $this->redirectUri
         ];
@@ -72,7 +72,7 @@ class ClientOAuth extends HashableFieldOAuth {
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
-        $builder->addField('clientIdentifier', 'string');
+        $builder->addField('clientId', 'string');
         $builder->addField('clientSecret', 'string');
         $builder->addField('redirectUri', 'string');
     }

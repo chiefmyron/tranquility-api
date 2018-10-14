@@ -102,7 +102,16 @@ class InitialSeedData extends AbstractSeed {
             }
             fclose($handle);
         }
-        $table = $this->table('entity_users');
+        $table = $this->table('entity_users');  
+        $table->insert($records)->save();
+
+        // Generate OAuth Client record
+        $records = [];
+        $records[] = array(
+            'clientId' => 'test_client',
+            'clientSecret' => password_hash('password', PASSWORD_DEFAULT, ['cost' => 11])
+        );
+        $table = $this->table('sys_auth_clients');
         $table->insert($records)->save();
     }
 }

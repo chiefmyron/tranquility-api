@@ -69,4 +69,14 @@ class UserBusinessObject extends AbstractBusinessObject {
     public function getPassword() {
         return $this->password;
     }
+
+    public function verifyPassword($password) {
+        return password_verify($password, $this->password);
+    }
+
+    public function toArray() {
+        return [
+            'user_id' => $this->id
+        ];
+    }
 }

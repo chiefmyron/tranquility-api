@@ -264,55 +264,60 @@ class InitialSchema extends AbstractMigration {
         $table->create();
 
         // Authentication clients
-        $table = $this->table('sys_auth_clients', ['id' => false, 'primary_key' => 'client_id']);
-        $table->addColumn('client_id', 'string', ['length' => 80]);
-        $table->addColumn('client_secret', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('redirect_uri', 'text', ['length' => 2000, 'null' => 'true']);
-        $table->addColumn('grant_types', 'string', ['length' => 80, 'null' => 'true']);
+        $table = $this->table('sys_auth_clients', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'biginteger', ['identity' => true]);
+        $table->addColumn('clientId', 'string', ['length' => 80]);
+        $table->addColumn('clientSecret', 'string', ['length' => 80, 'null' => 'true']);
+        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
+        $table->addColumn('grantTypes', 'string', ['length' => 80, 'null' => 'true']);
         $table->addColumn('scope', 'text', ['length' => 4000, 'null' => 'true']);
-        $table->addColumn('user_id', 'string', ['length' => 80, 'null' => 'true']);
+        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
         $table->create();
 
         // Authentication access tokens
-        $table = $this->table('sys_auth_access_tokens', ['id' => false, 'primary_key' => 'access_token']);
-        $table->addColumn('access_token', 'string', ['length' => 40]);
-        $table->addColumn('client_id', 'string', ['length' => 80]);
-        $table->addColumn('user_id', 'string', ['length' => 80, 'null' => 'true']);
+        $table = $this->table('sys_auth_access_tokens', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'biginteger', ['identity' => true]);
+        $table->addColumn('token', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'string', ['length' => 80]);
+        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
         $table->addColumn('expires', 'timestamp');
         $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
         $table->create();
 
         // Authentication refresh tokens
-        $table = $this->table('sys_auth_refresh_tokens', ['id' => false, 'primary_key' => 'refresh_token']);
-        $table->addColumn('refresh_token', 'string', ['length' => 40]);
-        $table->addColumn('client_id', 'string', ['length' => 80]);
-        $table->addColumn('user_id', 'string', ['length' => 80, 'null' => 'true']);
+        $table = $this->table('sys_auth_refresh_tokens', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'biginteger', ['identity' => true]);
+        $table->addColumn('token', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'string', ['length' => 80]);
+        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
         $table->addColumn('expires', 'timestamp');
         $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
         $table->create();
 
         // Authentication authorisation codes
-        $table = $this->table('sys_auth_authorisation_codes', ['id' => false, 'primary_key' => 'authorisation_code']);
-        $table->addColumn('authorisation_code', 'string', ['length' => 40]);
-        $table->addColumn('client_id', 'string', ['length' => 80]);
-        $table->addColumn('user_id', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('redirect_uri', 'text', ['length' => 2000, 'null' => 'true']);
+        $table = $this->table('sys_auth_authorisation_codes', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'biginteger', ['identity' => true]);
+        $table->addColumn('authorisationCode', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'string', ['length' => 80]);
+        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
+        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
         $table->addColumn('expires', 'timestamp');
         $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
-        $table->addColumn('id_token', 'string', ['length' => 1000, 'null' => 'true']);
+        $table->addColumn('idToken', 'string', ['length' => 1000, 'null' => 'true']);
         $table->create();
 
         // Authentication scopes
-        $table = $this->table('sys_auth_scopes', ['id' => false, 'primary_key' => 'scope']);
+        $table = $this->table('sys_auth_scopes', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'biginteger', ['identity' => true]);
         $table->addColumn('scope', 'string', ['length' => 80]);
-        $table->addColumn('is_default', 'boolean');
+        $table->addColumn('isDefault', 'boolean');
         $table->create();
 
         // Authentication JSON Web Tokens (JWT)
         $table = $this->table('sys_auth_jwt', ['id' => false]);
-        $table->addColumn('client_id', 'string', ['length' => 80]);
+        $table->addColumn('clientId', 'string', ['length' => 80]);
         $table->addColumn('subject', 'string', ['length' => 80, 'null' =>'true']);
-        $table->addColumn('public_key', 'text', ['length' => 2000]);
+        $table->addColumn('publicKey', 'text', ['length' => 2000]);
         $table->create();
     }
 }

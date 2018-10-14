@@ -17,18 +17,19 @@ class AccessTokenOAuthRepository extends EntityRepository implements AccessToken
         return $token;
     }
 
-    public function setAccessToken($oauthToken, $clientId, $username, $expires, $scope = null) {
+    public function setAccessToken($oauthToken, $clientId, $userId, $expires, $scope = null) {
         $client = $this->_em->getRepository(ClientOAuth::class)->findOneBy(['clientId' => $clientId]);
-        $user = $this->_em->getRepository(UserBusinessObject::class)->findOneBy(['username' => $username]);
+        $user = $this->_em->getRepository(UserBusinessObject::class)->findOneBy(['id' => $userId]);
 
         // Generate and store token
-        $token = AccessTokenOAuth::fromArray([
+        $tokenDetails = [
             'token' => $oauthToken,
             'client' => $client,
             'user' => $user,
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
-        ]);
+        ];
+        $token = new AccessTokenOAuth($tokenDetails);
         $this->_em->persist($token);
         $this->_em->flush();
     }
