@@ -297,13 +297,12 @@ class InitialSchema extends AbstractMigration {
         // Authentication authorisation codes
         $table = $this->table('sys_auth_authorisation_codes', ['id' => false, 'primary_key' => 'id']);
         $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('authorisationCode', 'string', ['length' => 40]);
+        $table->addColumn('code', 'string', ['length' => 40]);
         $table->addColumn('clientId', 'string', ['length' => 80]);
         $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
         $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
         $table->addColumn('expires', 'timestamp');
         $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
-        $table->addColumn('idToken', 'string', ['length' => 1000, 'null' => 'true']);
         $table->create();
 
         // Authentication scopes

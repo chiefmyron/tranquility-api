@@ -15,7 +15,7 @@ use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
  */
 class AuthenticationMiddleware extends AbstractMiddleware {
     // OAuth server instance
-    private $_server;
+    private $server;
 
     public function __construct($server) {
         $this->server = $server;
