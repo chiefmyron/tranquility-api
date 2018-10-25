@@ -42,27 +42,19 @@ class AccessTokenOAuth extends AbstractEntity {
         return $this;
     }
 
-    public function setClientId($clientId) {
-        $this->clientId = $clientId;
-        return $this;
-    }
-
     public function setUser(UserBusinessObject $user = null) {
         $this->user = $user;
         return $this;
     }
 
-    public function setUserId($userId) {
-        $this->userId = $userId;
+    public function setExpires($expires) {
+        $this->expires = $expires;
         return $this;
     }
 
-    public function setExpires($expires) {
-        return $this->expires = $expires;
-    }
-
     public function setScope($scope) {
-        return $this->scope = $scope;
+        $this->scope = $scope;
+        return $this;
     }
 
     public function toArray() {

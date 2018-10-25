@@ -26,10 +26,6 @@ class ClientOAuth extends HashableFieldOAuth {
         return $this->entityPublicFields;
     }
 
-    private function _getId() {
-        return $this->id;
-    }
-
     public function setClientId($clientId) {
         $this->clientId = $clientId;
         return $this;

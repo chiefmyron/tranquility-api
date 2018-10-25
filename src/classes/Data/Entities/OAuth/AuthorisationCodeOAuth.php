@@ -74,12 +74,6 @@ class AuthorisationCodeOAuth extends AbstractEntity {
         ];
     }
 
-    public static function fromArray($params) {
-        $code = new self();
-        $code->populate($params);
-        return $code;
-    }
-
     /**
      * Metadata used to define object relationship to database
      *
