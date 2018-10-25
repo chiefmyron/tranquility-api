@@ -9,7 +9,7 @@ use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
 
 class AccessTokenOAuthRepository extends EntityRepository implements AccessTokenInterface {
     public function getAccessToken($oauthToken) {
-        $token = $this->findOneBy(['token' -> $oauthToken]);
+        $token = $this->findOneBy(['token' => $oauthToken]);
         if ($token) {
             $token = $token->toArray();
             $token['expires'] = $token['expires']->getTimestamp();

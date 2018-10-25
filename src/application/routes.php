@@ -16,7 +16,6 @@ use Tranquility\Controllers\AccountController as AccountController;
 $app->post('/v1/auth/token', AuthController::class.':token');
 
 // Version 1 API route group (authenticated)
-$routeMiddlewares = [AuthenticationMiddleware::class, JsonApiDocumentFormatMiddleware::class];
 $app->group('/v1', function() {
     // User resource
     $this->get('/users', UserController::class.':list')->setName('users-list');
@@ -38,4 +37,5 @@ $app->group('/v1', function() {
     $this->get('/accounts/{id}', AccountController::class.':show');
     $this->put('/accounts/{id}', AccountController::class.':update');
     $this->delete('/accounts/{id}', AccountController::class.':delete');
-})->add($routeMiddlewares);
+})->add(AuthenticationMiddleware::class)
+  ->add(JsonApiDocumentFormatMiddleware::class);

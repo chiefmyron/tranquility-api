@@ -68,8 +68,8 @@ class AccessTokenOAuth extends AbstractEntity {
     public function toArray() {
         return [
             'token' => $this->token,
-            'clientId' => $this->client->id,
-            'userId' => $this->user->id,
+            'client_id' => $this->client->clientId,  // Key needs to be in underscore format for OAuth library
+            'user_id' => $this->user->id,            // Key needs to be in underscore format for OAuth library
             'expires' => $this->expires,
             'scope' => $this->scope
         ];

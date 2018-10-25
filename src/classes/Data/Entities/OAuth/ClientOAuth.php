@@ -10,10 +10,10 @@ use Tranquility\Data\Repositories\OAuth\ClientOAuthRepository;
 
 class ClientOAuth extends HashableFieldOAuth {
     // Entity properties
-    private $id;
-    private $clientId;
-    private $clientSecret;
-    private $redirectUri;
+    protected $id;
+    protected $clientId;
+    protected $clientSecret;
+    protected $redirectUri;
 
     // Define the set of fields that are publically accessible
     private $entityPublicFields = array(
