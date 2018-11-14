@@ -8,6 +8,7 @@ use OAuth2\GrantType\AuthorizationCode;
 use OAuth2\GrantType\RefreshToken;
 
 // Tranquility OAuth entities
+use Tranquility\Resources\AuthResource;
 use Tranquility\Data\Entities\OAuth\ClientOAuth;
 use Tranquility\Data\Entities\OAuth\AccessTokenOAuth;
 use Tranquility\Data\Entities\OAuth\RefreshTokenOAuth;
@@ -58,8 +59,10 @@ class AuthenticationService extends AbstractService {
 
         // Register authentication middleware with the container
         $container[AuthenticationMiddleware::class] = function($c) {
+            $em = $c->get('em');
             $server = $c->get(Server::class);
-            return new AuthenticationMiddleware($server);
+            $resource = new AuthResource($c->get('em'));
+            return new AuthenticationMiddleware($server, $resource);
         };
     }
 }

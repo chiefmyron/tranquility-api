@@ -26,7 +26,13 @@ class UserController extends AbstractController {
     public function create($request, $response, $args) {
         // Get data from request
         $data = $this->parseRequestBody($request);
-        $user = $this->resource->create($data);
+
+        // Construct audit trail for this request
+        $audit = $request->getAttribute('audit');
+        $audit->updateReason = 'testing';
+
+        // Attempt to create the user entity
+        $user = $this->resource->create($data, $audit);
         if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);

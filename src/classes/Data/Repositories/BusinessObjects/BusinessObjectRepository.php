@@ -1,8 +1,10 @@
 <?php namespace Tranquility\Data\Repositories\BusinessObjects;
 
+// Tranquility data entities
 use Tranquility\Data\Repositories\AbstractRepository;
-use Tranquility\Data\Entities\Extensions\TagExtension        as Tag;
-use Tranquility\Data\Entities\Extensions\AuditTrailExtension as AuditTrail;
+use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
+use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
+use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 class BusinessObjectRepository extends AbstractRepository {
 
@@ -26,21 +28,27 @@ class BusinessObjectRepository extends AbstractRepository {
     }
     
     /**
-     * Creates a new entity record
+     * Creates a new business object entity record
      * 
-     * @param  array  $data  Input data to create the record
-     * @return \Tranquility\Data\Entities\Entity
+     * @param  array       $data   Input data to create the record
+     * @param  AuditTrail  $audit  Audit trail object
+     * @return BusinessObject
      */
-    public function create(array $data) {
-		// Create new audit trail record
-		$auditTrail = new AuditTrail($data);
-        $this->_em->persist($auditTrail);
+    public function create(array $data, AuditTrail $audit = null) {
+        // Audit trail information is mandatory when creating a BusinessObject entity
+        if (is_null($audit)) {
+            throw \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
+        }
+        
+        // Create new audit trail record
+        $this->_em->persist($audit);
         
         // Create new entity record, with the audit trail attached
         $entityName = $this->getEntityName();
         $entity = new $entityName($data);
         $entity->version = 1; // Force version for new records to be 1
-        $entity->setAuditTrail($auditTrail);
+        $entity->audit = $audit;
+        //$entity->setAuditTrail($auditTrail);
         $this->_em->persist($entity);
         $this->_em->flush();
 		
@@ -52,11 +60,17 @@ class BusinessObjectRepository extends AbstractRepository {
      * Updates an existing entity record, and moves the old version of the record
      * into a historical table
      *
-     * @param int   $id    Business object entity ID
-     * @param array $data  Updated values to apply to the entity
-     * @return \Tranquility\Data\BusinessObjects\Entity
+     * @param  int         $id     Business object entity ID
+     * @param  array       $data   Updated values to apply to the entity
+     * @param  AuditTrail  $audit  Audit trail object
+     * @return BusinessObject
      */ 
-    public function update($id, array $data) {
+    public function update($id, array $data, AuditTrail $audit = null) {
+        // Audit trail information is mandatory when creating a BusinessObject entity
+        if (is_null($audit)) {
+            throw \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
+        }
+
         // Retrieve existing record
         $entity = $this->find($id);
         $entityName = $this->getEntityName();
@@ -68,15 +82,16 @@ class BusinessObjectRepository extends AbstractRepository {
         $this->_em->persist($historicalEntity);
         
         // Create new audit trail record
-		$auditTrail = new AuditTrail($data);
-        $this->_em->persist($auditTrail);
+		//$auditTrail = new AuditTrail($data);
+        $this->_em->persist($audit);
         
         // Update existing entity record with new details, incremented version number
         // and new audit trail details
         unset($data['version']);  // Ensure passed data does not override internal versioning
         $entity->populate($data);
         $entity->version = ($entity->version + 1);
-        $entity->setAuditTrail($auditTrail);
+        //$entity->setAuditTrail($auditTrail);
+        $entity->audit = $audit;
         $this->_em->persist($entity);
         $this->_em->flush();
         
@@ -87,21 +102,28 @@ class BusinessObjectRepository extends AbstractRepository {
     /**
 	 * Logically delete an existing entity record
 	 *
-	 * @param int   $id    Entity ID of the record to delete
-	 * @param array 
+	 * @param  int   $id    Entity ID of the record to delete
+     * @param  AuditTrail  $audit  Audit trail object
+	 * @return BusinessObject
 	 */
-	public function delete($id, array $data) {
+    
+	public function delete($id, AuditTrail $audit = null) {
+        // Audit trail information is mandatory when creating a BusinessObject entity
+        if (is_null($audit)) {
+            throw \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
+        }
+        
         // Add deleted flag to data array
-        $data['deleted'] = 1;
-        return $this->update($id, $data);
+        $data = array('deleted' => 1);
+        return $this->update($id, $data, $audit);
 	}
     
     /**
      * Associate a tag with the entity
      *
-     * @param int $id  Business object entity ID
-     * @param Tag $tag Tag to associate
-     * @return \Tranquility\Data\BusinessObjects\Entity
+     * @param  int  $id   Business object entity ID
+     * @param  Tag  $tag  Tag to associate
+     * @return BusinessObject
      */ 
     public function addTag($id, $tag) {
         Log::info('Adding tag "'.$tag.'" to entity ID '.$id);
@@ -118,9 +140,9 @@ class BusinessObjectRepository extends AbstractRepository {
     /**
      * Disassociate a tag from an entity
      *
-     * @param int $id  Business object entity ID
-     * @param Tag $tag Tag to disassociate
-     * @return \Tranquility\Data\BusinessObjects\Entity
+     * @param  int  $id   Business object entity ID
+     * @param  Tag  $tag  Tag to disassociate
+     * @return BusinessObject
      */ 
     public function removeTag($id, $tag) {
         Log::info('Removing tag "'.$tag.'" from entity ID '.$id);
@@ -137,9 +159,9 @@ class BusinessObjectRepository extends AbstractRepository {
     /**
      * Sets the list of tags to be associated with an entity
      * 
-     * @param int   $id             Business object entity ID
-     * @param array $tagCollection  Array of Tag objects to associate
-     * @return \Tranquility\Data\BusinessObjects\Entity
+     * @param  int    $id             Business object entity ID
+     * @param  array  $tagCollection  Array of Tag objects to associate
+     * @return BusinessObject
      */
     public function setTags($id, array $tagCollection) {
         // Retrieve existing record

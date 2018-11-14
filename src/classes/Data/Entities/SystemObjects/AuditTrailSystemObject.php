@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\Entities\Extensions;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -6,22 +6,23 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
+use Tranquility\Data\Entities\OAuth\ClientOAuth as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class AuditTrailExtension extends AbstractExtension {
+class AuditTrailSystemObject extends AbstractSystemObject {
     // Entity properties
     protected $transactionId;
-    protected $transactionSource;
-    protected $updateUserId;
-    protected $updateDateTime;
+    protected $client;
+    protected $user;
+    protected $timestamp;
     protected $updateReason;
 
     // Define the set of fields that are publically accessible
     protected $publicFields = array(
         'transactionId',
-        'transactionSource',
-        'updateUserId',
-        'updateDateTime',
+        'user',
+        'client',
+        'timestamp',
         'updateReason'
     );
 
@@ -47,11 +48,11 @@ class AuditTrailExtension extends AbstractExtension {
         
         // Define fields
         $builder->createField('transactionId', 'integer')->isPrimaryKey()->generatedValue()->build();
-        $builder->addField('transactionSource', 'string');
-        $builder->addField('updateDateTime', 'datetime');
+        $builder->addField('timestamp', 'datetime');
         $builder->addField('updateReason', 'string');
         
         // Add relationships
-        $builder->createOneToOne('updateUserId', User::class)->addJoinColumn('updateUserId','id')->build();
+        $builder->createOneToOne('user', User::class)->addJoinColumn('user', 'id')->build();
+        $builder->createOneToOne('client', Client::class)->addJoinColumn('client', 'id')->build();
     }
 }

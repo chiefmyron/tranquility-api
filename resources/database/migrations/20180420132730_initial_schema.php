@@ -250,9 +250,9 @@ class InitialSchema extends AbstractMigration {
         // Audit trail
         $table = $this->table('sys_trans_audit', ['id' => false, 'primary_key' => 'transactionId']);
         $table->addColumn('transactionId', 'biginteger', ['identity' => true]);
-        $table->addColumn('transactionSource', 'string', ['length' => 100]);
-        $table->addColumn('updateUserId', 'biginteger');
-        $table->addColumn('updateDateTime', 'datetime');
+        $table->addColumn('client', 'string', ['length' => 100]);
+        $table->addColumn('user', 'biginteger');
+        $table->addColumn('timestamp', 'datetime');
         $table->addColumn('updateReason', 'string', ['length' => 100]);
         $table->create();
 

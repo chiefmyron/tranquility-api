@@ -5,12 +5,12 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity classes
+use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-use Tranquility\Data\Entities\Extensions\AuditTrailExtension as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
 abstract class AbstractBusinessObject extends AbstractEntity {
@@ -23,7 +23,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     protected $locks;
 
     // Related extension data objects
-    protected $auditTrail;
+    protected $audit;
     protected $tagCollection;
 
     // Define the set of fields that are publically accessible
@@ -47,12 +47,6 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         // Set values for valid properties
         parent::__construct($data, $options);
 
-        // Add audit trail details
-        if (count($data) > 0) {
-            $auditTrail = new AuditTrail($data);
-            $this->setAuditTrail($auditTrail);
-        }
-        
         // Ensure version and deleted properties are initialised
         if (!isset($this->version)) {
             $this->version = 1;
@@ -65,15 +59,16 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     /**
      * Set the audit trail details for an entity
      *
-     * @param $auditTrail \Tranquility\Data\Entities\Extensions\AuditTrailExtension
+     * @param AuditTrail $audit
      * @return void
      */
-    public function setAuditTrail($auditTrail) {
-        if (!($auditTrail instanceof AuditTrail)) {
+    //public function setAuditTrail($auditTrail) {
+    protected function _setAudit($audit) {
+        if (!($audit instanceof AuditTrail)) {
             throw new \Exception('Audit trail information must be provided as a Tranquility\Data\Entities\Extensions\AuditTrailExtension object');
         }
         
-        $this->auditTrail = $auditTrail;
+        $this->audit = $audit;
     }
     
     /**
@@ -81,8 +76,9 @@ abstract class AbstractBusinessObject extends AbstractEntity {
      *
      * @return Tranquility\Data\Entities\Extensions\AuditTrailExtension
      */
-    protected function getAuditTrail() {
-        return $this->auditTrail;
+    //protected function getAuditTrail() {
+    protected function _getAudit() {
+        return $this->audit;
     }
 
     /** 
@@ -121,7 +117,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         $builder->addField('deleted', 'boolean');
         
         // Add relationships
-        $builder->createOneToOne('auditTrail', AuditTrail::class)->addJoinColumn('transactionId','transactionId')->build();
+        $builder->createOneToOne('audit', AuditTrail::class)->addJoinColumn('transactionId','transactionId')->build();
         //$builder->createManyToMany('tags', Tag::class)->inversedBy('entities')->setJoinTable('entity_tags_xref')->addJoinColumn('entityId', 'id')->addInverseJoinColumn('tagId', 'id')->build();
         //$builder->createManyToMany('relatedEntities', BusinessObject::class)->setJoinTable('entity_entity_xref')->addJoinColumn('parentId', 'id')->addInverseJoinColumn('childId', 'id')->build();
     }

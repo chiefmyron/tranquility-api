@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\EntityExtensions;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -7,10 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
 use Tranquility\Data\Entities\AbstractEntity as Entity;
-use Tranquility\Data\Repositories\EntityExtensionRepository as EntityExtensionRepository;
+use Tranquility\Data\Repositories\SystemObjectRepository as SystemObjectRepository;
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 
-class TagEntityExtension extends AbstractEntityExtension {
+class TagSystemObject extends AbstractSystemObject {
     // Entity properties
     protected $id;
     protected $text;
@@ -83,7 +83,7 @@ class TagEntityExtension extends AbstractEntityExtension {
         
         // Define table name
         $builder->setTable('ext_tags');
-        $builder->setCustomRepositoryClass(EntityExtensionRepository::class);
+        $builder->setCustomRepositoryClass(SystemObjectRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();

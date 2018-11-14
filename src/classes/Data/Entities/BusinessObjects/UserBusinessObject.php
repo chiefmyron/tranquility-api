@@ -34,6 +34,24 @@ class UserBusinessObject extends AbstractBusinessObject {
         'securityGroupId',
         'registeredDateTime'
     );
+
+    /**
+     * Create a new instance of the entity
+     *
+     * @var array $data     [Optional] Initial values for entity fields
+     * @var array $options  [Optional] Configuration options for the object
+     * @return void
+     */
+    public function __construct($data = array(), $options = array()) {
+        // Perform initial entity construction
+        parent::__construct($data, $options);
+
+        // If the password has been provided, set property value now
+        // Not handled as part of default construction as password should not be a public field
+        if (isset($data['password'])) {
+            $this->password = $data['password'];
+        }
+    }
     
     /**
      * Metadata used to define object relationship to database
@@ -59,21 +77,47 @@ class UserBusinessObject extends AbstractBusinessObject {
         
         // Add relationships
         //$builder->createOneToOne('person', Person::class)->mappedBy('user')->build();
-        //$builder->createOneToMany('userTokens', UserToken::class)->mappedBy('user')->build();
     }
 
+    /** 
+     * Retrieves the set of publically accessible fields for the entity
+     * 
+     * @return array
+     */
     public function getPublicFields() {
         return array_merge($this->entityPublicFields, $this->publicFields);
     }
 
+    /**
+     * Get the password for the user. 
+     * NOTE: Required for OAuth implementation.
+     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     *
+     * @return string
+     */
     public function getPassword() {
         return $this->password;
     }
 
+    /**
+     * Verify that the supplied plaintext password matches the hashed password for this user
+     * NOTE: Required for OAuth implementation
+     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     *
+     * @param string $password Plaintext password
+     * @return boolean
+     */
     public function verifyPassword($password) {
         return password_verify($password, $this->password);
     }
 
+    /**
+     * Array representation of the User object
+     * NOTE: Required for OAuth implementation
+     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     *
+     * @return array
+     */
     public function toArray() {
         return [
             'user_id' => $this->id

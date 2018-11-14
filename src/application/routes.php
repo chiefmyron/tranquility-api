@@ -4,6 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 
 // Tranquility route-specific middlewares
 use Tranquility\Middlewares\AuthenticationMiddleware;
+use Tranquility\Middlewares\JsonContentTypeMiddleware;
 use Tranquility\Middlewares\JsonApiDocumentFormatMiddleware;
 
 // Tranquility controllers
@@ -15,8 +16,15 @@ use Tranquility\Controllers\AccountController as AccountController;
 // Version 1 API routes (unauthenticated)
 $app->post('/v1/auth/token', AuthController::class.':token');
 
+// Version 1 API route group (authenticated) middleware
+$routeGroupMiddlewares = [
+    AuthenticationMiddleware::class,
+    JsonApiDocumentFormatMiddleware::class,
+    JsonContentTypeMiddleware::class
+];
+
 // Version 1 API route group (authenticated)
-$app->group('/v1', function() {
+$routeGroup = $app->group('/v1', function() {
     // User resource
     $this->get('/users', UserController::class.':list')->setName('users-list');
     $this->post('/users', UserController::class.':create');
@@ -37,5 +45,9 @@ $app->group('/v1', function() {
     $this->get('/accounts/{id}', AccountController::class.':show');
     $this->put('/accounts/{id}', AccountController::class.':update');
     $this->delete('/accounts/{id}', AccountController::class.':delete');
-})->add(AuthenticationMiddleware::class)
-  ->add(JsonApiDocumentFormatMiddleware::class);
+});
+
+// Apply middleware to route group
+foreach ($routeGroupMiddlewares as $middleware) {
+    $routeGroup->add($middleware);
+}

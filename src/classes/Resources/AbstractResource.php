@@ -7,7 +7,7 @@ use Valitron\Validator as Validator;
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility data entities
-use \Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
@@ -47,11 +47,11 @@ abstract class AbstractResource {
      */
     public function registerValidationRules() {
         // Define standard validation rules that are required for all entities
-        $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'required',     'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        /*$this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'required',     'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'updateDateTime',    'ruleType' => 'dateFormat',   'message' => MessageCodes::ValidationInvalidDateTimeFormat, 'params' => ['Y-m-d H:i:s']);
         $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'required',     'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'transactionSource', 'ruleType' => 'in',           'message' => MessageCodes::ValidationInvalidTransactionSource, 'params' => [TransactionSourceEnum::getValues()]);
-        $this->validationRuleGroups['default'][] = array('field' => 'updateUserId'     , 'ruleType' => 'entityExists', 'message' => MessageCodes::ValidationInvalidAuditTrailUser, 'params' => [User::class]);
+        $this->validationRuleGroups['default'][] = array('field' => 'updateUserId'     , 'ruleType' => 'entityExists', 'message' => MessageCodes::ValidationInvalidAuditTrailUser, 'params' => [User::class]);*/
     }
 
     /**
@@ -101,6 +101,8 @@ abstract class AbstractResource {
 
         // Perform the validation
         $result = $validator->validate();
+
+        // If validation fails, create the error response
         if ($result === false) {
             $errors = $validator->errors();
             $errorCollection = array();
@@ -123,6 +125,8 @@ abstract class AbstractResource {
             }
             return $errorCollection;
         }
+
+        // Validation has passed, return true
         return true;
     }
 
@@ -186,7 +190,7 @@ abstract class AbstractResource {
     }
     
     /**
-     * Find a single entity by a specified field
+     * Find one or more entities by a specified field
      *
      * @param  string  $fieldName   Name of the field to search against
      * @param  string  $fieldValue  Value for entity search
@@ -196,17 +200,33 @@ abstract class AbstractResource {
         $searchOptions = array($fieldName => $fieldValue);
 
         // Retrieve entity from repository
-        $entity = $this->getRepository()->findBy($searchOptions);
+        $entities = $this->getRepository()->findBy($searchOptions);
+		return $entities;
+    }
+
+    /**
+     * Find a single entity by a specified field
+     *
+     * @param  string  $fieldName   Name of the field to search against
+     * @param  string  $fieldValue  Value for entity search
+     * @return Tranquility\Data\Entities\AbstractEntity
+     */
+	public function findOneBy($fieldName, $fieldValue) {
+        $searchOptions = array($fieldName => $fieldValue);
+
+        // Retrieve entity from repository
+        $entity = $this->getRepository()->findOneBy($searchOptions);
 		return $entity;
     }
     
     /**
      * Create a new record for an entity
      * 
-     * @var  array  $data  Data used to create the new entity record
+     * @var  array       $data   Data used to create the new entity record
+     * @var  AuditTrail  $audit  Audit trail object 
      * @return Tranquility\Data\Entities\AbstractEntity
      */
-    public function create(array $data) {
+    public function create(array $data, AuditTrail $audit) {
         // Get input attributes from data
         $attributes = $data['attributes'];
 
@@ -215,7 +235,7 @@ abstract class AbstractResource {
         $result = $this->validate($attributes, $validationRuleGroups);
         if ($result === true) {
             // Data is valid - create the entity
-            $entity = $this->getRepository()->create($attributes);
+            $entity = $this->getRepository()->create($attributes, $audit);
             return $entity;
         } else {
             // Data is not valid - return error messages
@@ -226,17 +246,18 @@ abstract class AbstractResource {
     /**
      * Update an existing record for the specified entity
      * 
-     * @var  int    $id    Record ID for the entity to update
-     * @var  array  $data  New data to update against the existing record
+     * @var  int         $id     Record ID for the entity to update
+     * @var  array       $data   New data to update against the existing record
+     * @var  AuditTrail  $audit  Audit trail object 
      * @return  Tranquility\Data\Entities\AbstractEntity
      */
-    public function update(int $id, array $data) {
+    public function update(int $id, array $data, AuditTrail $audit) {
         // Validate input
         $validationRuleGroups = array('default', 'update');
         $result = $this->validate($data, $validationRuleGroups);
         if ($result === true) {
             // Data is valid - update the entity
-            $entity = $this->getRepository()->update($id, $data);
+            $entity = $this->getRepository()->update($id, $data, $audit);
             return $entity;
         } else {
             // Data is not valid - return error messages
@@ -249,15 +270,16 @@ abstract class AbstractResource {
      * 
      * @var  int    $id    Record ID for the entity to delete
      * @var  array  $data  Audit trail details to be attached to the deleted record
+     * @var  AuditTrail  $audit  Audit trail object 
      * @return boolean
      */
-    public function delete(int $id, array $data) {
+    public function delete(int $id, array $data, AuditTrail $audit) {
         // Validate input
         $validationRuleGroups = array('default', 'delete');
         $result = $this->validate($data, $validationRuleGroups);
         if ($result === true) {
             // Data is valid - delete the entity
-            $entity = $this->getRepository()->delete($id, $data);
+            $entity = $this->getRepository()->delete($id, $data, $audit);
             return $entity;
         } else {
             // Data is not valid - return error messages

@@ -49,10 +49,6 @@ class AbstractController {
         // Get body from request
         $body = $request->getParsedBody();
         $data = $body['data'];
-
-        // Inject system-generated audit trail values
-        $data['attributes']['updateUserId'] = 1;  // TODO: Implement authorisation and use current user object here
-        $data['attributes']['updateDateTime'] = Carbon::now();
         return $data;
     }
 

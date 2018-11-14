@@ -1,7 +1,12 @@
 <?php namespace Tranquility\Data\Repositories;
 
+// ORM class libraries
 use \Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
 
+// Tranquility data entities
+use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+
+// Tranquility class libraries
 use \Tranquility\Support\ArrayHelper as Arr;
 
 abstract class AbstractRepository extends \Doctrine\ORM\EntityRepository {
@@ -41,27 +46,30 @@ abstract class AbstractRepository extends \Doctrine\ORM\EntityRepository {
     /**
      * Creates a new record
      * 
-     * @param array $data  Input data to create the record
+     * @param  array       $data   Input data to create the record
+     * @param  AuditTrail  $audit  Audit trail object
      * @return mixed
      */
-    abstract function create(array $data);
+    abstract function create(array $data, AuditTrail $audit = null);
     
     /**
      * Updates an existing record
      *
-     * @param int   $id    Record ID
-     * @param array $data  Updated values to apply to the entity
+     * @param  int         $id     Record ID
+     * @param  array       $data   Updated values to apply to the entity
+     * @param  AuditTrail  $audit  Audit trail object
      * @return mixed
      */ 
-    abstract function update($id, array $data);
+    abstract function update($id, array $data, AuditTrail $audit = null);
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param int   $id    Entity ID of the record to delete
-	 * @param mixed
+	 * @param  int         $id     Entity ID of the record to delete
+     * @param  AuditTrail  $audit  Audit trail object
+	 * @return mixed
 	 */
-    abstract function delete($id, array $data);
+    abstract function delete($id, AuditTrail $audit = null);
     
     /**
 	 * Used to add additional query conditions, ordering and set limits to a selection query

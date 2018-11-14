@@ -1,12 +1,12 @@
 <?php namespace Tranquility\Data\Repositories;
 
-class EntityExtensionRepository extends AbstractRepository {
+class SystemObjectRepository extends AbstractRepository {
 
     /**
      * Creates a new entity extension record
      * 
      * @param  array  $data  Input data to create the record
-     * @return \Tranquility\Data\Entities\Extensions\AbstractEntityExtension
+     * @return Tranquility\Data\Entities\SystemObjects\AbstractSystemObject
      */
     public function create(array $data) {
         // Create new entity extension record
@@ -24,7 +24,7 @@ class EntityExtensionRepository extends AbstractRepository {
      *
      * @param int   $id    Business object entity ID
      * @param array $data  Updated values to apply to the entity
-     * @return \Tranquility\Data\Entities\Extensions\AbstractEntityExtension
+     * @return Tranquility\Data\Entities\SystemObjects\AbstractSystemObject
      */ 
     public function update($id, array $data) {
         // Retrieve existing record

@@ -17,8 +17,12 @@ class AuthenticationMiddleware extends AbstractMiddleware {
     // OAuth server instance
     private $server;
 
-    public function __construct($server) {
+    // Authentication resource
+    private $resource;
+
+    public function __construct($server, $resource) {
         $this->server = $server;
+        $this->resource = $resource;
     }
 
     /**
@@ -31,17 +35,19 @@ class AuthenticationMiddleware extends AbstractMiddleware {
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function __invoke($request, $response, $next) {
-        $server = $this->server;
         $req = OAuthRequest::createFromGlobals();
 
-        if ($server->verifyResourceRequest($req) != true) {
-            $server->getResponse()->send();
+        if ($this->server->verifyResourceRequest($req) != true) {
+            $this->server->getResponse()->send();
             exit();
         }
 
         // Store the username for the authenticated user in the request
-        $token = $server->getAccessTokenData($req);
-        $request = $request->withAttribute('username', $token['user_id']);
+        $token = $this->server->getAccessTokenData($req);
+
+        // Add audit trail details to the request
+        $audit = $this->resource->generateAuditTrail($token);
+        $request = $request->withAttribute('audit', $audit);
         return $next($request, $response);
     }
 }
