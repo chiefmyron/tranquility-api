@@ -9,10 +9,10 @@ use OAuth2\GrantType\RefreshToken;
 
 // Tranquility OAuth entities
 use Tranquility\Resources\AuthResource;
-use Tranquility\Data\Entities\OAuth\ClientOAuth;
-use Tranquility\Data\Entities\OAuth\AccessTokenOAuth;
-use Tranquility\Data\Entities\OAuth\RefreshTokenOAuth;
-use Tranquility\Data\Entities\OAuth\AuthorisationCodeOAuth;
+use Tranquility\Data\Entities\SystemObjects\OAuthAccessTokenSystemObject;
+use Tranquility\Data\Entities\SystemObjects\OAuthAuthorisationCodeSystemObject;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject;
+use Tranquility\Data\Entities\SystemObjects\OAuthRefreshTokenSystemObject;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
 
 // Tranquility middlewares
@@ -32,11 +32,11 @@ class AuthenticationService extends AbstractService {
         $container[Server::class] = function($c) {
             // Get entities used to represent OAuth objects
             $em = $c->get('em');
-            $clientStorage = $em->getRepository(ClientOAuth::class);
+            $clientStorage = $em->getRepository(OAuthClientSystemObject::class);
             $userStorage = $em->getRepository(UserBusinessObject::class);
-            $accessTokenStorage = $em->getRepository(AccessTokenOAuth::class);
-            $refreshTokenStorage = $em->getRepository(RefreshTokenOAuth::class);
-            $authorisationCodeStorage = $em->getRepository(AuthorisationCodeOAuth::class);
+            $accessTokenStorage = $em->getRepository(OAuthAccessTokenSystemObject::class);
+            $refreshTokenStorage = $em->getRepository(OAuthRefreshTokenSystemObject::class);
+            $authorisationCodeStorage = $em->getRepository(OAuthAuthorisationCodeSystemObject::class);
 
             // Create OAuth2 server
             $storage = [

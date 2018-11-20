@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\OAuth\ClientOAuth as Client;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class AuditTrailSystemObject extends AbstractSystemObject {

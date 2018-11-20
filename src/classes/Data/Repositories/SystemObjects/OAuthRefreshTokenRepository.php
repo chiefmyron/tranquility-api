@@ -1,13 +1,17 @@
-<?php namespace Tranquility\Data\Repositories\OAuth;
+<?php namespace Tranquility\Data\Repositories\SystemObjects;
 
+// ORM class libraries
 use Doctrine\ORM\EntityRepository;
+
+// OAuth2 server libraries
 use OAuth2\Storage\RefreshTokenInterface;
 
-use Tranquility\Data\Entities\OAuth\RefreshTokenOAuth;
-use Tranquility\Data\Entities\OAuth\ClientOAuth;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
+// Tranquility class libraries
+use Tranquility\Data\Entities\SystemObjects\OAuthRefreshTokenSystemObject as RefreshToken;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class RefreshTokenOAuthRepository extends EntityRepository implements RefreshTokenInterface {
+class OAuthRefreshTokenRepository extends EntityRepository implements RefreshTokenInterface {
     public function getRefreshToken($refreshToken) {
         $token = $this->findOneBy(['token' => $refreshToken]);
         if ($token) {
@@ -18,8 +22,8 @@ class RefreshTokenOAuthRepository extends EntityRepository implements RefreshTok
     }
 
     public function setRefreshToken($refreshToken, $clientId, $userId, $expires, $scope = null) {
-        $client = $this->_em->getRepository(ClientOAuth::class)->findOneBy(['clientId' => $clientId]);
-        $user = $this->_em->getRepository(UserBusinessObject::class)->findOneBy(['id' => $userId]);
+        $client = $this->_em->getRepository(Client::class)->findOneBy(['clientId' => $clientId]);
+        $user = $this->_em->getRepository(User::class)->findOneBy(['id' => $userId]);
 
         // Generate and store token
         $tokenDetails = [
@@ -29,7 +33,7 @@ class RefreshTokenOAuthRepository extends EntityRepository implements RefreshTok
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
         ];
-        $token = new RefreshTokenOAuth($tokenDetails);
+        $token = new RefreshToken($tokenDetails);
         $this->_em->persist($token);
         $this->_em->flush();
     }

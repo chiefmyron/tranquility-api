@@ -35,8 +35,8 @@ class UserResource extends AbstractResource {
         $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'integer', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
 
         // Validation rules for a User that should be run when creating the entity
+        $this->validationRuleGroups['create'][] = array('field' => 'username', 'ruleType' => 'uniqueUsername', 'params' => [], 'message' => MessageCodes::ValidationUsernameInUse);
         $this->validationRuleGroups['create'][] = array('field' => 'password', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        // TODO: Check username is unique
         // TODO: Check password strength
     }
 

@@ -1,9 +1,9 @@
-<?php namespace Tranquility\Data\Repositories\OAuth;
+<?php namespace Tranquility\Data\Repositories\BusinessObjects;
 
+// OAuth2 server libraries
 use OAuth2\Storage\UserCredentialsInterface;
-use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
 
-class UserOAuthRepository extends BusinessObjectRepository implements UserCredentialsInterface {
+class UserBusinessObjectRepository extends BusinessObjectRepository implements UserCredentialsInterface {
     public function getUserDetails($username) {
         $user = $this->findOneBy(['username' => $username]);
         if ($user) {

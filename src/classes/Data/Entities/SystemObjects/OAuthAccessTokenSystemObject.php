@@ -1,16 +1,17 @@
-<?php namespace Tranquility\Data\Entities\OAuth;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\AbstractEntity;
-use Tranquility\Data\Entities\OAuth\ClientOAuth;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
-use Tranquility\Data\Repositories\OAuth\RefreshTokenOAuthRepository;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class RefreshTokenOAuth extends AbstractEntity {
+// Entity repository
+use Tranquility\Data\Repositories\SystemObjects\OAuthAccessTokenRepository;
+
+class OAuthAccessTokenSystemObject extends AbstractSystemObject {
     // Entity properties
     protected $id;
     protected $token;
@@ -59,7 +60,7 @@ class RefreshTokenOAuth extends AbstractEntity {
 
     public function toArray() {
         return [
-            'refresh_token' => $this->token,
+            'token' => $this->token,
             'client_id' => $this->client->clientId,  // Key needs to be in underscore format for OAuth library
             'user_id' => $this->user->id,            // Key needs to be in underscore format for OAuth library
             'expires' => $this->expires,
@@ -77,8 +78,8 @@ class RefreshTokenOAuth extends AbstractEntity {
         $builder = new ClassMetadataBuilder($metadata);
 
         // Define table name
-        $builder->setTable('sys_auth_refresh_tokens');
-        $builder->setCustomRepositoryClass(RefreshTokenOAuthRepository::class);
+        $builder->setTable('sys_auth_access_tokens');
+        $builder->setCustomRepositoryClass(OAuthAccessTokenRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
@@ -87,7 +88,7 @@ class RefreshTokenOAuth extends AbstractEntity {
         $builder->addField('scope', 'string');
 
         // Define relationships
-        $builder->createManyToOne('client', ClientOAuth::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
-        $builder->createManyToOne('user', UserBusinessObject::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('client', Client::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('user', User::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
     }
 }

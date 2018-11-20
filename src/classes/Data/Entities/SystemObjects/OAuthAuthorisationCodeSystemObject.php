@@ -1,39 +1,42 @@
-<?php namespace Tranquility\Data\Entities\OAuth;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\AbstractEntity;
-use Tranquility\Data\Entities\OAuth\ClientOAuth;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
-use Tranquility\Data\Repositories\OAuth\AccessTokenOAuthRepository;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class AccessTokenOAuth extends AbstractEntity {
+// Entity repository
+use Tranquility\Data\Repositories\SystemObjects\OAuthAuthorisationCodeRepository;
+
+class OAuthAuthorisationCodeSystemObject extends AbstractSystemObject {
     // Entity properties
     protected $id;
-    protected $token;
-    protected $expires;
-    protected $scope;
+    protected $code;
     protected $client;
     protected $user;
+    protected $expires;
+    protected $redirectUri;
+    protected $scope;
 
     // Define the set of fields that are publically accessible
     private $entityPublicFields = array(
-        'token',
-        'expires',
-        'scope',
+        'code',
         'client',
-        'user'
+        'user',
+        'expires',
+        'redirectUri',
+        'scope'
     );
 
     public function getPublicFields() {
         return $this->entityPublicFields;
     }
 
-    public function setToken($token) {
-        $this->token = $token;
+    public function setCode($code) {
+        $this->code = $code;
         return $this;
     }
 
@@ -52,6 +55,11 @@ class AccessTokenOAuth extends AbstractEntity {
         return $this;
     }
 
+    public function setRedirectUri($redirectUri) {
+        $this->redirectUri = $redirectUri;
+        return $this;
+    }
+
     public function setScope($scope) {
         $this->scope = $scope;
         return $this;
@@ -59,7 +67,7 @@ class AccessTokenOAuth extends AbstractEntity {
 
     public function toArray() {
         return [
-            'token' => $this->token,
+            'code' => $this->code,
             'client_id' => $this->client->clientId,  // Key needs to be in underscore format for OAuth library
             'user_id' => $this->user->id,            // Key needs to be in underscore format for OAuth library
             'expires' => $this->expires,
@@ -77,17 +85,18 @@ class AccessTokenOAuth extends AbstractEntity {
         $builder = new ClassMetadataBuilder($metadata);
 
         // Define table name
-        $builder->setTable('sys_auth_access_tokens');
-        $builder->setCustomRepositoryClass(AccessTokenOAuthRepository::class);
+        $builder->setTable('sys_auth_authorisation_codes');
+        $builder->setCustomRepositoryClass(OAuthAuthorisationCodeRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
-        $builder->addField('token', 'string');
+        $builder->addField('code', 'string');
         $builder->addField('expires', 'datetime');
         $builder->addField('scope', 'string');
+        $builder->addField('redirectUri', 'string');
 
         // Define relationships
-        $builder->createManyToOne('client', ClientOAuth::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
-        $builder->createManyToOne('user', UserBusinessObject::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('client', Client::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('user', User::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
     }
 }

@@ -23,6 +23,7 @@ class MessageCodeEnum extends AbstractEnum {
     const ValidationFormInputsInvalid = '10006';
     const ValidationInvalidAuditTrailUser = '10007';
     const ValidationInvalidUserCredentials = '10008';
+    const ValidationUsernameInUse = '10009';
 
 	private static $_messageDetails = array(
         // Generic form validation messages
@@ -34,7 +35,8 @@ class MessageCodeEnum extends AbstractEnum {
         //self::ValidationMismatchedPasswordValues => array('type' => 'field',  'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10005_mismatched_passwords', 'detailMessage' => ''),  // This should be done by the client
         self::ValidationFormInputsInvalid => array('type' => 'header', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10006_form_validation_failed', 'detailMessage' => ''),
         self::ValidationInvalidAuditTrailUser => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10007_invalid_update_by_user', 'detailMessage' => ''),
-        self::ValidationInvalidUserCredentials => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10008_invalid_user_credentials', 'detailMessage' => '')
+        self::ValidationInvalidUserCredentials => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10008_invalid_user_credentials', 'detailMessage' => ''),
+        self::ValidationUsernameInUse => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10009_username_already_in_use', 'detailMessage' => '')
 	);
 	
 	/**

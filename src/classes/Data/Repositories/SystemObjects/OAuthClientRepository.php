@@ -1,9 +1,12 @@
-<?php namespace Tranquility\Data\Repositories\OAuth;
+<?php namespace Tranquility\Data\Repositories\SystemObjects;
 
+// ORM class libraries
 use Doctrine\ORM\EntityRepository;
+
+// OAuth2 server libraries
 use OAuth2\Storage\ClientCredentialsInterface;
 
-class ClientOAuthRepository extends EntityRepository implements ClientCredentialsInterface {
+class OAuthClientRepository extends EntityRepository implements ClientCredentialsInterface {
     public function getClientDetails($clientId) {
         $client = $this->findOneBy(['clientId' => $clientId]);
         if ($client) {

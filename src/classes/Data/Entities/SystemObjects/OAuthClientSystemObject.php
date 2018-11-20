@@ -1,14 +1,13 @@
-<?php namespace Tranquility\Data\Entities\OAuth;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
-use Tranquility\Data\Entities\OAuth\HashableFieldOAuth;
-use Tranquility\Data\Repositories\OAuth\ClientOAuthRepository;
+use Tranquility\Data\Repositories\SystemObjects\OAuthClientRepository;
 
-class ClientOAuth extends HashableFieldOAuth {
+class OAuthClientSystemObject extends OAuthAbstractHashableField {
     // Entity properties
     protected $id;
     protected $clientId;
@@ -64,7 +63,7 @@ class ClientOAuth extends HashableFieldOAuth {
 
         // Define table name
         $builder->setTable('sys_auth_clients');
-        $builder->setCustomRepositoryClass(ClientOAuthRepository::class);
+        $builder->setCustomRepositoryClass(OAuthClientRepository::class);
         
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();

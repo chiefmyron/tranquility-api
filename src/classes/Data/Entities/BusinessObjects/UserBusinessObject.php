@@ -5,8 +5,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity repository
-use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
-use Tranquility\Data\Repositories\OAuth\UserOAuthRepository;
+use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
 
 class UserBusinessObject extends AbstractBusinessObject {
 
@@ -64,7 +63,7 @@ class UserBusinessObject extends AbstractBusinessObject {
         
         // Define table name
         $builder->setTable('entity_users');
-        $builder->setCustomRepositoryClass(UserOAuthRepository::class);
+        $builder->setCustomRepositoryClass(UserBusinessObjectRepository::class);
         
         // Define fields
         $builder->addField('username', 'string');
@@ -91,7 +90,7 @@ class UserBusinessObject extends AbstractBusinessObject {
     /**
      * Get the password for the user. 
      * NOTE: Required for OAuth implementation.
-     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
      *
      * @return string
      */
@@ -102,7 +101,7 @@ class UserBusinessObject extends AbstractBusinessObject {
     /**
      * Verify that the supplied plaintext password matches the hashed password for this user
      * NOTE: Required for OAuth implementation
-     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
      *
      * @param string $password Plaintext password
      * @return boolean
@@ -114,7 +113,7 @@ class UserBusinessObject extends AbstractBusinessObject {
     /**
      * Array representation of the User object
      * NOTE: Required for OAuth implementation
-     * @see Tranquility\Data\Repositories\OAuth\UserOAuthRepository
+     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
      *
      * @return array
      */

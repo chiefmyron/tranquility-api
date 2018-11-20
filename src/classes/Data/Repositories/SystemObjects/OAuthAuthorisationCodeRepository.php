@@ -1,13 +1,17 @@
-<?php namespace Tranquility\Data\Repositories\OAuth;
+<?php namespace Tranquility\Data\Repositories\SystemObjects;
 
+// ORM class libraries
 use Doctrine\ORM\EntityRepository;
+
+// OAuth2 server libraries
 use OAuth2\Storage\AuthorizationCodeInterface;
 
-use Tranquility\Data\Entities\OAuth\AuthorisationCodeOAuth;
-use Tranquility\Data\Entities\OAuth\ClientOAuth;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
+// Tranquility class libraries
+use Tranquility\Data\Entities\SystemObjects\OAuthAuthorisationCodeSystemObject as AuthorisationCode;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class AuthorisationCodeOAuthRepository extends EntityRepository implements AuthorizationCodeInterface {
+class OAuthAuthorisationCodeRepository extends EntityRepository implements AuthorizationCodeInterface {
     public function getAuthorizationCode($code) {
         $authCode = $this->findOneBy(['code' => $code]);
         if ($authCode) {
@@ -18,8 +22,8 @@ class AuthorisationCodeOAuthRepository extends EntityRepository implements Autho
     }
 
     public function setAuthorizationCode($code, $clientId, $userId, $redirectUri, $expires, $scope = null) {
-        $client = $this->_em->getRepository(ClientOAuth::class)->findOneBy(['clientId' => $clientId]);
-        $user = $this->_em->getRepository(UserBusinessObject::class)->findOneBy(['id' => $userId]);
+        $client = $this->_em->getRepository(Client::class)->findOneBy(['clientId' => $clientId]);
+        $user = $this->_em->getRepository(User::class)->findOneBy(['id' => $userId]);
 
         // Generate and store authorisation code
         $authCodeDetails = [
@@ -30,7 +34,7 @@ class AuthorisationCodeOAuthRepository extends EntityRepository implements Autho
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
         ];
-        $authCode = new AuthorisationCodeOAuth($authCodeDetails);
+        $authCode = new AuthorisationCode($authCodeDetails);
         $this->_em->persist($authCode);
         $this->_em->flush();
     }

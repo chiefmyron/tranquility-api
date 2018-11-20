@@ -5,6 +5,7 @@ use Valitron\Validator;
 
 // Custom validation classes
 use Tranquility\Validators\EntityExistsValidator;
+use Tranquility\Validators\UniqueUsernameValidator;
 
 class ValidationService extends AbstractService {
     /**
@@ -19,5 +20,6 @@ class ValidationService extends AbstractService {
 
         // Register custom validation rules with the main validation class
         Validator::addRule('entityExists', [new EntityExistsValidator($em), 'validate'], "Error occurred in EntityExistsValidator class.");
+        Validator::addRule('uniqueUsername', [new UniqueUsernameValidator($em), 'validate'], "Error occurred in UniqueUsernameValidator class.");
     }
 }

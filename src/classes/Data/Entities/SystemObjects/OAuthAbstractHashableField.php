@@ -1,9 +1,6 @@
-<?php namespace Tranquility\Data\Entities\OAuth;
+<?php namespace Tranquility\Data\Entities\SystemObjects;
 
-// Tranquility class libraries
-use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-
-abstract class HashableFieldOAuth extends AbstractEntity {
+abstract class OAuthAbstractHashableField extends AbstractSystemObject {
     protected $hashOptions = ['cost' => 11];
 
     protected function hashField($value) {

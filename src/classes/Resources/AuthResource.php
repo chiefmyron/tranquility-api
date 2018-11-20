@@ -7,8 +7,8 @@ use Carbon\Carbon;
 use \Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility data entities
-use Tranquility\Data\Entities\OAuth\ClientOAuth as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
