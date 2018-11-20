@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 // Tranquility data entities
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\ReferenceDataObjects\TimezoneReferenceDataObject as TimezoneReferenceData;
+use Tranquility\Data\Entities\ReferenceDataObjects\LocaleReferenceDataObject as LocaleReferenceData;
 
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
@@ -26,9 +28,9 @@ class UserResource extends AbstractResource {
         // Common validation rules for a User entity
         $this->validationRuleGroups['default'][] = array('field' => 'username', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'timezoneCode', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        // TODO: Check timezone code is a valid value
+        $this->validationRuleGroups['default'][] = array('field' => 'timezoneCode', 'ruleType' => 'referenceDataCode', 'params' => [TimezoneReferenceData::class], 'message' => MessageCodes::ValidationInvalidCodeValue);
         $this->validationRuleGroups['default'][] = array('field' => 'localeCode', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        // TODO: Check locale code is a valid value
+        $this->validationRuleGroups['default'][] = array('field' => 'localeCode', 'ruleType' => 'referenceDataCode', 'params' => [LocaleReferenceData::class], 'message' => MessageCodes::ValidationInvalidCodeValue);
         $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'active', 'ruleType' => 'boolean', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'securityGroupId', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);

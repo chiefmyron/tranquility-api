@@ -1,15 +1,16 @@
 <?php namespace Tranquility\Data\Repositories;
 
 // ORM class libraries
-use \Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
+use Doctrine\ORM\EntityRepository as EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
 
 // Tranquility data entities
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
-use \Tranquility\Support\ArrayHelper as Arr;
+use Tranquility\Support\ArrayHelper as Arr;
 
-abstract class AbstractRepository extends \Doctrine\ORM\EntityRepository {
+abstract class AbstractRepository extends EntityRepository {
 
     /**
      * Retrieve a set of all records
