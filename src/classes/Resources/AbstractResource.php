@@ -104,26 +104,7 @@ abstract class AbstractResource {
 
         // If validation fails, create the error response
         if ($result === false) {
-            $errors = $validator->errors();
-            $errorCollection = array();
-            foreach ($errors as $field => $messages) {
-                foreach ($messages as $code) {
-                    // Get message details for error code
-                    $messageDetails = MessageCodes::getMessageDetails($code);
-
-                    // Build JSON API compliant error                     
-                    $errorDetail = array();
-                    $errorDetail['source'] = ["pointer" => "/data/attributes/".$field];
-                    $errorDetail['status'] = $messageDetails['httpStatusCode'];
-                    $errorDetail['code'] = $code;
-                    $errorDetail['title'] = $messageDetails['titleMessage'];
-                    if ($messageDetails['detailMessage'] != '') {
-                        $errorDetail['detail'] = $messageDetails['detailMessage'];
-                    }
-                    $errorCollection[] = $errorDetail;
-                }
-            }
-            return $errorCollection;
+            return $validator->errors();
         }
 
         // Validation has passed, return true
@@ -186,7 +167,7 @@ abstract class AbstractResource {
 	 * @return Tranquility\Data\Entities\AbstractEntity
 	 */
 	public function find($id) {
-        return $this->findBy('id', $id);
+        return $this->findOneBy('id', $id);
     }
     
     /**
@@ -199,8 +180,14 @@ abstract class AbstractResource {
 	public function findBy($fieldName, $fieldValue) {
         $searchOptions = array($fieldName => $fieldValue);
 
-        // Retrieve entity from repository
+        // Retrieve entity collection from repository
         $entities = $this->getRepository()->findBy($searchOptions);
+
+        // If no entity found, generate error response
+        if (count($entities) <= 0) {
+            $entity = $this->buildNotFoundErrorResponse($fieldValue);
+        }
+
 		return $entities;
     }
 
@@ -216,6 +203,13 @@ abstract class AbstractResource {
 
         // Retrieve entity from repository
         $entity = $this->getRepository()->findOneBy($searchOptions);
+
+        // If no entity found, generate error response
+        if (is_null($entity)) {
+            return $this->buildNotFoundErrorResponse($fieldValue);
+        }
+
+        // Return entity
 		return $entity;
     }
     
@@ -233,14 +227,15 @@ abstract class AbstractResource {
         // Validate input
         $validationRuleGroups = array('default', 'create');
         $result = $this->validate($attributes, $validationRuleGroups);
-        if ($result === true) {
-            // Data is valid - create the entity
-            $entity = $this->getRepository()->create($attributes, $audit);
-            return $entity;
-        } else {
-            // Data is not valid - return error messages
-            return $result;
+
+        // If there were errors during validation, return them now
+        if ($result !== true) {
+            return $this->buildValidationErrorResponse($result);
         }
+
+        // Data is valid - create the entity
+        $entity = $this->getRepository()->create($attributes, $audit);
+        return $entity;
     }
 
     /**
@@ -255,14 +250,15 @@ abstract class AbstractResource {
         // Validate input
         $validationRuleGroups = array('default', 'update');
         $result = $this->validate($data, $validationRuleGroups);
-        if ($result === true) {
-            // Data is valid - update the entity
-            $entity = $this->getRepository()->update($id, $data, $audit);
-            return $entity;
-        } else {
-            // Data is not valid - return error messages
-            return $result;
+
+        // If there were errors during validation, return them now
+        if ($result !== true) {
+            return $this->buildValidationErrorResponse($result);
         }
+
+        // Data is valid - update the entity
+        $entity = $this->getRepository()->update($id, $data, $audit);
+        return $entity;
     }
 
     /**
@@ -277,14 +273,15 @@ abstract class AbstractResource {
         // Validate input
         $validationRuleGroups = array('default', 'delete');
         $result = $this->validate($data, $validationRuleGroups);
-        if ($result === true) {
-            // Data is valid - delete the entity
-            $entity = $this->getRepository()->delete($id, $data, $audit);
-            return $entity;
-        } else {
-            // Data is not valid - return error messages
-            return $result;
+
+        // If there were errors during validation, return them now
+        if ($result !== true) {
+            return $this->buildValidationErrorResponse($result);
         }
+
+        // Data is valid - delete the entity
+        $entity = $this->getRepository()->delete($id, $data, $audit);
+        return $entity;
     }
 
     /**
@@ -294,5 +291,60 @@ abstract class AbstractResource {
      */
     protected function getRepository() {
         return $this->entityManager->getRepository($this->getEntityClassname());
+    }
+
+    /**
+     * Build up array structure representing a 'Record not found' error
+     *
+     * @param int $id Entity ID that cannot be found
+     * @return array
+     */
+    protected function buildNotFoundErrorResponse($id) {
+        $errorCollection = array();
+        $messageCode = MessageCodes::RecordNotFound;
+        $messageDetails = MessageCodes::getMessageDetails($messageCode);
+
+        // Add single error for the record not found
+        $errorDetail = array();
+        $errorDetail['id'] = $id;
+        $errorDetail['status'] = $messageDetails['httpStatusCode'];
+        $errorDetail['code'] = $messageCode;
+        $errorDetail['title'] = $messageDetails['titleMessage'];
+        if ($messageDetails['detailMessage'] != '') {
+            $errorDetail['detail'] = $messageDetails['detailMessage'];
+        }
+        $errorCollection[] = $errorDetail;
+
+        return $errorCollection;
+    }
+
+    /**
+     * Build up an array structure representing an 'Unprocessable entity' error 
+     * (i.e. a validation error)
+     *
+     * @param array $validationErrors The set of validation errors 
+     * @return array
+     */
+    protected function buildValidationErrorResponse(array $validationErrors) {
+        $errorCollection = array();
+        foreach ($validationErrors as $field => $messages) {
+            foreach ($messages as $code) {
+                // Get message details for error code
+                $messageDetails = MessageCodes::getMessageDetails($code);
+
+                // Build JSON API compliant error                     
+                $errorDetail = array();
+                $errorDetail['source'] = ["pointer" => "/data/attributes/".$field];
+                $errorDetail['status'] = $messageDetails['httpStatusCode'];
+                $errorDetail['code'] = $code;
+                $errorDetail['title'] = $messageDetails['titleMessage'];
+                if ($messageDetails['detailMessage'] != '') {
+                    $errorDetail['detail'] = $messageDetails['detailMessage'];
+                }
+                $errorCollection[] = $errorDetail;
+            }
+        }
+
+        return $errorCollection;
     }
 }

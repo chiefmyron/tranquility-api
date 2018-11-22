@@ -4,10 +4,15 @@
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
+// Tranquility class libraries
+use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+
 // Entity repository
 use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
 
 class UserBusinessObject extends AbstractBusinessObject {
+    // Entity type
+    protected $type = EntityTypeEnum::User;
 
     // Entity properties
     protected $username;

@@ -16,22 +16,20 @@ class UserTransformer extends AbstractEntityTransformer {
         $entitySchema = parent::transform($user);
 
         // Define additional schema entries for User entity
-        $userSchema = array (
+        $attributes = array (
             'username'           => $user->username,
             'timezoneCode'       => $user->timezoneCode,
             'localeCode'         => $user->localeCode,
             'active'             => (bool) $user->active,
             'securityGroupId'    => (int) $user->securityGroupId,
-            'registeredDateTime' => $user->registeredDateTime,
-            'links' => array(
-                array(
-                    'rel' => 'self',
-                    'uri' => '/users/'.$user->id
-                )
-            ),
+            'registeredDateTime' => $user->registeredDateTime
         );
+        $entitySchema = array_merge($entitySchema, $attributes);
+
+        // Add links for User entity
+        //$entitySchema['links']['self'] = '/users/'.$user->id;
 
         // Return unified schema
-        return array_merge($entitySchema, $userSchema);
+        return $entitySchema;
     }
 }
