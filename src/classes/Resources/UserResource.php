@@ -22,9 +22,6 @@ class UserResource extends AbstractResource {
      * @return void
      */
     public function registerValidationRules() {
-        // Include standard entity validation rules
-        parent::registerValidationRules();
-
         // Common validation rules for a User entity
         $this->validationRuleGroups['default'][] = array('field' => 'username', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
         $this->validationRuleGroups['default'][] = array('field' => 'timezoneCode', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
@@ -39,33 +36,64 @@ class UserResource extends AbstractResource {
         // Validation rules for a User that should be run when creating the entity
         $this->validationRuleGroups['create'][] = array('field' => 'username', 'ruleType' => 'uniqueUsername', 'params' => [], 'message' => MessageCodes::ValidationUsernameInUse);
         $this->validationRuleGroups['create'][] = array('field' => 'password', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
-        // TODO: Check password strength
+
+        // Validation rules for a User that should be run when updating the entity
+        $this->validationRuleGroups['update'][] = array('field' => 'id', 'ruleType' => 'entityExists', 'message' => MessageCodes::RecordNotFound, 'params' => [User::class]);
     }
 
     /**
      * Create a new record for a User entity. Requires special logic to hash the user's password securely.
      * 
-     * @var  array       $data   Data used to create the new entity record
-     * @var  AuditTrail  $audit  Audit trail object 
+     * @var  array  $payload  Data used to create the new entity record
      * @return Tranquility\Data\Entities\AbstractEntity
      */
-    public function create(array $data, AuditTrail $audit) {
+    public function create(array $payload) {
         // Get input attributes from data
-        $attributes = $data['attributes'];
+        $data = Utility::extractValue($payload, 'data', array());
+        $attributes = Utility::extractValue($data, 'attributes', array());
 
         // Replace plaintext password with hashed version
         $password = Utility::extractValue($attributes, 'password', '');
         if ($password !== '') {
             $hashOptions = ['cost' => 11];
             $passwordHash = password_hash($password, PASSWORD_DEFAULT, $hashOptions);
-            $data['attributes']['password'] = $passwordHash;
+            $attributes['password'] = $passwordHash;
+            $payload['data']['attributes']['password'] = $passwordHash;
         }
 
         // Set registered timestamp to the current date
-        $data['attributes']['registeredDateTime'] = Carbon::now();
+        $attributes['registeredDateTime'] = Carbon::now();
 
         // Continue with creating the entity
-        return parent::create($data, $audit);
+        $data['attributes'] = $attributes;
+        $payload['data'] = $data;
+        return parent::create($payload);
+    }
+
+    /**
+     * Update an existing record for the User entity. Requires special logic to update the user's password.
+     * 
+     * @var  int         $id     Record ID for the entity to update
+     * @var  array       $data   New data to update against the existing record
+     * @return  Tranquility\Data\Entities\AbstractEntity
+     */
+    public function update(int $id, array $payload) {
+        // Get input attributes from data
+        $data = Utility::extractValue($payload, 'data', array());
+        $attributes = Utility::extractValue($data, 'attributes', array());
+
+        // Replace plaintext password with hashed version
+        $password = Utility::extractValue($attributes, 'password', '');
+        if ($password !== '') {
+            $hashOptions = ['cost' => 11];
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT, $hashOptions);
+            $attributes['password'] = $passwordHash;
+        }
+
+        // Continue with updating the entity
+        $data['attributes'] = $attributes;
+        $payload['data'] = $data;
+        return parent::update($id, $payload);
     }
 
     /**

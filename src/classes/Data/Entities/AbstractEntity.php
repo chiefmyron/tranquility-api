@@ -89,6 +89,24 @@ abstract class AbstractEntity {
         return $this;
     }
 
+    /**
+     * Convert the entity to an associative array. Only public fields
+     * will be made available in the array
+     *
+     * @return array
+     */
+    public function toArray() {
+        $data = array();
+        $entityFields = $this->getPublicFields();
+        foreach ($entityFields as $field) {
+            if (isset($this->$field)) {
+                $data[$field] = $this->$field;
+            }
+        }
+
+        return $data;
+    }
+
     /** 
      * Retrieves the set of publically accessible fields for the entity
      * 

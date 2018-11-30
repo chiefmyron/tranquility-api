@@ -40,19 +40,6 @@ class AbstractController {
     }
 
     /**
-     * Extracts data payload from an incoming request and injects required audit trail information
-     *
-     * @param Slim\Http\Request $request
-     * @return array
-     */
-    protected function parseRequestBody($request) {
-        // Get body from request
-        $body = $request->getParsedBody();
-        $data = $body['data'];
-        return $data;
-    }
-
-    /**
      * Generates a JSON API response payload for a single error
      *
      * @param \Psr\Http\Message\ResponseInterface $response

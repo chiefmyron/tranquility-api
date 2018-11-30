@@ -1,9 +1,13 @@
 <?php namespace Tranquility\Middlewares;
 
+// Utility libraries
+use Carbon\Carbon;
+
 // OAuth2 server libraries
 use OAuth2\Request as OAuthRequest;
 
 // Tranquility class libraries
+use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 /**
@@ -17,12 +21,8 @@ class AuthenticationMiddleware extends AbstractMiddleware {
     // OAuth server instance
     private $server;
 
-    // Authentication resource
-    private $resource;
-
-    public function __construct($server, $resource) {
+    public function __construct($server) {
         $this->server = $server;
-        $this->resource = $resource;
     }
 
     /**
@@ -36,7 +36,6 @@ class AuthenticationMiddleware extends AbstractMiddleware {
      */
     public function __invoke($request, $response, $next) {
         $req = OAuthRequest::createFromGlobals();
-
         if ($this->server->verifyResourceRequest($req) != true) {
             $this->server->getResponse()->send();
             exit();
@@ -45,9 +44,15 @@ class AuthenticationMiddleware extends AbstractMiddleware {
         // Store the username for the authenticated user in the request
         $token = $this->server->getAccessTokenData($req);
 
-        // Add audit trail details to the request
-        $audit = $this->resource->generateAuditTrail($token);
-        $request = $request->withAttribute('audit', $audit);
+        // Update request with audit trail information in the 'meta' section
+        $body = $request->getParsedBody();
+        $meta = Utility::extractValue($body, 'meta', array());
+        $meta['user'] = Utility::extractValue($token, 'user_id', 0);
+        $meta['client'] = Utility::extractValue($token, 'client_id', 'invalid_client_id');
+        $body['meta'] = $meta;
+        $request = $request->withParsedBody($body);
+
+        // Move on to next middleware
         return $next($request, $response);
     }
 }

@@ -41,14 +41,11 @@ class UserController extends AbstractController {
 
     public function create($request, $response, $args) {
         // Get data from request
-        $data = $this->parseRequestBody($request);
-
-        // Construct audit trail for this request
-        $audit = $request->getAttribute('audit');
-        $audit->updateReason = 'testing';
+        $payload = $request->getParsedBody();
+        $payload['meta']['updateReason'] = 'user_create_new_record';
 
         // Attempt to create the user entity
-        $user = $this->resource->create($data, $audit);
+        $user = $this->resource->create($payload);
         if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
@@ -61,7 +58,17 @@ class UserController extends AbstractController {
     }
 
     public function update($request, $response, $args) {
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $payload = $request->getParsedBody();
+        $payload['meta']['updateReason'] = 'user_create_new_record';
 
+        // Attempt to update the user entity
+        $user = $this->resource->update($id, $payload);
+        if (!($user instanceof User)) {
+            // If a user was not created, generate error response
+            return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
+        }
     }
 
     public function delete($request, $response, $args) {

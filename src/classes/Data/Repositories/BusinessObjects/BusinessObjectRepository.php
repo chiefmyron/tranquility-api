@@ -2,6 +2,7 @@
 
 // Tranquility data entities
 use Tranquility\Data\Repositories\AbstractRepository;
+use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
 use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
@@ -48,7 +49,6 @@ class BusinessObjectRepository extends AbstractRepository {
         $entity = new $entityName($data);
         $entity->version = 1; // Force version for new records to be 1
         $entity->audit = $audit;
-        //$entity->setAuditTrail($auditTrail);
         $this->_em->persist($entity);
         $this->_em->flush();
 		
@@ -60,37 +60,37 @@ class BusinessObjectRepository extends AbstractRepository {
      * Updates an existing entity record, and moves the old version of the record
      * into a historical table
      *
-     * @param  int         $id     Business object entity ID
-     * @param  array       $data   Updated values to apply to the entity
-     * @param  AuditTrail  $audit  Audit trail object
+     * @param  AbstractEntity  $entity  The updated entity to persist
+     * @param  AuditTrail      $audit   Audit trail object
      * @return BusinessObject
      */ 
-    public function update($id, array $data, AuditTrail $audit = null) {
+    public function update(AbstractEntity $entity, AuditTrail $audit = null) {
         // Audit trail information is mandatory when creating a BusinessObject entity
         if (is_null($audit)) {
-            throw \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
+            throw new \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
         }
 
-        // Retrieve existing record
-        $entity = $this->find($id);
-        $entityName = $this->getEntityName();
-        
+        // Make sure that the entity supplied is a BusinessObject Entity
+        if (($entity instanceof BusinessObject) == false) {
+            throw new \Exception("The BusinessObjectRepository can only be used with a subclass of a BusinessObject entity");
+        }
+
+        // Get the current, unmodified version of the entity from the database
+        $existingEntity = $this->find($entity->id);
+
         // Create historical version of entity
+        $entityName = $this->getEntityName();
         $historyClassName = call_user_func($entityName.'::getHistoricalEntityClass');
-        $historicalEntity = new $historyClassName($entity);
-        $historicalEntity->setAuditTrail($entity->getAuditTrail());
+        $historicalEntity = new $historyClassName($existingEntity);
+        $historicalEntity->setAuditTrail($existingEntity->getAuditTrail());
         $this->_em->persist($historicalEntity);
         
         // Create new audit trail record
-		//$auditTrail = new AuditTrail($data);
         $this->_em->persist($audit);
         
         // Update existing entity record with new details, incremented version number
         // and new audit trail details
-        unset($data['version']);  // Ensure passed data does not override internal versioning
-        $entity->populate($data);
-        $entity->version = ($entity->version + 1);
-        //$entity->setAuditTrail($auditTrail);
+        $entity->version = ($historicalEntity->version + 1);
         $entity->audit = $audit;
         $this->_em->persist($entity);
         $this->_em->flush();
@@ -102,20 +102,15 @@ class BusinessObjectRepository extends AbstractRepository {
     /**
 	 * Logically delete an existing entity record
 	 *
-	 * @param  int   $id    Entity ID of the record to delete
-     * @param  AuditTrail  $audit  Audit trail object
-	 * @return BusinessObject
-	 */
+	 * @param  AbstractEntity  $entity  The updated entity to persist
+     * @param  AuditTrail      $audit   Audit trail object
+     * @return BusinessObject
+     */ 
     
-	public function delete($id, AuditTrail $audit = null) {
-        // Audit trail information is mandatory when creating a BusinessObject entity
-        if (is_null($audit)) {
-            throw \Exception("An AuditTrail object must be supplied when creating a BusinessObject entity");
-        }
-        
-        // Add deleted flag to data array
-        $data = array('deleted' => 1);
-        return $this->update($id, $data, $audit);
+	public function delete(AbstractEntity $entity, AuditTrail $audit = null) {
+        // Set the deleted flag on the entity and update
+        $entity->deleted = 1;
+        return $this->update($entity, $audit);
 	}
     
     /**

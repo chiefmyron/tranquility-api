@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityRepository as EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
 
 // Tranquility data entities
+use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
@@ -19,8 +20,8 @@ abstract class AbstractRepository extends EntityRepository {
      *
      * @param array $filterConditions
      * @param array $orderConditions
-     * @param int $resultsPerPage
-     * @param int $startRecordIndex
+     * @param int   $resultsPerPage
+     * @param int   $startRecordIndex
      * @return array
      */
     public function all($filterConditions = array(), $orderConditions = array(), $resultsPerPage = 0, $pageNumber = 0) {
@@ -47,30 +48,29 @@ abstract class AbstractRepository extends EntityRepository {
     /**
      * Creates a new record
      * 
-     * @param  array       $data   Input data to create the record
-     * @param  AuditTrail  $audit  Audit trail object
-     * @return mixed
+     * @param  array           $data   Input data to create the record
+     * @param  AuditTrail      $audit  Audit trail object
+     * @return AbstractEntity
      */
     abstract function create(array $data, AuditTrail $audit = null);
     
     /**
      * Updates an existing record
      *
-     * @param  int         $id     Record ID
-     * @param  array       $data   Updated values to apply to the entity
-     * @param  AuditTrail  $audit  Audit trail object
-     * @return mixed
+     * @param  AbstractEntity  $entity  The updated entity to persist
+     * @param  AuditTrail      $audit   Audit trail object
+     * @return AbstractEntity
      */ 
-    abstract function update($id, array $data, AuditTrail $audit = null);
+    abstract function update(AbstractEntity $entity, AuditTrail $audit = null);
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param  int         $id     Entity ID of the record to delete
-     * @param  AuditTrail  $audit  Audit trail object
-	 * @return mixed
+	 * @param  AbstractEntity  $entity  The entity to logically delete
+     * @param  AuditTrail      $audit   Audit trail object
+	 * @return AbstractEntity
 	 */
-    abstract function delete($id, AuditTrail $audit = null);
+    abstract function delete(AbstractEntity $entity, AuditTrail $audit = null);
     
     /**
 	 * Used to add additional query conditions, ordering and set limits to a selection query

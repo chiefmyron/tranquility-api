@@ -123,8 +123,8 @@ class UserBusinessObject extends AbstractBusinessObject {
      * @return array
      */
     public function toArray() {
-        return [
-            'user_id' => $this->id
-        ];
+        $data = parent::toArray();
+        $data['user_id'] = $this->id;
+        return $data;
     }
 }

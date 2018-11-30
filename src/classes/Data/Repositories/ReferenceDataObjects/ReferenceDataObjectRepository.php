@@ -2,6 +2,7 @@
 
 // Tranquility data entities
 use Tranquility\Data\Repositories\AbstractRepository;
+use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
 use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
@@ -14,7 +15,12 @@ class ReferenceDataObjectRepository extends AbstractRepository {
      * @param  string  $code  Reference data primary key code
      * @return AbstractReferenceDataObject 
      */
-    public function findByCode(string $code) {
+    public function findByCode($code) {
+        // If no code is provided, then return null immediately
+        if (is_null($code)) {
+            return null;
+        }
+
         // Start creation of query
         $entityName = $this->getEntityName();
         $queryBuilder = $this->_em->createQueryBuilder();
@@ -47,23 +53,22 @@ class ReferenceDataObjectRepository extends AbstractRepository {
     /**
      * Updates an existing record
      *
-     * @param  int         $id     Record ID
-     * @param  array       $data   Updated values to apply to the entity
-     * @param  AuditTrail  $audit  Audit trail object
-     * @return mixed
+     * @param  AbstractEntity  $entity  The updated entity to persist
+     * @param  AuditTrail      $audit   Audit trail object
+     * @return AbstractEntity
      */ 
-    public function update($id, array $data, AuditTrail $audit = null) {
+    public function update(AbstractEntity $entity, AuditTrail $audit = null) {
         throw new \Exception("ReferenceDataObjectRepository::update() not implemented.");
     }
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param  int         $id     Entity ID of the record to delete
-     * @param  AuditTrail  $audit  Audit trail object
-	 * @return mixed
+	 * @param  AbstractEntity  $entity  The entity to logically delete
+     * @param  AuditTrail      $audit   Audit trail object
+	 * @return AbstractEntity
 	 */
-    public function delete($id, AuditTrail $audit = null) {
+    public function delete(AbstractEntity $entity, AuditTrail $audit = null) {
         throw new \Exception("ReferenceDataObjectRepository::delete() not implemented.");
     }
 }
