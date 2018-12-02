@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\Entities\BusinessObjects;
+<?php namespace Tranquility\Data\Entities\HistoricalBusinessObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -6,14 +6,14 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity classes
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
-abstract class AbstractBusinessObject extends AbstractEntity {
+abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     // Entity properties
     protected $id;
     protected $version;
@@ -64,7 +64,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
      */
     protected function _setAudit($audit) {
         if (!($audit instanceof AuditTrail)) {
-            throw new \Exception('Audit trail information must be provided as a Tranquility\Data\Entities\Extensions\AuditTrailExtension object');
+            throw new \Exception('Audit trail information must be provided as a Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject entity');
         }
         
         $this->audit = $audit;
@@ -73,7 +73,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     /**
      * Retrieve audit trail details for the entity as an array
      *
-     * @return Tranquility\Data\Entities\Extensions\AuditTrailExtension
+     * @return AuditTrail
      */
     protected function _getAudit() {
         return $this->audit;
@@ -88,13 +88,6 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     abstract public function getPublicFields();
 
     /**
-     * Returns the name of the class used to model the historical records for this business object
-     *
-     * @return string
-     */
-    abstract public static function getHistoricalEntityClass();
-
-    /**
      * Metadata used to define object relationship to database
      *
      * @var \Doctrine\ORM\Mapping\ClassMetadata $metadata  Metadata to be passed to Doctrine
@@ -102,14 +95,13 @@ abstract class AbstractBusinessObject extends AbstractEntity {
      */
     public static function loadMetadata(ClassMetadata $metadata) {
         $builder = new ClassMetadataBuilder($metadata);
-        // Define table name
-        $builder->setTable('entity');
-        $builder->setCustomRepositoryClass(BusinessObjectRepository::class);
+        // Define table name (but use default Doctrine repository)
+        $builder->setTable('history_entity');
         
         // Define inheritence
         $builder->setJoinedTableInheritance();
         $builder->setDiscriminatorColumn('type');
-        $builder->addDiscriminatorMapClass(EntityTypeEnum::User, User::class);
+        $builder->addDiscriminatorMapClass(EntityTypeEnum::User, HistoricalUser::class);
 
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Person, Person::class);
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Account, Account::class);
@@ -117,8 +109,8 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::AddressPhysical, AddressPhysical::class);
         
         // Define fields
-        $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
-        $builder->addField('version', 'integer');
+        $builder->createField('id', 'integer')->isPrimaryKey()->build();
+        $builder->createField('version', 'integer')->isPrimaryKey()->build();
         $builder->addField('deleted', 'boolean');
         
         // Add relationships

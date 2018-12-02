@@ -52,7 +52,7 @@ abstract class AbstractRepository extends EntityRepository {
      * @param  AuditTrail      $audit  Audit trail object
      * @return AbstractEntity
      */
-    abstract function create(array $data, AuditTrail $audit = null);
+    abstract public function create(array $data, AuditTrail $audit = null);
     
     /**
      * Updates an existing record
@@ -61,7 +61,7 @@ abstract class AbstractRepository extends EntityRepository {
      * @param  AuditTrail      $audit   Audit trail object
      * @return AbstractEntity
      */ 
-    abstract function update(AbstractEntity $entity, AuditTrail $audit = null);
+    abstract public function update(AbstractEntity $entity, AuditTrail $audit = null);
     
     /**
 	 * Logically delete an existing record
@@ -70,8 +70,8 @@ abstract class AbstractRepository extends EntityRepository {
      * @param  AuditTrail      $audit   Audit trail object
 	 * @return AbstractEntity
 	 */
-    abstract function delete(AbstractEntity $entity, AuditTrail $audit = null);
-    
+    abstract public function delete(AbstractEntity $entity, AuditTrail $audit = null);
+
     /**
 	 * Used to add additional query conditions, ordering and set limits to a selection query
 	 *

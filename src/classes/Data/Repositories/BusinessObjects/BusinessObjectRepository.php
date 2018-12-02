@@ -77,12 +77,13 @@ class BusinessObjectRepository extends AbstractRepository {
 
         // Get the current, unmodified version of the entity from the database
         $existingEntity = $this->find($entity->id);
+        $existingAuditTrail = $existingEntity->audit;
 
         // Create historical version of entity
         $entityName = $this->getEntityName();
         $historyClassName = call_user_func($entityName.'::getHistoricalEntityClass');
         $historicalEntity = new $historyClassName($existingEntity);
-        $historicalEntity->setAuditTrail($existingEntity->getAuditTrail());
+        $historicalEntity->audit = $existingAuditTrail;
         $this->_em->persist($historicalEntity);
         
         // Create new audit trail record

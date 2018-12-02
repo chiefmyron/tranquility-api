@@ -45,20 +45,23 @@ abstract class AbstractResource {
     }
 
     /**
-     * Registers the validation rules that are specific to this entity.
-     * 
-     * @abstract
-     * @return void
-     */
-    abstract public function registerValidationRules();
-
-    /**
      * Returns the classname for the Entity object associated with this instance of the resource
      * 
      * @abstract
      * @return string
      */
     abstract public function getEntityClassname();
+
+    /**
+     * Registers the validation rules that are common to all entities.
+     * 
+     * @return void
+     */
+    public function registerValidationRules() {
+        // Common validation rules for all entities
+        // TODO: Validation to prevent user setting values for audit trail fields and deleted flag
+        return;
+    }
 
     /**
      * Validate a data array against the defined rules for the resource

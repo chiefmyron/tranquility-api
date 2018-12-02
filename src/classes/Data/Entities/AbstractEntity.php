@@ -12,11 +12,8 @@ abstract class AbstractEntity {
      * @return void
      */
     public function __construct($data = array(), $options = array()) {
-        // Set values for valid properties
-        if (count($data) > 0) {
-            // Populate common entity data
-            $this->populate($data);
-        }
+        // Populate common entity data
+        $this->populate($data);
     }
 
     /**
@@ -59,6 +56,26 @@ abstract class AbstractEntity {
             }
         } else {
             throw new \Exception('Cannot set property - class "'.get_class($this).'" does not have a property named "'.$name.'"');
+        }
+    }
+
+    /**
+     * Checks to see if a value has been set for an entity field
+     */
+    public function __isset($name) {
+        $methodName = '_get'.ucfirst($name);
+        if (method_exists($this, $methodName)) {
+            // Check to see if the value returned from the custom getter is null
+            $value = $this->{$methodName}();
+            if (is_null($value)) {
+                return false;
+            } else {
+                return true;
+            }
+        } elseif (in_array($name, $this->getPublicFields())){
+            return isset($this->name);
+        } else {
+            return false;
         }
     }
 

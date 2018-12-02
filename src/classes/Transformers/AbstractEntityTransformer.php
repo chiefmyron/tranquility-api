@@ -8,6 +8,7 @@ class AbstractEntityTransformer extends TransformerAbstract {
         // Build attribute collection
         $attributes = array();
         $attributes['id']      = (int) $entity->id;
+        $attributes['type']    = $this->type;
         $attributes['version'] = (int) $entity->version;
         $attributes['deleted'] = (bool) $entity->deleted;
         $attributes['locks']   = $entity->locks;

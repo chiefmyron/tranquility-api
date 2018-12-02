@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\Entities\BusinessObjects;
+<?php namespace Tranquility\Data\Entities\HistoricalBusinessObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -9,13 +9,12 @@ use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 
 // Entity repository
-use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
-use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\Data\Repositories\BusinessObjects\HistoricalBusinessObjectRepository;
 
-class UserBusinessObject extends AbstractBusinessObject {
+class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Entity type
     protected $type = EntityTypeEnum::User;
-    protected static $historicalEntityClass = HistoricalUser::class;
 
     // Entity properties
     protected $username;
@@ -55,18 +54,9 @@ class UserBusinessObject extends AbstractBusinessObject {
 
         // If the password has been provided, set property value now
         // Not handled as part of default construction as password should not be a public field
-        if ($data instanceof UserBusinessObject) {
+        if ($data instanceof User) {
             $this->password = $data->getPassword();
         }
-    }
-
-    /**
-     * Returns the name of the class used to model the historical records for this business object
-     *
-     * @return string
-     */
-    public static function getHistoricalEntityClass() {
-        return self::$historicalEntityClass;
     }
     
     /**
@@ -79,7 +69,7 @@ class UserBusinessObject extends AbstractBusinessObject {
         $builder = new ClassMetadataBuilder($metadata);
         
         // Define table name
-        $builder->setTable('entity_users');
+        $builder->setTable('history_entity_users');
         $builder->setCustomRepositoryClass(UserBusinessObjectRepository::class);
         
         // Define fields
@@ -113,30 +103,5 @@ class UserBusinessObject extends AbstractBusinessObject {
      */
     public function getPassword() {
         return $this->password;
-    }
-
-    /**
-     * Verify that the supplied plaintext password matches the hashed password for this user
-     * NOTE: Required for OAuth implementation
-     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
-     *
-     * @param string $password Plaintext password
-     * @return boolean
-     */
-    public function verifyPassword($password) {
-        return password_verify($password, $this->password);
-    }
-
-    /**
-     * Array representation of the User object
-     * NOTE: The field 'user_id' is required for OAuth implementation
-     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
-     *
-     * @return array
-     */
-    public function toArray() {
-        $data = parent::toArray();
-        $data['user_id'] = $this->id;
-        return $data;
     }
 }

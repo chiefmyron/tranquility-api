@@ -61,7 +61,7 @@ class UserController extends AbstractController {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $payload = $request->getParsedBody();
-        $payload['meta']['updateReason'] = 'user_create_new_record';
+        $payload['meta']['updateReason'] = 'user_update_existing_record';
 
         // Attempt to update the user entity
         $user = $this->resource->update($id, $payload);
@@ -69,6 +69,11 @@ class UserController extends AbstractController {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
         }
+
+        // Transform for output
+        $resource = new Item($user, new UserTransformer);
+        $payload = $this->manager->createData($resource)->toArray();
+        return $response->withJson($payload, HttpStatus::OK);
     }
 
     public function delete($request, $response, $args) {
