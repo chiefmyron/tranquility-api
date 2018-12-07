@@ -28,6 +28,16 @@ return [
         'name' => 'tranquility-api'
     ],
 
+    // JSON:API details
+    'jsonapi' => [
+        'schemaVersion' => env('APP_JSONAPI_SCHEMA_VERSION', '1.0'),
+        'validateIncludeRequestBodyInResponse' => env('APP_JSONAPI_VALIDATE_INCLUDE_REQUEST_IN_RESPONSE', true),
+        'validateContentNegotiation' => env('APP_JSONAPI_VALIDATE_CONTENT_NEGOTIATION', true),
+        'validateQueryParams' => env('APP_JSONAPI_VALIDATE_QUERY_PARAMS', true),
+        'validateRequestBody' => env('APP_JSONAPI_VALIDATE_REQUEST', true),
+        'validateResponseBody' => env('APP_JSONAPI_VALIDATE_RESPONSE', false)
+    ],
+
     // Services
     'services' => [
         'logger'     => '\Tranquility\Services\LoggingService',
@@ -35,6 +45,7 @@ return [
         'auth'       => '\Tranquility\Services\AuthenticationService',
         'controller' => '\Tranquility\Services\ControllerService',
         'validation' => '\Tranquility\Services\ValidationService',
+        'jsonapi'    => '\Tranquility\Services\JsonApiService'
     ],
 
     // Application middleware

@@ -4,8 +4,9 @@ use Psr\Http\Message\ResponseInterface as Response;
 
 // Tranquility route-specific middlewares
 use Tranquility\Middlewares\AuthenticationMiddleware;
-use Tranquility\Middlewares\JsonContentTypeMiddleware;
-use Tranquility\Middlewares\JsonApiDocumentFormatMiddleware;
+/*use Tranquility\Middlewares\JsonContentTypeMiddleware;
+use Tranquility\Middlewares\JsonApiDocumentFormatMiddleware;*/
+use Tranquility\Middlewares\JsonApiRequestValidatorMiddleware;
 
 // Tranquility controllers
 use Tranquility\Controllers\AuthController as AuthController;
@@ -19,8 +20,7 @@ $app->post('/v1/auth/token', AuthController::class.':token');
 // Version 1 API route group (authenticated) middleware
 $routeGroupMiddlewares = [
     AuthenticationMiddleware::class,
-    JsonApiDocumentFormatMiddleware::class,
-    JsonContentTypeMiddleware::class
+    JsonApiRequestValidatorMiddleware::class
 ];
 
 // Version 1 API route group (authenticated)
