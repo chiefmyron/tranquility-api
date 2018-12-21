@@ -1,8 +1,10 @@
-<?php namespace Tranquility\Services;
+<?php namespace Tranquility\ServiceProviders;
 
-use \Tranquility\Services\AbstractService as AbstractService;
+// Monolog library classes
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
-class LoggingService extends AbstractService {
+class LoggingServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 
@@ -18,8 +20,8 @@ class LoggingService extends AbstractService {
             $config = $c['config']->get('app.logging', array());
 
             // Create logger
-            $logger = new \Monolog\Logger($config['name']);
-            $fileHandler = new \Monolog\Handler\StreamHandler($config['path']);
+            $logger = new Logger($config['name']);
+            $fileHandler = new StreamHandler($config['path']);
             $logger->pushHandler($fileHandler);
             return $logger;
         };

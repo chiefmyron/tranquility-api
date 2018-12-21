@@ -70,7 +70,7 @@ class JsonApiRequestValidatorMiddleware extends AbstractMiddleware {
             if ($this->validateQueryParams) {
                 $this->requestValidator->validateQueryParams($jsonRequest);
             }
-            if ($this->validateJsonBody) {
+            if ($this->validateJsonRequestBody) {
                 // Validate body exists for required HTTP method types
                 $this->requestValidator->validateBodyExistsForMethod($jsonRequest);
                 $this->requestValidator->lintBody($jsonRequest);

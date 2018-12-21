@@ -9,7 +9,7 @@ use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
 
 // Tranquility class libraries
-use Tranquility\Resources\AbstractResource;
+use Tranquility\Services\AbstractService;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 class AbstractController {
@@ -21,11 +21,11 @@ class AbstractController {
     protected $manager;
 
     /**
-     * Entity resource
+     * Entity service
      * 
-     * @var Tranquility\Resources\AbstractResource
+     * @var Tranquility\Services\AbstractService
      */
-    protected $resource;
+    protected $service;
 
     /**
      * Version of the JSON API document being used
@@ -34,8 +34,8 @@ class AbstractController {
      */
     private $_jsonapiVersion = "1.0";
 
-    public function __construct(AbstractResource $resource, Manager $manager) {
-        $this->resource = $resource;
+    public function __construct(AbstractService $service, Manager $manager) {
+        $this->service = $service;
         $this->manager = $manager;
     }
 

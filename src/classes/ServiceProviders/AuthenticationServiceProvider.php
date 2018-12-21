@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Services;
+<?php namespace Tranquility\ServiceProviders;
 
 // OAuth Server library
 use OAuth2\Server;
@@ -17,7 +17,7 @@ use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
 // Tranquility middlewares
 use Tranquility\Middlewares\AuthenticationMiddleware;
 
-class AuthenticationService extends AbstractService {
+class AuthenticationServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 

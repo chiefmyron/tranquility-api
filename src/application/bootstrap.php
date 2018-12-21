@@ -22,8 +22,8 @@ $settings->replace($container->config->get('slim'));
 // Start application
 $app = new App($container);
 
-// Register services
-$services = $container->config->get('app.services', array());
+// Register service providers
+$services = $container->config->get('app.service_providers', array());
 foreach ($services as $name => $class) {
     $service = new $class($app);
     $service->register($name);

@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Services;
+<?php namespace Tranquility\ServiceProviders;
 
 // Validation library
 use Valitron\Validator;
@@ -8,7 +8,7 @@ use Tranquility\Validators\EntityExistsValidator;
 use Tranquility\Validators\UniqueUsernameValidator;
 use Tranquility\Validators\ReferenceDataValidator;
 
-class ValidationService extends AbstractService {
+class ValidationServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 

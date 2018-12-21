@@ -1,15 +1,16 @@
-<?php namespace Tranquility\Services;
+<?php namespace Tranquility\ServiceProviders;
 
+// Doctrine library classes
 use Doctrine\ORM\Events as Events;
 use Doctrine\ORM\EntityManager as EntityManager;
 use Doctrine\ORM\Tools\Setup as Setup;
 use Doctrine\Common\EventManager as EventManager;
 use Doctrine\Common\Persistence\Mapping\Driver\StaticPHPDriver as StaticPhpDriver;
 
-use Tranquility\Services\AbstractService as AbstractService;
+// Tranquility classes
 use Tranquility\System\ORM\Extensions\TablePrefix\TablePrefixExtension as TablePrefixExtension;
 
-class EntityManagerService extends AbstractService {
+class EntityManagerServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 

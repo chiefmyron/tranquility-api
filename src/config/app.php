@@ -39,13 +39,13 @@ return [
     ],
 
     // Services
-    'services' => [
-        'logger'     => '\Tranquility\Services\LoggingService',
-        'em'         => '\Tranquility\Services\EntityManagerService',
-        'auth'       => '\Tranquility\Services\AuthenticationService',
-        'controller' => '\Tranquility\Services\ControllerService',
-        'validation' => '\Tranquility\Services\ValidationService',
-        'jsonapi'    => '\Tranquility\Services\JsonApiService'
+    'service_providers' => [
+        'logger'     => '\Tranquility\ServiceProviders\LoggingServiceProvider',
+        'em'         => '\Tranquility\ServiceProviders\EntityManagerServiceProvider',
+        'auth'       => '\Tranquility\ServiceProviders\AuthenticationServiceProvider',
+        'controller' => '\Tranquility\ServiceProviders\ControllerServiceProvider',
+        'validation' => '\Tranquility\ServiceProviders\ValidationServiceProvider',
+        'jsonapi'    => '\Tranquility\ServiceProviders\JsonApiServiceProvider'
     ],
 
     // Application middleware

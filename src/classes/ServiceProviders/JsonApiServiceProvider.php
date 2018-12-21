@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Services;
+<?php namespace Tranquility\ServiceProviders;
 
 // Yin libraries
 use WoohooLabs\Yin\JsonApi\Exception\DefaultExceptionFactory;
@@ -12,7 +12,7 @@ use Tranquility\System\JsonApi\RequestValidatorJsonApi;
 use Tranquility\Middlewares\JsonApiRequestValidatorMiddleware;
 // use Tranquility\Middlewares\JsonApiResponseValidatorMiddleware;
 
-class JsonApiService extends AbstractService {
+class JsonApiServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 

@@ -45,6 +45,12 @@ class RequestValidatorJsonApi extends RequestValidator {
      * @throws RequestBodyInvalidJsonApi|JsonApiExceptionInterface
      */
     public function validateBody(RequestInterface $request) {
+        // If the request does not have a body, no validation required
+        $method = $request->getMethod();
+        if (in_array($method, $this->_requestMethodsWithBody) == false) {
+            return;
+        }
+
         // Get the parsed representation of the request document
         $body = $request->getParsedBody();
 

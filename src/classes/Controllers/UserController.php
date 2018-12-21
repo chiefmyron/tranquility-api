@@ -6,8 +6,8 @@ use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
 
 // Tranquility class libraries
+use Tranquility\Services\UserService;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-use Tranquility\Resources\UserResource;
 use Tranquility\Transformers\UserTransformer;
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
@@ -15,8 +15,25 @@ use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 class UserController extends AbstractController {
 
     public function list($request, $response, $args) {
+        // Extracting pagination information from the request, page = 1, size = 10 if it is missing
+        //$pagination = $jsonApi->getRequest()->getPageBasedPagination(1, 10);
+
         // Retrieve users
-        $users = $this->resource->all();
+        // TODO: Add parameters for pagination
+        //$users = $this->service->all();
+
+        // Generate response document
+        //$document = $this->generateResourceCollectionDocument($users);
+        //return $response->withJson($document, HttpStatus::OK);
+
+
+
+
+
+
+
+        // Retrieve users
+        $users = $this->service->all();
 
         // Transform for output
         $resource = new Collection($users, new UserTransformer, 'users');
@@ -27,7 +44,7 @@ class UserController extends AbstractController {
     public function show($request, $response, $args) {
         // Retrieve users
         $id = Utility::extractValue($args, 'id', 0, 'int');
-        $user = $this->resource->find($id);
+        $user = $this->service->find($id);
         if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
@@ -45,7 +62,7 @@ class UserController extends AbstractController {
         $payload['meta']['updateReason'] = 'user_create_new_record';
 
         // Attempt to create the user entity
-        $user = $this->resource->create($payload);
+        $user = $this->service->create($payload);
         if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);
@@ -64,7 +81,7 @@ class UserController extends AbstractController {
         $payload['meta']['updateReason'] = 'user_update_existing_record';
 
         // Attempt to update the user entity
-        $user = $this->resource->update($id, $payload);
+        $user = $this->service->update($id, $payload);
         if (!($user instanceof User)) {
             // If a user was not created, generate error response
             return $this->withErrorCollection($response, $user, HttpStatus::UnprocessableEntity);

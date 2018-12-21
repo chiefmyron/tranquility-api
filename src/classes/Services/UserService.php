@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Resources;
+<?php namespace Tranquility\Services;
 
 // ORM class libraries
 use Carbon\Carbon as Carbon;
@@ -14,7 +14,7 @@ use Tranquility\Data\Entities\ReferenceDataObjects\LocaleReferenceDataObject as 
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 
-class UserResource extends AbstractResource {
+class UserService extends AbstractService {
 
     /**
      * Registers the validation rules that are specific to this entity.
