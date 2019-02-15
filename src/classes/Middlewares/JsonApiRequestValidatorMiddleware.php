@@ -1,7 +1,7 @@
 <?php namespace Tranquility\Middlewares;
 
 // Yin libraries
-use WoohooLabs\Yin\JsonApi\Request\Request as JsonRequest;
+use WoohooLabs\Yin\JsonApi\Request\JsonApiRequest as JsonRequest;
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiExceptionInterface;
 
 // Tranquility class libraries

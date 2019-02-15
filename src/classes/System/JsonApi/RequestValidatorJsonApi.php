@@ -4,7 +4,7 @@
 use WoohooLabs\Yin\JsonApi\Negotiation\RequestValidator;
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiExceptionInterface;
 use WoohooLabs\Yin\JsonApi\Exception\RequestBodyInvalidJson;
-use WoohooLabs\Yin\JsonApi\Request\RequestInterface;
+use WoohooLabs\Yin\JsonApi\Request\JsonApiRequestInterface;
 
 /**
  * Utility class containing useful shortcut methods
@@ -21,11 +21,11 @@ class RequestValidatorJsonApi extends RequestValidator {
     /**
      * Checks to make sure that a body has been included for the required HTTP methods
      *
-     * @param RequestInterface $request
+     * @param JsonApiRequestInterface $request
      * @throws RequestBodyInvalidJsonApi|JsonApiExceptionInterface
      * @return void
      */
-    public function validateBodyExistsForMethod(RequestInterface $request) {
+    public function validateBodyExistsForMethod(JsonApiRequestInterface $request) {
         // Check that request includes a body
         $body = $request->getBody();
         $method = $request->getMethod();
@@ -44,7 +44,7 @@ class RequestValidatorJsonApi extends RequestValidator {
      * Checks that the necessary top-level nodes exist in the request document
      * @throws RequestBodyInvalidJsonApi|JsonApiExceptionInterface
      */
-    public function validateBody(RequestInterface $request) {
+    public function validateBody(JsonApiRequestInterface $request) {
         // If the request does not have a body, no validation required
         $method = $request->getMethod();
         if (in_array($method, $this->_requestMethodsWithBody) == false) {

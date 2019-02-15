@@ -31,15 +31,16 @@ class ControllerServiceProvider extends AbstractServiceProvider {
         $container[Manager::class] = $manager;
 
         // Register controllers with the container
-        $container[AuthController::class] = function($c) {
-            $server = $c->get(Server::class);
+        $container[AuthController::class] = function($container) {
+            $server = $container->get(Server::class);
             return new AuthController($server);
         };
-        $container[UserController::class] = function($c) {
-            $manager = $c->get(Manager::class);
-            $service = new UserService($c->get('em'));
+        $container[UserController::class] = function($container) {
+            $manager = $container->get(Manager::class);
+            $service = new UserService($container->get('em'));
             $service->registerValidationRules();
-            return new UserController($service, $manager);
+            $router = $container->get('router');
+            return new UserController($service, $manager, $router);
         };
     }
 }

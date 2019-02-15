@@ -28,7 +28,7 @@ $routeGroup = $app->group('/v1', function() {
     // User resource
     $this->get('/users', UserController::class.':list')->setName('users-list');
     $this->post('/users', UserController::class.':create');
-    $this->get('/users/{id}', UserController::class.':show');
+    $this->get('/users/{id}', UserController::class.':show')->setName('users-detail');
     $this->patch('/users/{id}', UserController::class.':update');
     $this->delete('/users/{id}', UserController::class.':delete');
     

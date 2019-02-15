@@ -3,6 +3,9 @@
 // Utility libraries
 use Carbon\Carbon;
 
+// Framework libraries
+use Slim\Router;
+
 // Fractal class libraries
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
@@ -28,15 +31,23 @@ class AbstractController {
     protected $service;
 
     /**
+     * Application router
+     * 
+     * @var Slim\Router
+     */
+    protected $router;
+
+    /**
      * Version of the JSON API document being used
      *
      * @var string
      */
     private $_jsonapiVersion = "1.0";
 
-    public function __construct(AbstractService $service, Manager $manager) {
+    public function __construct(AbstractService $service, Manager $manager, Router $router) {
         $this->service = $service;
         $this->manager = $manager;
+        $this->router = $router;
     }
 
     /**

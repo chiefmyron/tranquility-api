@@ -52,7 +52,6 @@ return [
     // NOTE: Middlewares are executed on a LIFO (Last In, First Out) basis. Therefore, middlewares that need to be 
     // executed earlier in the dispatch process should be added towards the bottom of the array.
     'middleware' => [
-        '\Tranquility\Middlewares\ExceptionHandlerMiddleware',
-        '\Tranquility\Middlewares\JsonApiRequestMediaParserMiddleware'
+        '\Tranquility\Middlewares\ExceptionHandlerMiddleware'
     ]
 ];
