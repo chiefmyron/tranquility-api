@@ -53,9 +53,12 @@ abstract class AbstractResource {
      * @param  mixed         $data    The resource object or array of resource objects
      * @return void
      */
-    public function __construct($data, $router) {
+    public function __construct($data, $router, $wrapper = 'data') {
         $this->data = $data;
         $this->router = $router;
+        if ($wrapper != $this->wrapper) {
+            $this->wrapper = $wrapper;
+        }
     }
 
     /**

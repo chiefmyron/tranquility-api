@@ -25,22 +25,16 @@ class ControllerServiceProvider extends AbstractServiceProvider {
         $container = $this->app->getContainer();
         $baseUrl = $container->config->get('app.base_url', "");
 
-        // Register Fractal manager for use within controllers
-        $manager = new Manager();
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
-        $container[Manager::class] = $manager;
-
         // Register controllers with the container
         $container[AuthController::class] = function($container) {
             $server = $container->get(Server::class);
             return new AuthController($server);
         };
         $container[UserController::class] = function($container) {
-            $manager = $container->get(Manager::class);
             $service = new UserService($container->get('em'));
             $service->registerValidationRules();
             $router = $container->get('router');
-            return new UserController($service, $manager, $router);
+            return new UserController($service, $router);
         };
     }
 }

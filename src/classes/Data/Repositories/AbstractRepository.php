@@ -20,11 +20,11 @@ abstract class AbstractRepository extends EntityRepository {
      *
      * @param array $filterConditions
      * @param array $orderConditions
+     * @param int   $pageNumber
      * @param int   $resultsPerPage
-     * @param int   $startRecordIndex
      * @return array
      */
-    public function all($filterConditions = array(), $orderConditions = array(), $resultsPerPage = 0, $pageNumber = 0) {
+    public function all($filterConditions = array(), $orderConditions = array(), $pageNumber = 0, $resultsPerPage = 0) {
         // Start creation of query
         $entityName = $this->getEntityName();
         $queryBuilder = $this->_em->createQueryBuilder();
@@ -32,16 +32,17 @@ abstract class AbstractRepository extends EntityRepository {
         
         // Add other filter conditions
         $queryBuilder = $this->_addQueryFilters($queryBuilder, $filterConditions, $orderConditions);
-        
-        // If pagination options have been supplied, add paging conditions
         $query = $queryBuilder->getQuery();
-        if ($resultsPerPage > 0) {
+        
+        // If pagination options have been supplied, return a paginated set
+        if ($resultsPerPage > 0 && $pageNumber > 0) {
             $numRecordsToSkip = $resultsPerPage * ($pageNumber - 1);
             $query->setFirstResult($numRecordsToSkip);
             $query->setMaxResults($resultsPerPage);
+            return new Paginator($query, true);
         }
 
-        // Return the result set
+        // No pagination, so return the full result set
         return $query->getResult();
     }
 

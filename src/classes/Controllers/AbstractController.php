@@ -6,23 +6,12 @@ use Carbon\Carbon;
 // Framework libraries
 use Slim\Router;
 
-// Fractal class libraries
-use League\Fractal\Manager;
-use League\Fractal\Resource\Item;
-use League\Fractal\Resource\Collection;
-
 // Tranquility class libraries
 use Tranquility\Services\AbstractService;
+use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 class AbstractController {
-    /**
-     * Output manager
-     * 
-     * @var League\Fractal\Manager
-     */
-    protected $manager;
-
     /**
      * Entity service
      * 
@@ -44,10 +33,20 @@ class AbstractController {
      */
     private $_jsonapiVersion = "1.0";
 
-    public function __construct(AbstractService $service, Manager $manager, Router $router) {
+    public function __construct(AbstractService $service, Router $router) {
         $this->service = $service;
-        $this->manager = $manager;
         $this->router = $router;
+    }
+
+    public function generateJsonResponse($request, $response, $resource, $responseCode) {
+        if ($resource instanceof AbstractResource) {
+            $payload = $resource->toResponseArray($request);
+        } elseif (is_array($resource) || is_iterable($resource)) {
+            $payload = $resource;
+        } else {
+            throw new \Exception("Resource provided is not an instance of \Tranquility\AbstractResource, or an array.");
+        }
+        return $response->withJson($payload, $responseCode);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php namespace Tranquility\Resources;
 
-class UserResourceCollection extends AbstractResourceCollection {
+class ErrorResourceCollection extends AbstractResourceCollection {
     /**
      * Transform the resource into an array.
      *
@@ -8,7 +8,7 @@ class UserResourceCollection extends AbstractResourceCollection {
      * @return array
      */
     public function toArray($request) {
-        if (is_iterable($this->data) == false) {
+        if (is_array($this->data) == false) {
             return array();
         }
 
@@ -17,17 +17,6 @@ class UserResourceCollection extends AbstractResourceCollection {
             $user = new UserResource($entity, $this->router);
             $collectionData[] = $user;
         }
-
-        // Generate pagination links
-        $links = $this->getPaginationLinks($request);
-
-        // Add extra information to top level of response body
-        $additional = array();
-        $additional['meta'] = $meta;
-        if (count($links) > 0) {
-            $additional['links'] = $links;
-        }
-        $this->additional($additional);
 
         return $collectionData;
     }

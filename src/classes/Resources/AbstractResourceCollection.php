@@ -1,88 +1,57 @@
 <?php namespace Tranquility\Resources;
 
-use ArrayIterator;
+// ORM class libraries
+use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
+
+// Class libraries
+use Tranquility\System\Utility;
 
 abstract class AbstractResourceCollection extends AbstractResource {
-    /**
-     * A collection of data.
-     *
-     * @var array|ArrayIterator
-     */
-    protected $data;
 
-    /**
-     * The paginator instance.
-     *
-     * @var PaginatorInterface
-     */
-    protected $paginator;
+    public function getPaginationLinks($request) {
+        // Check to make sure we are dealing with a paginated data set
+        if (!($this->data instanceof Paginator)) {
+            // Resource data is not paginated
+            return [];
+        }
 
-    /**
-     * The cursor instance.
-     *
-     * @var CursorInterface
-     */
-    protected $cursor;
+        // Get pagination parameters from request
+        $page = $request->getQueryParam("page", array());
+        $pageNumber = Utility::extractValue($page, 'number', 0);
+        $pageSize = Utility::extractValue($page, 'size', 0);
+        if ($pageNumber == 0 || $pageSize == 0) {
+            // If there are no pagination details, response cannot be paginated
+            return [];
+        }
 
-    /**
-     * Get the paginator instance.
-     *
-     * @return PaginatorInterface
-     */
-    public function getPaginator() {
-        return $this->paginator;
-    }
+        // Calculate pagination limits
+        $totalRecordCount = $this->data->count();
+        $lastPageNumber = ceil($totalRecordCount / $pageSize);
 
-    /**
-     * Determine if the resource has a paginator implementation.
-     *
-     * @return bool
-     */
-    public function hasPaginator() {
-        return $this->paginator instanceof PaginatorInterface;
-    }
+        // Get route details
+        $route = $request->getAttribute('route');
+        $routeName = $route->getName();
 
-    /**
-     * Get the cursor instance.
-     *
-     * @return CursorInterface
-     */
-    public function getCursor() {
-        return $this->cursor;
-    }
+        // Generate pagination links
+        $pageNumberQueryString = urlencode("page[number]");
+        $pageSizeQueryString = urlencode("page[size]");
+        $links = array();
+        $links['self'] = "".$request->getUri();
+        $links['first'] = $request->getUri()->getBaseUrl().$this->router->pathFor($routeName)."?".$pageNumberQueryString."=1&".$pageSizeQueryString."=".$pageSize;
+        $links['last'] = $request->getUri()->getBaseUrl().$this->router->pathFor($routeName)."?".$pageNumberQueryString."=".$lastPageNumber."&".$pageSizeQueryString."=".$pageSize;
 
-    /**
-     * Determine if the resource has a cursor implementation.
-     *
-     * @return bool
-     */
-    public function hasCursor() {
-        return $this->cursor instanceof CursorInterface;
-    }
+        if ($pageNumber > 1) {
+            $links['prev'] = $request->getUri()->getBaseUrl().$this->router->pathFor($routeName)."?".$pageNumberQueryString."=".($pageNumber - 1)."".$pageSizeQueryString."=".$pageSize;
+        } else {
+            $links['prev'] = null;
+        }
 
-    /**
-     * Set the paginator instance.
-     *
-     * @param PaginatorInterface $paginator
-     *
-     * @return $this
-     */
-    public function setPaginator(PaginatorInterface $paginator) {
-        $this->paginator = $paginator;
+        if ($pageNumber < $lastPageNumber) {
+            $links['next'] = $request->getUri()->getBaseUrl().$this->router->pathFor($routeName)."?".$pageNumberQueryString."=".($pageNumber + 1)."&".$pageSizeQueryString."=".$pageSize;
+        } else {
+            $links['next'] = null;
+        }
 
-        return $this;
-    }
-
-    /**
-     * Set the cursor instance.
-     *
-     * @param CursorInterface $cursor
-     *
-     * @return $this
-     */
-    public function setCursor(CursorInterface $cursor) {
-        $this->cursor = $cursor;
-
-        return $this;
+        return $links;
     }
 }

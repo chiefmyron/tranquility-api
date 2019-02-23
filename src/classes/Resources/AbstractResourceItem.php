@@ -3,8 +3,6 @@
 abstract class AbstractResourceItem extends AbstractResource {
 
     protected function getAuditTrailArray($request) {
-        // Get router to generate URIs
-        $router = $request->getAttribute('router');
 
         return [
             'type' => $this->data->type,
@@ -20,7 +18,7 @@ abstract class AbstractResourceItem extends AbstractResource {
                 'updatedByUser' => [
                     'links' => [
                         'self' => '',
-                        //'related' => $request->getUri()->getBaseUrl().$router->pathFor('users-detail', ['id' => $this->data->id])
+                        'related' => $request->getUri()->getBaseUrl().$this->router->pathFor('users-detail', ['id' => $this->data->id])
                     ],
                     'data' => [
                         'type' => $this->data->audit->user->type,

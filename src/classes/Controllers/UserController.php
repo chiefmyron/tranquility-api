@@ -5,29 +5,52 @@ use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Services\UserService;
 use Tranquility\Resources\UserResource;
 use Tranquility\Resources\UserResourceCollection;
+use Tranquility\Resources\ErrorResourceCollection;
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 class UserController extends AbstractController {
 
     public function list($request, $response, $args) {
+        // Get filter and pagination parameters from request
+        $filterParams = array();  // TODO: Populate these arrays
+        $orderParams = array();
+
+        // Get pagination parameters
+        $page = $request->getQueryParam("page", array());
+        $pageNumber = Utility::extractValue($page, 'number', 0);
+        $pageSize = Utility::extractValue($page, 'size', 0);
+
         // Retrieve users
-        // TODO: Add parameters for pagination
-        $users = $this->service->all();
+        $data = $this->service->all($filterParams, $orderParams, $pageNumber, $pageSize);
 
         // Transform for output
-        $payload = $this->generateResponse($request, $users);
-        return $response->withJson($payload, HttpStatus::OK);
+        if (is_array($data) && count($data) > 0 && !($data[0] instanceof User)) {
+            // Service has encountered an error
+            $resource = new ErrorResourceCollection($data, $this->router);
+            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+        }
+
+        // Data is a collection of users
+        $resource = new UserResourceCollection($data, $this->router);
+        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function show($request, $response, $args) {
         // Retrieve users
         $id = Utility::extractValue($args, 'id', 0, 'int');
-        $user = $this->service->find($id);
+        $data = $this->service->find($id);
 
         // Transform for output
-        $payload = $this->generateResponse($request, $user);
-        return $response->withJson($payload, HttpStatus::OK);
+        if (!($data instanceof User)) {
+            // Service has encountered an error
+            $resource = new ErrorResourceCollection($data, $this->router);
+            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+        }
+
+        // Data is an instance of a user
+        $resource = new UserResource($data, $this->router);
+        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function create($request, $response, $args) {
@@ -36,11 +59,18 @@ class UserController extends AbstractController {
         $payload['meta']['updateReason'] = 'user_create_new_record';
 
         // Attempt to create the user entity
-        $user = $this->service->create($payload);
+        $data = $this->service->create($payload);
         
         // Transform for output
-        $payload = $this->generateResponse($request, $user);
-        return $response->withJson($payload, HttpStatus::Created);
+        if (!($data instanceof User)) {
+            // Service has encountered an error
+            $resource = new ErrorResourceCollection($data, $this->router);
+            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+        }
+
+        // Data is an instance of a user
+        $resource = new UserResource($data, $this->router);
+        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::Created);
     }
 
     public function update($request, $response, $args) {
@@ -50,33 +80,21 @@ class UserController extends AbstractController {
         $payload['meta']['updateReason'] = 'user_update_existing_record';
 
         // Attempt to update the user entity
-        $user = $this->service->update($id, $payload);
+        $data = $this->service->update($id, $payload);
         
         // Transform for output
-        $payload = $this->generateResponse($request, $user);
-        return $response->withJson($payload, HttpStatus::OK);
+        if (!($data instanceof User)) {
+            // Service has encountered an error
+            $resource = new ErrorResourceCollection($data, $this->router);
+            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+        }
+
+        // Data is an instance of a user
+        $resource = new UserResource($data, $this->router);
+        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function delete($request, $response, $args) {
 
     }
-
-    private function generateResponse($request, $data) {
-        if ($data instanceof User) {
-            // Data is an instance of a user
-            $resource = new UserResource($data, $this->router);
-            return $resource->toResponseArray($request);
-        }
-
-        if (is_array($data) && count($data) > 0 && ($data[0] instanceof User)) {
-            // Data is a collection of users
-            $resource = new UserResourceCollection($data, $this->router);
-            return $resource->toResponseArray($request);
-        } 
-
-        // If we reach this point, an error collection has been provided
-        return $this->withErrorCollection($response, $data, HttpStatus::UnprocessableEntity);
-    }
-
-
 }
