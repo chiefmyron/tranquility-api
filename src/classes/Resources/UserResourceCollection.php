@@ -12,23 +12,30 @@ class UserResourceCollection extends AbstractResourceCollection {
             return array();
         }
 
+        // Generate data for each resource in the array
         $collectionData = array();
         foreach ($this->data as $entity) {
             $user = new UserResource($entity, $this->router);
             $collectionData[] = $user;
         }
 
+        return $collectionData;
+    }
+
+    public function with($request) {
+        $additional = array();
+        
+        // Add total record count to metadata
+        $meta = array();
+        $meta['totalRecords'] = count($this->data);
+        $additional['meta'] = $meta;
+
         // Generate pagination links
         $links = $this->getPaginationLinks($request);
+        $additional['links'] = $links;
 
-        // Add extra information to top level of response body
-        $additional = array();
-        $additional['meta'] = $meta;
-        if (count($links) > 0) {
-            $additional['links'] = $links;
-        }
-        $this->additional($additional);
-
-        return $collectionData;
+        // Return additional data
+        //return parent::additional($additional);
+        return $additional;
     }
 }

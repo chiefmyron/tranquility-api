@@ -1,5 +1,7 @@
 <?php namespace Tranquility\Resources;
 
+use Carbon\Carbon;
+
 abstract class AbstractResource {
     /**
      * The entity that the resource will represent
@@ -80,27 +82,6 @@ abstract class AbstractResource {
     }
 
     /**
-     * Resolve the resource to an array. Recursively processes any related resources.
-     *
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request  PSR7 request
-     * @return array
-     */
-    public function resolve($request) {
-        // Convert resource into array
-        $data = $this->toArray($request);
-        
-        // Check for nested resources
-        foreach ($data as $key => $value) {
-            if (is_object($value)) {
-                // Element is another resource
-                $data[$key] = $value->resolve($request);
-            }
-        }
-
-        return $data;
-    }
-
-    /**
      * Get any additional data that should be returned with the resource array.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -141,6 +122,9 @@ abstract class AbstractResource {
         // Resolve resource
         $data = $this->resolve($request);
 
+        // Apply filters and resolve any embedded resources
+        $data = $this->filter($data, $request);
+
         // Add wrapping to data resource (if not already wrapped)
         if (array_key_exists($this->wrapper, $data) == false) {
             $data = [$this->wrapper => $data];
@@ -151,5 +135,41 @@ abstract class AbstractResource {
         $additional = $this->additional;
         $jsonapi = $this->jsonapi();
         return array_merge_recursive($data, $with, $additional, $jsonapi);
+    }
+
+    /**
+     * Resolve the resource to an array. Recursively processes any related resources.
+     *
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request  PSR7 request
+     * @return array
+     */
+    public function resolve($request) {
+        // Convert resource into array
+        $data = $this->toArray($request);
+
+        if ($data instanceof Arrayable) {
+            $data = $data->toArray();
+        }
+
+        return $data;
+    }
+
+    public function filter($data, $request) {
+        // Recursively resolve embedded resources and correctly format values
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                // If value is an array, filter all elements of the array
+                $data[$key] = $this->filter($value, $request);
+            } elseif ($value instanceof \DateTime) {
+                // If value is a DateTime value, convert to ISO8601 valid string
+                $data[$key] = Carbon::instance($value)->toIso8601String();
+            } elseif ($value instanceof AbstractResource) {
+                // If value is another Resource, convert it to an array and filter
+                $resource = $value->resolve($request);
+                $data[$key] = $this->filter($resource, $request);
+            }
+        }
+
+        return $data;
     }
 }

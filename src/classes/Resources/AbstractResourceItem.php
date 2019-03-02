@@ -1,5 +1,7 @@
 <?php namespace Tranquility\Resources;
 
+use Carbon\Carbon;
+
 abstract class AbstractResourceItem extends AbstractResource {
 
     protected function getAuditTrailArray($request) {
@@ -11,7 +13,7 @@ abstract class AbstractResourceItem extends AbstractResource {
                 'version' => $this->data->version,
                 'transactionId' => $this->data->audit->transactionId,
                 'client' => $this->data->audit->client->clientId,
-                'timestamp' => $this->data->audit->timestamp,
+                'timestamp' => Carbon::instance($this->data->audit->timestamp)->toIso8601String(),
                 'updateReason' => $this->data->audit->updateReason
             ],
             'relationships' => [
