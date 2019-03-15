@@ -12,17 +12,9 @@ use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 class UserController extends AbstractController {
 
     public function list($request, $response, $args) {
-        // Get filter and pagination parameters from request
-        $filterParams = array();  // TODO: Populate these arrays
-        $orderParams = array();
-
-        // Get pagination parameters
-        $page = $request->getQueryParam("page", array());
-        $pageNumber = Utility::extractValue($page, 'number', 0);
-        $pageSize = Utility::extractValue($page, 'size', 0);
-
         // Retrieve users
-        $data = $this->service->all($filterParams, $orderParams, $pageNumber, $pageSize);
+        $params = $this->_parseQueryStringParams($request);
+        $data = $this->service->all($params['filters'], $params['sorting'], $params['pagination']['pageNumber'], $params['pagination']['pageSize']);
 
         // Transform for output
         if (is_array($data) && count($data) > 0 && !($data[0] instanceof User)) {

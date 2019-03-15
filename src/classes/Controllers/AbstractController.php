@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Slim\Router;
 
 // Tranquility class libraries
+use Tranquility\System\Utility;
 use Tranquility\Services\AbstractService;
 use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
@@ -26,13 +27,6 @@ class AbstractController {
      */
     protected $router;
 
-    /**
-     * Version of the JSON API document being used
-     *
-     * @var string
-     */
-    private $_jsonapiVersion = "1.0";
-
     public function __construct(AbstractService $service, Router $router) {
         $this->service = $service;
         $this->router = $router;
@@ -49,30 +43,38 @@ class AbstractController {
         return $response->withJson($payload, $responseCode);
     }
 
-    /**
-     * Generates a JSON API response payload for a single error
-     *
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param array $error
-     * @return void
-     */
-    protected function withError(\Psr\Http\Message\ResponseInterface $response, array $error) {
-        $data = ["jsonapi" => ["version" => $this->_jsonapiVersion], "errors" => [$error]];
-        $response = $response->withJson($data, $error['status']);
-        return $response;
-    }
+    protected function _parseQueryStringParams($request) {
+        // Get filtering parameters
+        // TODO: Populate this properly
+        $filters = [];
 
-    /**
-     * Generates a JSON API response payload for a collection of errors
-     *
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param array $errorCollection
-     * @param integer $httpResponseCode
-     * @return void
-     */
-    protected function withErrorCollection(\Psr\Http\Message\ResponseInterface $response, array $errorCollection, int $httpResponseCode) {
-        $data = ["jsonapi" => ["version" => $this->_jsonapiVersion], "errors" => $errorCollection];
-        $response = $response->withJson($data, $httpResponseCode);
-        return $response;
+        // Get sorting parameters
+        $sorting = [];
+        $sort = $request->getQueryParam("sort", "");
+        $sortParams = explode(",", $sort);
+        foreach($sortParams as $sortItem) {
+            // If the item starts with a minus character, it indicates descending sort order for that field
+            if (mb_substr($sortItem, 0, 1) == "-") {
+                $sortItem = mb_substr($sortItem, 1);
+                $sorting[] = [$sortItem, "DESC"];
+            } elseif (mb_strlen($sortItem) > 0) {
+                $sorting[] = [$sortItem, "ASC"];
+            }
+        }
+
+        // Get pagination parameters
+        $page = $request->getQueryParam("page", array());
+        $pagination = [
+            'pageNumber' => Utility::extractValue($page, "number", 0),
+            'pageSize' => Utility::extractValue($page, "size", 0)
+        ];
+
+        // Return parsed parameters
+        $params = [
+            'pagination' => $pagination,
+            'filters' => $filters,
+            'sorting' => $sorting
+        ];
+        return $params;
     }
 }
