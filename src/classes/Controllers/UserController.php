@@ -20,12 +20,12 @@ class UserController extends AbstractController {
         if (is_array($data) && count($data) > 0 && !($data[0] instanceof User)) {
             // Service has encountered an error
             $resource = new ErrorResourceCollection($data, $this->router);
-            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+            return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
         }
 
         // Data is a collection of users
         $resource = new UserResourceCollection($data, $this->router);
-        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function show($request, $response, $args) {
@@ -37,12 +37,12 @@ class UserController extends AbstractController {
         if (!($data instanceof User)) {
             // Service has encountered an error
             $resource = new ErrorResourceCollection($data, $this->router);
-            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+            return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
         }
 
         // Data is an instance of a user
         $resource = new UserResource($data, $this->router);
-        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function create($request, $response, $args) {
@@ -57,12 +57,12 @@ class UserController extends AbstractController {
         if (!($data instanceof User)) {
             // Service has encountered an error
             $resource = new ErrorResourceCollection($data, $this->router);
-            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+            return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
         }
 
         // Data is an instance of a user
         $resource = new UserResource($data, $this->router);
-        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::Created);
+        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::Created);
     }
 
     public function update($request, $response, $args) {
@@ -78,12 +78,12 @@ class UserController extends AbstractController {
         if (!($data instanceof User)) {
             // Service has encountered an error
             $resource = new ErrorResourceCollection($data, $this->router);
-            return $this->generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
+            return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::UnprocessableEntity);
         }
 
         // Data is an instance of a user
         $resource = new UserResource($data, $this->router);
-        return $this->generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     public function delete($request, $response, $args) {

@@ -21,7 +21,7 @@ class OAuthAccessTokenSystemObject extends AbstractSystemObject {
     protected $user;
 
     // Define the set of fields that are publically accessible
-    private $entityPublicFields = array(
+    private static $entityPublicFields = array(
         'token',
         'expires',
         'scope',
@@ -29,8 +29,8 @@ class OAuthAccessTokenSystemObject extends AbstractSystemObject {
         'user'
     );
 
-    public function getPublicFields() {
-        return $this->entityPublicFields;
+    public static function getPublicFields() {
+        return self::$entityPublicFields;
     }
 
     public function setToken($token) {

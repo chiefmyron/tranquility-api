@@ -130,5 +130,5 @@ abstract class AbstractEntity {
      * @return array
      * @abstract
      */
-    abstract public function getPublicFields();
+    abstract public static function getPublicFields();
 }

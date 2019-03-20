@@ -18,7 +18,7 @@ class AuditTrailSystemObject extends AbstractSystemObject {
     protected $updateReason;
 
     // Define the set of fields that are publically accessible
-    protected $publicFields = array(
+    protected static $publicFields = array(
         'transactionId',
         'user',
         'client',
@@ -30,8 +30,8 @@ class AuditTrailSystemObject extends AbstractSystemObject {
      * 
      * @return array
      */
-    public function getPublicFields() {
-        return $this->publicFields;
+    public static function getPublicFields() {
+        return self::$publicFields;
     }
 
     /**

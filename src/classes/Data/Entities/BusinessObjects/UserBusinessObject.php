@@ -33,7 +33,7 @@ class UserBusinessObject extends AbstractBusinessObject {
     protected $userTokens;
 
     // Define the set of fields that are publically accessible
-    protected $publicFields = array(
+    protected static $publicFields = array(
         'username',
         'timezoneCode',
         'localeCode',
@@ -100,8 +100,8 @@ class UserBusinessObject extends AbstractBusinessObject {
      * 
      * @return array
      */
-    public function getPublicFields() {
-        return array_merge($this->entityPublicFields, $this->publicFields);
+    public static function getPublicFields() {
+        return array_merge(self::$entityPublicFields, self::$publicFields);
     }
 
     /**

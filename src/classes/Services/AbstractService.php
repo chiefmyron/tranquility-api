@@ -17,6 +17,7 @@ use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 use Tranquility\System\Enums\TransactionSourceEnum as TransactionSourceEnum;
+use Tranquility\System\Exceptions\InvalidQueryParameterException;
 
 abstract class AbstractService {
     /**
@@ -51,6 +52,14 @@ abstract class AbstractService {
      * @return string
      */
     abstract public function getEntityClassname();
+
+    /**
+     * Returns the set of publicly available fields for the Entity object associated with this resource
+     */
+    public function getEntityPublicFields() {
+        $entityName = $this->getEntityClassname();
+        return $entityName::getPublicFields();
+    }
 
     /**
      * Registers the validation rules that are common to all entities.
@@ -125,8 +134,6 @@ abstract class AbstractService {
 	 * @return array
 	 */
 	public function search($searchTerms, $orderConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0) {
-		$fields = $this->_getSearchableFields();
-
 		// Handle multiple search terms
 		if (is_string($searchTerms)) {
 			$searchTerms = array($searchTerms);
@@ -134,7 +141,7 @@ abstract class AbstractService {
 
 		// Set up search terms
 		$filterConditions = array();
-		foreach ($fields as $fieldName) {
+		foreach ($searchTerms as $fieldName) {
 			foreach ($searchTerms as $term) {
 				$filterConditions[] = array($fieldName, 'LIKE', '%'.$term.'%', 'OR');
 			}
@@ -146,21 +153,35 @@ abstract class AbstractService {
     /**
 	 * Retrieve all entities of this type
 	 *
-	 * @param  array  $filter            Used to specify additional filters to the set of results
-	 * @param  array  $order             Used to specify order parameters to the set of results
+	 * @param  array  $filterConditions  Used to specify additional filters to the set of results
+	 * @param  array  $sortingConditions Used to specify order parameters to the set of results
 	 * @param  int    $resultsPerPage    If zero or less, or null, the full result set will be returned
 	 * @param  int    $startRecordIndex  Index of the record to start the result set from. Defaults to zero.
 	 * @return array
 	 */
-	public function all($filterConditions = array(), $orderConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0) {
-		// If a 'deleted' filter has not been specified, default to select only records that have not been deleted
+	public function all($filterConditions = array(), $sortingConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0) {
+        // Get the list of public fields
+        $publicFields = $this->getEntityPublicFields();
+        
+        // Validate order conditions
+        foreach ($sortingConditions as $sortField) {
+            if (!in_array($sortField[0], $publicFields)) {
+                throw new InvalidQueryParameterException(MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a sortable field", $sortField[0]), 'sort');
+            }
+        }
+
+        // Validate filter conditions
+
+
+        
+        // If a 'deleted' filter has not been specified, default to select only records that have not been deleted
 		/*$deleted = $this->_checkForFilterCondition($filterConditions, 'deleted');
 		if ($deleted === false) {
 			$filterConditions[] = array('deleted', '=', 0);
 		}*/
 				
         // Retrieve list of entities from repository
-        $results = $this->getRepository()->all($filterConditions, $orderConditions, $resultsPerPage, $startRecordIndex);
+        $results = $this->getRepository()->all($filterConditions, $sortingConditions, $resultsPerPage, $startRecordIndex);
         return $results;
     }
 

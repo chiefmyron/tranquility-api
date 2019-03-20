@@ -25,6 +25,7 @@ class MessageCodeEnum extends AbstractEnum {
     const ValidationInvalidUserCredentials = '10008';
     const ValidationUsernameInUse = '10009';
     const RecordNotFound = '10010';
+    const ValidationInvalidQueryParameter = '10011';
 
 	private static $_messageDetails = array(
         // Generic form validation messages
@@ -38,7 +39,8 @@ class MessageCodeEnum extends AbstractEnum {
         self::ValidationInvalidAuditTrailUser => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10007_invalid_update_by_user', 'detailMessage' => ''),
         self::ValidationInvalidUserCredentials => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10008_invalid_user_credentials', 'detailMessage' => ''),
         self::ValidationUsernameInUse => array('type' => 'field', 'level' => 'error', 'httpStatusCode' => HttpStatus::UnprocessableEntity, 'titleMessage' => 'message_10009_username_already_in_use', 'detailMessage' => ''),
-        self::RecordNotFound => array('type' => 'header', 'level' => 'error', 'httpStatusCode' => HttpStatus::NotFound, 'titleMessage' => 'message_10010_record_not_found', 'detailMessage' => '')
+        self::RecordNotFound => array('type' => 'header', 'level' => 'error', 'httpStatusCode' => HttpStatus::NotFound, 'titleMessage' => 'message_10010_record_not_found', 'detailMessage' => ''),
+        self::ValidationInvalidQueryParameter => array('type' => 'header', 'level' => 'error', 'httpStatusCode' => HttpStatus::NotFound, 'titleMessage' => 'message_10010_record_not_found', 'detailMessage' => '')
 	);
 	
 	/**

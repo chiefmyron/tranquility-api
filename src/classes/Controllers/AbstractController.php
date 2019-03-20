@@ -32,7 +32,7 @@ class AbstractController {
         $this->router = $router;
     }
 
-    public function generateJsonResponse($request, $response, $resource, $responseCode) {
+    protected function _generateJsonResponse($request, $response, $resource, $responseCode) {
         if ($resource instanceof AbstractResource) {
             $payload = $resource->toResponseArray($request);
         } elseif (is_array($resource) || is_iterable($resource)) {
