@@ -10,7 +10,7 @@ use Slim\Router;
 use Tranquility\System\Utility;
 use Tranquility\Services\AbstractService;
 use Tranquility\Resources\AbstractResource;
-use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
+use Tranquility\System\Enums\FilterOperatorEnum;
 
 class AbstractController {
     /**
@@ -45,8 +45,25 @@ class AbstractController {
 
     protected function _parseQueryStringParams($request) {
         // Get filtering parameters
-        // TODO: Populate this properly
         $filters = [];
+        $filter = $request->getQueryParam("filter", array());
+        foreach ($filter as $field => $value) {
+            // Check to see if the value is prefixed with an operator
+            $valueParams = explode(":", $value);
+            if (count($valueParams) == 1) {
+                // Check to see if the value parameter is a NULL operator, or just a value
+                if ($valueParams[0] == FilterOperatorEnum::IsNull || $valueParams[0] == FilterOperatorEnum::IsNotNull) {
+                    // NULL and NOT NULL operators will not have a value parameter
+                    $filters[] = [$field, $valueParams[0]];
+                } else {
+                    // Not prefixed with an operator - assume equality
+                    $filters[] = [$field, FilterOperatorEnum::Equals, $valueParams[0]];
+                }
+            } else {
+                // Use the prefixed operator
+                $filters[] = [$field, $valueParams[0], $valueParams[1]];
+            }
+        }
 
         // Get sorting parameters
         $sorting = [];
@@ -75,6 +92,7 @@ class AbstractController {
             'filters' => $filters,
             'sorting' => $sorting
         ];
+
         return $params;
     }
 }

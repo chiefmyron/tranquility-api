@@ -81,8 +81,8 @@ abstract class AbstractEnum {
 		}
 		
 		$reflector = new \ReflectionClass($className);
-		if (!$reflector->isSubclassOf('\Tranquility\System\Enums\Enum')) {
-			throw new Exception('Specified class "'.$className.'" does not extend \\Tranquility\\System\\Enums\\Enum');
+		if (!$reflector->isSubclassOf('\Tranquility\System\Enums\AbstractEnum')) {
+			throw new Exception('Specified class "'.$className.'" does not extend \\Tranquility\\System\\Enums\\AbstractEnum');
 		}
 		
 		// Attempt to match values

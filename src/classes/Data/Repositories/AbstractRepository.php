@@ -9,6 +9,7 @@ use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
+use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\Support\ArrayHelper as Arr;
 
 abstract class AbstractRepository extends EntityRepository {
@@ -91,41 +92,62 @@ abstract class AbstractRepository extends EntityRepository {
             $expression = null;
             $whereType = null;
             $fieldName = $filter[0];
-            $operator = trim(strtoupper(Arr::get($filter, 1, '=')));
+            $operator = trim(strtolower(Arr::get($filter, 1, FilterOperatorEnum::Equals)));
 
             // Build expression for this filter
             switch ($operator) {
-                case 'IS NULL':
-                    $expression = $queryBuilder->expr()->isNull($fieldName);
+                case FilterOperatorEnum::Equals:
+                    $operator = '=';
+                    break;
+                case FilterOperatorEnum::NotEquals:
+                    $operator = '<>';
+                    break;
+                case FilterOperatorEnum::GreaterThan:
+                    $operator = '>';
+                    break;
+                case FilterOperatorEnum::GreaterThanEqual:
+                    $operator = '>=';
+                    break;
+                case FilterOperatorEnum::LessThan:
+                    $operator = '<';
+                    break;
+                case FilterOperatorEnum::LessThanEqual:
+                    $operator = '<=';
+                    break;
+                case FilterOperatorEnum::IsNull:
+                    $expression = $queryBuilder->expr()->isNull('e.'.$fieldName);
                     $whereType = trim(strtoupper(Arr::get($filter, 2, 'AND')));
                     break;
-                case 'IS NOT NULL':
-                    $expression = $queryBuilder->expr()->isNotNull($fieldName);
+                case FilterOperatorEnum::IsNotNull:
+                    $expression = $queryBuilder->expr()->isNotNull('e.'.$fieldName);
                     $whereType = trim(strtoupper(Arr::get($filter, 2, 'AND')));
                     break;
-                case 'IN':
+                case FilterOperatorEnum::In:
                     $expression = $queryBuilder->expr()->in('e.'.$fieldName, '?'.$parameterCounter);
                     $parameters[$parameterCounter] = $filter[2];
                     $parameterCounter++;
                     $whereType = trim(strtoupper(Arr::get($filter, 3, 'AND')));
                     break;
-                case 'NOT IN':
+                case FilterOperatorEnum::NotIn:
                     $expression = $queryBuilder->expr()->notIn('e.'.$fieldName, '?'.$parameterCounter);
                     $parameters[$parameterCounter] = $filter[2];
                     $parameterCounter++;
                     $whereType = trim(strtoupper(Arr::get($filter, 3, 'AND')));
                     break;
-                case 'LIKE':
+                case FilterOperatorEnum::Like:
                     $expression = $queryBuilder->expr()->like('LOWER(e.'.$fieldName.')', '?'.$parameterCounter);
                     $parameters[$parameterCounter] = strtolower($filter[2]); // Case-insensitive searching
                     $parameterCounter++;
                     $whereType = trim(strtoupper(Arr::get($filter, 3, 'AND')));
                     break;
-                case 'NOT LIKE':
+                case FilterOperatorEnum::NotLike:
                     $expression = $queryBuilder->expr()->notLike('LOWER(e.'.$fieldName.')', '?'.$parameterCounter);
                     $parameters[$parameterCounter] = strtolower($filter[2]); // Case-insensitive searching
                     $parameterCounter++;
                     $whereType = trim(strtoupper(Arr::get($filter, 3, 'AND')));
+                    break;
+                default:
+                    $operator = '=';
                     break;
             }
 
@@ -139,17 +161,17 @@ abstract class AbstractRepository extends EntityRepository {
                 }
             } else {
                 // Standard SQL comparision 
-                $whereType = trim(strtoupper(Utility::extractValue($filter, 3, 'AND')));
+                $whereType = trim(strtoupper(Arr::get($filter, 3, 'AND')));
                 if ($whereType == 'AND') {
-                    $queryBuilder = $queryBuilder->andWhere('e.'.$fieldName.' '.$filter[1].' ?'.$parameterCounter);
+                    $queryBuilder = $queryBuilder->andWhere('e.'.$fieldName.' '.$operator.' ?'.$parameterCounter);
                 } elseif ($whereType == 'OR') {
-                    $queryBuilder = $queryBuilder->orWhere('e.'.$fieldName.' '.$filter[1].' ?'.$parameterCounter);
+                    $queryBuilder = $queryBuilder->orWhere('e.'.$fieldName.' '.$operator.' ?'.$parameterCounter);
                 }
                 $parameters[$parameterCounter] = $filter[2];
                 $parameterCounter++;
             }
-		}
-
+        }
+        
 		// Add order statements
 		foreach ($orderConditions as $order) {
             $queryBuilder = $queryBuilder->addOrderBy('e.'.$order[0], $order[1]);

@@ -171,8 +171,11 @@ abstract class AbstractService {
         }
 
         // Validate filter conditions
-
-
+        foreach ($filterConditions as $filterField) {
+            if (!in_array($filterField[0], $publicFields)) {
+                throw new InvalidQueryParameterException(MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
+            }
+        }
         
         // If a 'deleted' filter has not been specified, default to select only records that have not been deleted
 		/*$deleted = $this->_checkForFilterCondition($filterConditions, 'deleted');
