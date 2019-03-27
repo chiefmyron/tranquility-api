@@ -172,4 +172,8 @@ abstract class AbstractResource {
 
         return $data;
     }
+
+    protected function generateUri($request, $routeName, $params = array()) {
+        return $request->getUri()->getBaseUrl().$this->router->pathFor($routeName, $params);
+    }
 }
