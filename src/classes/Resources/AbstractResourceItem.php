@@ -4,6 +4,12 @@ use Carbon\Carbon;
 
 abstract class AbstractResourceItem extends AbstractResource {
 
+    /**
+     * Generate full representation of the entity as a resource
+     *
+     * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public function toArray($request) {
         // Format entity-specific data and attributes
         $entityData = [
@@ -23,6 +29,12 @@ abstract class AbstractResourceItem extends AbstractResource {
         return $entityData;
     }
 
+    /**
+     * Map entity data into a set of attributes
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public function getAttributes($request) {
         // Always include audit trail and common entity attributes
         $attributes = [
@@ -35,10 +47,29 @@ abstract class AbstractResourceItem extends AbstractResource {
         return $attributes;
     }
 
+    /**
+     * Map related entities to the main resource
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public abstract function getRelationships($request);
 
+    /**
+     * Generate links related to the resource
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public abstract function getLinks($request);
 
+    /**
+     * Apply sparse fieldset filters specified on the query string to the set of fields provided
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request     PSR7 request
+     * @param array                                    $attributes  The set of attributes or fields that needs to be filtered
+     * @return array
+     */
     protected function _applySparseFieldset($request, $attributes) {
         // Get entity type
         $type = $this->data->type;

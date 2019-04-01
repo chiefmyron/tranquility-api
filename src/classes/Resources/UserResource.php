@@ -2,7 +2,7 @@
 
 class UserResource extends AbstractResourceItem {
     /**
-     * Transform the resource into an array.
+     * Generate full representation of the entity as a resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
@@ -11,6 +11,12 @@ class UserResource extends AbstractResourceItem {
         return parent::toArray($request);
     }
 
+    /**
+     * Map entity data into a set of attributes
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public function getAttributes($request) {
         // Get common entity attributes
         $entity = parent::getAttributes($request);
@@ -31,6 +37,12 @@ class UserResource extends AbstractResourceItem {
         return $attributes;
     }
 
+    /**
+     * Map related entities to the main resource
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public function getRelationships($request) {
         $relationships = [
             'updatedByUser' => [
@@ -50,6 +62,12 @@ class UserResource extends AbstractResourceItem {
         return $relationships;
     }
 
+    /**
+     * Generate links related to the resource
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
     public function getLinks($request) {
         $links = [
             'self' => $this->generateUri($request, 'users-detail', ['id' => $this->data->id])
