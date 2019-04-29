@@ -52,7 +52,9 @@ abstract class AbstractResource {
     /**
      * Create a new resource instance.
      *
-     * @param  mixed         $data    The resource object or array of resource objects
+     * @param  mixed         $data     The resource object or array of resource objects
+     * @param  \Slim\Router  $router   Application router
+     * @param  string        $wrapper  Wrapping element around $data
      * @return void
      */
     public function __construct($data, $router, $wrapper = 'data') {

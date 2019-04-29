@@ -16,7 +16,7 @@ use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
-use Tranquility\System\Enums\TransactionSourceEnum as TransactionSourceEnum;
+use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Exceptions\InvalidQueryParameterException;
 
 abstract class AbstractService {
@@ -127,13 +127,14 @@ abstract class AbstractService {
     /**
 	 * Perform a text search on the entity
 	 *
-	 * @param  mixed  $searchTerm        Either a search term string, or an array of search term strings
-	 * @param  array  $orderConditions   Used to specify order parameters to the set of results
-	 * @param  int    $resultsPerPage    If zero or less, or null, the full result set will be returned
-	 * @param  int    $startRecordIndex  Index of the record to start the result set from. Defaults to zero.
+	 * @param  mixed  $searchTerm             Either a search term string, or an array of search term strings
+	 * @param  array  $orderConditions        Used to specify order parameters to the set of results
+	 * @param  int    $resultsPerPage         If zero or less, or null, the full result set will be returned
+	 * @param  int    $startRecordIndex       Index of the record to start the result set from. Defaults to zero.
+     * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
 	 * @return array
 	 */
-	public function search($searchTerms, $orderConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0) {
+	public function search($searchTerms, $orderConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0, $includeDeletedRecords = false) {
 		// Handle multiple search terms
 		if (is_string($searchTerms)) {
 			$searchTerms = array($searchTerms);
@@ -147,21 +148,23 @@ abstract class AbstractService {
 			}
         }
 
-		return $this->all($filterConditions, $orderConditions, $resultsPerPage, $startRecordIndex);
+		return $this->all($filterConditions, $orderConditions, $resultsPerPage, $startRecordIndex, $includeDeletedRecords);
 	}
 
     /**
 	 * Retrieve all entities of this type
 	 *
-	 * @param  array  $filterConditions  Used to specify additional filters to the set of results
-	 * @param  array  $sortingConditions Used to specify order parameters to the set of results
-	 * @param  int    $resultsPerPage    If zero or less, or null, the full result set will be returned
-	 * @param  int    $startRecordIndex  Index of the record to start the result set from. Defaults to zero.
+	 * @param  array  $filterConditions       Used to specify additional filters to the set of results
+	 * @param  array  $sortingConditions      Used to specify order parameters to the set of results
+	 * @param  int    $resultsPerPage         If zero or less, or null, the full result set will be returned
+	 * @param  int    $startRecordIndex       Index of the record to start the result set from. Defaults to zero.
+     * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
 	 * @return array
 	 */
-	public function all($filterConditions = array(), $sortingConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0) {
+	public function all($filterConditions = array(), $sortingConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0, $includeDeletedRecords = false) {
         // Get the list of public fields
         $publicFields = $this->getEntityPublicFields();
+        $deletedFilterIncluded = false;
         
         // Validate order conditions
         foreach ($sortingConditions as $sortField) {
@@ -172,16 +175,20 @@ abstract class AbstractService {
 
         // Validate filter conditions
         foreach ($filterConditions as $filterField) {
+            if ($filterField[0] == 'deleted') {
+                $deletedFilterIncluded = true;
+            }
+
             if (!in_array($filterField[0], $publicFields)) {
                 throw new InvalidQueryParameterException(MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
             }
         }
-        
+
         // If a 'deleted' filter has not been specified, default to select only records that have not been deleted
-		/*$deleted = $this->_checkForFilterCondition($filterConditions, 'deleted');
-		if ($deleted === false) {
-			$filterConditions[] = array('deleted', '=', 0);
-		}*/
+        if ($includeDeletedRecords == false && $deletedFilterIncluded === false) {
+            $filter = array('deleted', FilterOperatorEnum::Equals, 0);
+            $filterConditions[] = $filter;
+        }
 				
         // Retrieve list of entities from repository
         $results = $this->getRepository()->all($filterConditions, $sortingConditions, $resultsPerPage, $startRecordIndex);
@@ -192,53 +199,64 @@ abstract class AbstractService {
 	 * Find a single entity by ID
 	 *
 	 * @param  int  $id  Entity ID of the object to retrieve
-	 * @return Tranquility\Data\Entities\AbstractEntity
+     * @param  bool $includeDeletedRecords  Includes soft-deleted records if true
+	 * @return mixed Returns Tranquility\Data\Entities\AbstractEntity if found, otherwise false
 	 */
-	public function find($id) {
-        return $this->findOneBy('id', $id);
+	public function find($id, $includeDeletedRecords = false) {
+        return $this->findOneBy('id', $id, $includeDeletedRecords);
     }
     
-    /**
-     * Find one or more entities by a specified field
-     *
-     * @param  string  $fieldName   Name of the field to search against
-     * @param  string  $fieldValue  Value for entity search
-     * @return Tranquility\Data\Entities\AbstractEntity
-     */
-	public function findBy($fieldName, $fieldValue) {
-        $searchOptions = array($fieldName => $fieldValue);
-
-        // Retrieve entity collection from repository
-        $entities = $this->getRepository()->findBy($searchOptions);
-
-        // If no entity found, generate error response
-        if (count($entities) <= 0) {
-            $entity = $this->buildNotFoundErrorResponse($fieldValue);
-        }
-
-		return $entities;
-    }
-
     /**
      * Find a single entity by a specified field
      *
      * @param  string  $fieldName   Name of the field to search against
      * @param  string  $fieldValue  Value for entity search
-     * @return Tranquility\Data\Entities\AbstractEntity
+     * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
+     * @return mixed Returns Tranquility\Data\Entities\AbstractEntity if found, otherwise false
      */
-	public function findOneBy($fieldName, $fieldValue) {
-        $searchOptions = array($fieldName => $fieldValue);
+	public function findOneBy($fieldName, $fieldValue, $includeDeletedRecords = false) {
+        // Set search filters. Unless explicitly requested, filter out deleted records.
+        $searchOptions = [$fieldName => $fieldValue];
+        if ($includeDeletedRecords == false) {
+            $searchOptions['deleted'] = false;
+        }
 
         // Retrieve entity from repository
         $entity = $this->getRepository()->findOneBy($searchOptions);
 
         // If no entity found, generate error response
         if (is_null($entity)) {
-            return $this->buildNotFoundErrorResponse($fieldValue);
+            return false;
         }
 
         // Return entity
 		return $entity;
+    }
+
+    /**
+     * Find one or more entities by a specified field
+     *
+     * @param  string  $fieldName   Name of the field to search against
+     * @param  string  $fieldValue  Value for entity search
+     * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
+     * @return array Returns array of Tranquility\Data\Entities\AbstractEntity objects
+     */
+	public function findBy($fieldName, $fieldValue, $includeDeletedRecords = false) {
+        // Set search filters. Unless explicitly requested, filter out deleted records.
+        $searchOptions = [$fieldName => $fieldValue];
+        if ($includeDeletedRecords == false) {
+            $searchOptions['deleted'] = false;
+        }
+
+        // Retrieve entity collection from repository
+        $entities = $this->getRepository()->findBy($searchOptions);
+
+        // If no entity found, return an empty array
+        if (count($entities) <= 0) {
+            return array();
+        }
+
+		return $entities;
     }
     
     /**
@@ -259,7 +277,7 @@ abstract class AbstractService {
 
         // If there were errors during validation, return them now
         if ($result !== true) {
-            return $this->buildValidationErrorResponse($result);
+            return $result; // Array of validation errors
         }
 
         // Data is valid - create the entity
@@ -296,7 +314,7 @@ abstract class AbstractService {
 
         // If there were errors during validation, return them now
         if ($result !== true) {
-            return $this->buildValidationErrorResponse($result);
+            return $result; // Array of validation errors
         }
 
         // Data is valid - update the entity
@@ -314,7 +332,7 @@ abstract class AbstractService {
      */
     public function delete(int $id, array $payload) {
         // Force set the deleted flag for the entity
-        $payload['data']['deleted'] = 1;
+        $payload['data']['attributes']['deleted'] = true;
 
         // Reuse the update function to process a logical delete
         return $this->update($id, $payload);
@@ -376,60 +394,5 @@ abstract class AbstractService {
         $repository = $this->entityManager->getRepository(Client::class);
         $searchOptions = array('clientId' => $clientId);
         return $repository->findOneBy($searchOptions);
-    }
-
-    /**
-     * Build up array structure representing a 'Record not found' error
-     *
-     * @param int $id Entity ID that cannot be found
-     * @return array
-     */
-    protected function buildNotFoundErrorResponse($id) {
-        $errorCollection = array();
-        $messageCode = MessageCodes::RecordNotFound;
-        $messageDetails = MessageCodes::getMessageDetails($messageCode);
-
-        // Add single error for the record not found
-        $errorDetail = array();
-        $errorDetail['id'] = $id;
-        $errorDetail['status'] = $messageDetails['httpStatusCode'];
-        $errorDetail['code'] = $messageCode;
-        $errorDetail['title'] = $messageDetails['titleMessage'];
-        if ($messageDetails['detailMessage'] != '') {
-            $errorDetail['detail'] = $messageDetails['detailMessage'];
-        }
-        $errorCollection[] = $errorDetail;
-
-        return $errorCollection;
-    }
-
-    /**
-     * Build up an array structure representing an 'Unprocessable entity' error 
-     * (i.e. a validation error)
-     *
-     * @param array $validationErrors The set of validation errors 
-     * @return array
-     */
-    protected function buildValidationErrorResponse(array $validationErrors) {
-        $errorCollection = array();
-        foreach ($validationErrors as $field => $messages) {
-            foreach ($messages as $code) {
-                // Get message details for error code
-                $messageDetails = MessageCodes::getMessageDetails($code);
-
-                // Build JSON API compliant error                     
-                $errorDetail = array();
-                $errorDetail['source'] = ["pointer" => "/data/attributes/".$field];
-                $errorDetail['status'] = $messageDetails['httpStatusCode'];
-                $errorDetail['code'] = $code;
-                $errorDetail['title'] = $messageDetails['titleMessage'];
-                if ($messageDetails['detailMessage'] != '') {
-                    $errorDetail['detail'] = $messageDetails['detailMessage'];
-                }
-                $errorCollection[] = $errorDetail;
-            }
-        }
-
-        return $errorCollection;
     }
 }

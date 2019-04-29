@@ -27,7 +27,7 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     protected $tagCollection;
 
     // Define the set of fields that are publically accessible
-    protected $entityPublicFields = array(
+    protected static $entityPublicFields = array(
         'id',
         'version',
         'type',
@@ -85,7 +85,7 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
      * @return array
      * @abstract
      */
-    abstract public function getPublicFields();
+    abstract public static function getPublicFields();
 
     /**
      * Metadata used to define object relationship to database

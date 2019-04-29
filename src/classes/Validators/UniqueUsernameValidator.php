@@ -1,28 +1,29 @@
 <?php namespace Tranquility\Validators;
 
-// ORM class libraries
-use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
+// Tranquility class libraries
+use Tranquility\System\Utility as Utility;
 
 // Tranquility data entities
+use Tranquility\Services\UserService;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class UniqueUsernameValidator extends AbstractValidator {
     /**
-     * Doctrine Entity Manager
+     * User service
      * 
-     * @var Doctrine\ORM\EntityManagerInterface
+     * @var Tranquility\Services\UserService
      */
-    protected $entityManager;
+    protected $service;
 
     /** 
      * Creates an instance of a resource that handles business logic for a data entity
      * 
-     * @param  \Doctrine\ORM\EntityManagerInterface  $prefix  String to use as database table name prefix
+     * @param  Tranquility\Services\UserService  $service  User service
      * @return void
      */
-    public function __construct(EntityManagerInterface $em) {
-        // Create entity manager for interface to repositories and entities
-        $this->entityManager = $em;
+    public function __construct(UserService $service) {
+        // Use User service for validation of usernames
+        $this->service = $service;
     }
 
     /**
@@ -35,26 +36,23 @@ class UniqueUsernameValidator extends AbstractValidator {
      * @return void
      */
     public function validate($field, $value, $params, array $fields) {
-        // Try to find specified entity
-        // If the entity type has been specified as a parameter, use this to restrict the search
-        $search = array("username" => $value);
-        $entity = $this->getRepository(User::class)->findOneBy($search);
+        // Check if this is already an existing user
+        $existingUser = false;
+        if (Utility::extractValue($params, 0, '') == 'existing') {
+            $existingUser = true;
+        }
 
-        // No existing user with the supplied username found
-        if ($entity == null) {
+        // Try to find specified entity by username
+        $results = $this->service->findBy('username', $value);
+        if (count($results) <= 0 && $existingUser == false) {
+            // Creating a new user and username does not exist
+            return true;
+        } elseif (count($results) == 1 && $existingUser == true && $results[0]->id == $fields['id']) {
+            // Updating an existing user and the username only exists once (i.e. for the current user)
             return true;
         }
 
         // Username already in use
         return false;
-    }
-
-    /**
-     * Get the Repository associated with the Entity for this validator
-     * 
-     * @return Tranquility\Data\Repositories\Repository
-     */
-    protected function getRepository($entityType) {
-        return $this->entityManager->getRepository($entityType);
     }
 }

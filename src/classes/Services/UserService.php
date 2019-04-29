@@ -38,6 +38,7 @@ class UserService extends AbstractService {
         $this->validationRuleGroups['create'][] = array('field' => 'password', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
 
         // Validation rules for a User that should be run when updating the entity
+        $this->validationRuleGroups['update'][] = array('field' => 'username', 'ruleType' => 'uniqueUsername', 'params' => ['existing'], 'message' => MessageCodes::ValidationUsernameInUse);
         $this->validationRuleGroups['update'][] = array('field' => 'id', 'ruleType' => 'entityExists', 'message' => MessageCodes::RecordNotFound, 'params' => [User::class]);
     }
 

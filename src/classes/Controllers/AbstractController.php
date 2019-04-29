@@ -11,6 +11,11 @@ use Tranquility\System\Utility;
 use Tranquility\Services\AbstractService;
 use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\FilterOperatorEnum;
+use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
+
+// Tranquility error resources
+use Tranquility\Resources\ErrorNotFoundResource;
+use Tranquility\Resources\ErrorValidationResource;
 
 class AbstractController {
     /**
@@ -37,10 +42,29 @@ class AbstractController {
             $payload = $resource->toResponseArray($request);
         } elseif (is_array($resource) || is_iterable($resource)) {
             $payload = $resource;
+        } elseif (is_null($resource)) {
+            $payload = null;   
         } else {
-            throw new \Exception("Resource provided is not an instance of \Tranquility\AbstractResource, or an array.");
+            throw new \Exception("Resource provided is not an instance of \Tranquility\AbstractResource, an array or null.");
         }
         return $response->withJson($payload, $responseCode);
+    }
+
+    protected function _generateJsonErrorResponse($request, $response, $id, $data) {
+        $resource = null;
+        $httpStatusCode = null;
+        
+        if ($data === false) {
+            // Entity does not exist
+            $resource = new ErrorNotFoundResource($id, $this->router);
+            $httpStatusCode = HttpStatus::NotFound;
+        } elseif (!($data instanceof User)) {
+            // Service has encountered an error
+            $resource = new ErrorValidationResource($data, $this->router);
+            $httpStatusCode = HttpStatus::UnprocessableEntity;
+        }
+
+        return $this->_generateJsonResponse($request, $response, $resource, $httpStatusCode);
     }
 
     protected function _parseQueryStringParams($request) {

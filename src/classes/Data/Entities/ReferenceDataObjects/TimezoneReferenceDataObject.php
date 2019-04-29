@@ -14,12 +14,12 @@ class TimezoneReferenceDataObject extends AbstractReferenceDataObject {
     );
 
     /** 
-     * Retrieves the set of publically accessible fields for the reference data record
+     * Retrieves the set of publically accessible fields for the entity
      * 
      * @return array
      */
-    public function getPublicFields() {
-        return array_merge($this->referenceDataPublicFields, $this->publicFields);
+    public static function getPublicFields() {
+        return array_merge(self::$referenceDataPublicFields, self::$publicFields);
     }
 
     /**

@@ -1,32 +1,35 @@
 <?php namespace Tranquility\Resources;
 
-class ErrorResource extends AbstractResourceItem {
+class ErrorResource extends AbstractResource {
     /**
-     * Transform the resource into an array.
+     * Create a new resource instance.
      *
+     * @param  mixed         $data    The resource object or array of resource objects
+     * @return void
+     */
+    public function __construct($data, $router, $wrapper = 'errors') {
+        return parent::__construct($data, $router, $wrapper);
+    }
+
+    /**
+     * Transform the resource into a JSON:API compatible array.
+     * 
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
-        // Get standard audit trail data
-        $auditData = $this->getAuditTrailArray($request);
+    public function toResponseArray($request) {
+        // Resolve resource
+        $errors = $this->resolve($request);
 
-        // Format entity-specific data
-        $entityData = [
-            'attributes' => [
-                'username' => $this->data->username,
-                'timezoneCode' => $this->data->timezoneCode,
-                'localeCode' => $this->data->localeCode,
-                'active' => $this->data->active,
-                'securityGroupId' => $this->data->securityGroupId,
-                'registeredDateTime' => $this->data->registeredDateTime
-            ],
-            'links' => [
-                'self' => $request->getUri()->getBaseUrl().$this->router->pathFor('users-detail', ['id' => $this->data->id])
-            ]
-        ];
+        // Add wrapping to data resource (if not already wrapped)
+        if (array_key_exists($this->wrapper, $errors) == false) {
+            $errors = [$this->wrapper => $errors];
+        }
 
-        // Combine entity and audit data and return
-        return array_merge_recursive($auditData, $entityData);
+        // Resolve additional related resource
+        $with = $this->with($request);
+        $additional = $this->additional;
+        $jsonapi = $this->jsonapi();
+        return array_merge_recursive($errors, $with, $additional, $jsonapi);
     }
 }

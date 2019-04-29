@@ -3,6 +3,9 @@
 // Validation library
 use Valitron\Validator;
 
+// Tranquility services
+use Tranquility\Services\UserService;
+
 // Custom validation classes
 use Tranquility\Validators\EntityExistsValidator;
 use Tranquility\Validators\UniqueUsernameValidator;
@@ -20,6 +23,7 @@ class ValidationServiceProvider extends AbstractServiceProvider {
 
         // ORM entity manager
         $em = $container->get('em');
+        $userService = new UserService($em);
 
         // Database connection
         //$db = $em->getConnection();
@@ -27,8 +31,9 @@ class ValidationServiceProvider extends AbstractServiceProvider {
 
         // Register custom validation rules with the main validation class
         Validator::addRule('entityExists', [new EntityExistsValidator($em), 'validate'], "Error occurred in EntityExistsValidator class.");
-        Validator::addRule('uniqueUsername', [new UniqueUsernameValidator($em), 'validate'], "Error occurred in UniqueUsernameValidator class.");
-        //Validator::addRule('referenceDataCode', [new ReferenceDataValidator($db, $options), 'validate'], "Error occurred in ReferenceDataValidator class.");
         Validator::addRule('referenceDataCode', [new ReferenceDataValidator($em), 'validate'], "Error occurred in ReferenceDataValidator class.");
+        Validator::addRule('uniqueUsername', [new UniqueUsernameValidator($userService), 'validate'], "Error occurred in UniqueUsernameValidator class.");
+        //Validator::addRule('referenceDataCode', [new ReferenceDataValidator($db, $options), 'validate'], "Error occurred in ReferenceDataValidator class.");
+        
     }
 }

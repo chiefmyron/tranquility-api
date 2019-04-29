@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 class LocaleReferenceDataObject extends AbstractReferenceDataObject {
     /** 
-     * Retrieves the set of publically accessible fields for the reference data record
+     * Retrieves the set of publically accessible fields for the entity
      * 
      * @return array
      */
-    public function getPublicFields() {
-        return $this->referenceDataPublicFields;
+    public static function getPublicFields() {
+        return array_merge(self::$referenceDataPublicFields);
     }
 
     /**

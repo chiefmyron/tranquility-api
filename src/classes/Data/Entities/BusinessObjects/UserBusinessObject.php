@@ -55,8 +55,8 @@ class UserBusinessObject extends AbstractBusinessObject {
 
         // If the password has been provided, set property value now
         // Not handled as part of default construction as password should not be a public field
-        if ($data instanceof UserBusinessObject) {
-            $this->password = $data->getPassword();
+        if (in_array('password', $data)) {
+            $this->password = $data['password'];
         }
     }
 
