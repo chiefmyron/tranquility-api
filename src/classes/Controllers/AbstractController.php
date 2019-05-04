@@ -13,7 +13,11 @@ use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
-// Tranquility error resources
+// Tranquility entity classes
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+
+// Tranquility resources
+use Tranquility\Resources\UserResource;
 use Tranquility\Resources\ErrorNotFoundResource;
 use Tranquility\Resources\ErrorValidationResource;
 
@@ -35,6 +39,34 @@ class AbstractController {
     public function __construct(AbstractService $service, Router $router) {
         $this->service = $service;
         $this->router = $router;
+    }
+    
+    public function related($request, $response, $args) {
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $related = Utility::extractValue($args, 'resource', '', 'string');
+
+        // Retrieve the related entity
+        $entity = $this->service->getRelatedEntity($id, $related);
+        if ($entity === false) {
+            return $this->_generateJsonErrorResponse($request, $response, $id, $entity);
+        }
+
+        // Return related entity
+        $relatedEntityClass = new \ReflectionClass($entity);
+        $relatedEntityClassname = $relatedEntityClass->getName();
+        if ($entity instanceof \Doctrine\ORM\Proxy\Proxy) {
+            // Handle lazy-loaded related entities
+            $relatedEntityClassname = $relatedEntityClass->getParentClass()->getName();
+        }
+
+        switch ($relatedEntityClassname) {
+            case User::class:
+                $resource = new UserResource($entity, $this->router);
+        }
+
+        // Transform for output
+        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
     protected function _generateJsonResponse($request, $response, $resource, $responseCode) {

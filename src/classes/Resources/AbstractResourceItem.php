@@ -53,7 +53,23 @@ abstract class AbstractResourceItem extends AbstractResource {
      * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public abstract function getRelationships($request);
+    public function getRelationships($request) {
+        $relationships = [
+            'updatedByUser' => [
+                'links' => [
+                    'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => 'updatedByUser'])
+                ],
+                'data' => [
+                    'type' => $this->data->audit->user->type,
+                    'id' => $this->data->audit->user->id
+                ]
+            ]
+        ];
+
+        // If a sparse fieldset has been specified, apply it before returning
+        $relationships = $this->_applySparseFieldset($request, $relationships);
+        return $relationships;
+    }
 
     /**
      * Generate links related to the resource

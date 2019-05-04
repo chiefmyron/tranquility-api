@@ -47,7 +47,6 @@ class UserResource extends AbstractResourceItem {
         $relationships = [
             'updatedByUser' => [
                 'links' => [
-                    'self' => $this->generateUri($request, 'users-relationship', ['id' => $this->data->id, 'resource' => 'updatedByUser']),
                     'related' => $this->generateUri($request, 'users-related', ['id' => $this->data->id, 'resource' => 'updatedByUser'])
                 ],
                 'data' => [

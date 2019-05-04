@@ -339,6 +339,41 @@ abstract class AbstractService {
     }
 
     /**
+     * Get related entity
+     * 
+     * @var  int     $id                 Record ID for the entity to delete
+     * @var  string  $relatedEntityName  Name of the attribute that refers to the related entity
+     * @return boolean
+     */
+    public function getRelatedEntity(int $id, string $relatedEntityName) {
+        // Get the entity
+        $entity = $this->find($id);
+        if ($entity === false) {
+            return $entity;
+        }
+
+        // If the related entity is from the audit trail, use the audit trail entity instead
+        if ($relatedEntityName == 'updatedByUser') {
+            $relatedEntityName = 'user';
+            $entity = $entity->audit;
+        }
+
+        // Check that the relationship is a public field and has been set
+        if (!in_array($relatedEntityName, $entity::getPublicFields())) {
+            return false;
+        }
+
+        $relatedEntity = $entity->$relatedEntityName;
+        if (is_null($relatedEntity)) {
+            return false;
+        }
+        
+
+        // Return related entity
+        return $relatedEntity;
+    }
+
+    /**
      * Get the Repository associated with the Entity for this resource
      * 
      * @return Tranquility\Data\Repositories\Repository
