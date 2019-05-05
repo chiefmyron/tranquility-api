@@ -77,7 +77,12 @@ abstract class AbstractResourceItem extends AbstractResource {
      * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public abstract function getLinks($request);
+    public function getLinks($request) {
+        $links = [
+            'self' => $this->generateUri($request, $this->data->type.'-detail', ['id' => $this->data->id])
+        ];
+        return $links;
+    }
 
     /**
      * Apply sparse fieldset filters specified on the query string to the set of fields provided

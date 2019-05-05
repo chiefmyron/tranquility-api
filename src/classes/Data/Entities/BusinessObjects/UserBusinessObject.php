@@ -5,7 +5,6 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
-use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 
 // Entity repository

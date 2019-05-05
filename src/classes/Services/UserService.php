@@ -2,11 +2,9 @@
 
 // ORM class libraries
 use Carbon\Carbon as Carbon;
-use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility data entities
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 use Tranquility\Data\Entities\ReferenceDataObjects\TimezoneReferenceDataObject as TimezoneReferenceData;
 use Tranquility\Data\Entities\ReferenceDataObjects\LocaleReferenceDataObject as LocaleReferenceData;
 

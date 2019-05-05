@@ -1,6 +1,6 @@
 <?php namespace Tranquility\Resources;
 
-class UserResource extends AbstractResourceItem {
+class PersonResource extends AbstractResourceItem {
     /**
      * Generate full representation of the entity as a resource
      *
@@ -23,12 +23,10 @@ class UserResource extends AbstractResourceItem {
 
         // Map entity data to attributes
         $attributes = [
-            'username' => $this->data->username,
-            'timezoneCode' => $this->data->timezoneCode,
-            'localeCode' => $this->data->localeCode,
-            'active' => $this->data->active,
-            'securityGroupId' => $this->data->securityGroupId,
-            'registeredDateTime' => $this->data->registeredDateTime
+            'title' => $this->data->title,
+            'firstName' => $this->data->lastName,
+            'lastName' => $this->data->firstName,
+            'position' => $this->data->position
         ];
         $attributes = array_merge($entity, $attributes);
 

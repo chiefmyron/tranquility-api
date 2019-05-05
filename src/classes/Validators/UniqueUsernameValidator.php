@@ -44,8 +44,8 @@ class UniqueUsernameValidator extends AbstractValidator {
 
         // Try to find specified entity by username
         $results = $this->service->findBy('username', $value);
-        if (count($results) <= 0 && $existingUser == false) {
-            // Creating a new user and username does not exist
+        if (count($results) <= 0) {
+            // Username does not exist
             return true;
         } elseif (count($results) == 1 && $existingUser == true && $results[0]->id == $fields['id']) {
             // Updating an existing user and the username only exists once (i.e. for the current user)

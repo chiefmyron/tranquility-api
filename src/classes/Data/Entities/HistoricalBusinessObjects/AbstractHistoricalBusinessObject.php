@@ -7,11 +7,11 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 // Entity classes
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
+use Tranquility\Data\Entities\HistoricalBusinessObjects\PersonHistoricalBusinessObject as HistoricalPerson;
 use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
 abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     // Entity properties
@@ -102,8 +102,8 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
         $builder->setJoinedTableInheritance();
         $builder->setDiscriminatorColumn('type');
         $builder->addDiscriminatorMapClass(EntityTypeEnum::User, HistoricalUser::class);
+        $builder->addDiscriminatorMapClass(EntityTypeEnum::Person, HistoricalPerson::class);
 
-        //$builder->addDiscriminatorMapClass(EntityTypeEnum::Person, Person::class);
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Account, Account::class);
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Address, Address::class);
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::AddressPhysical, AddressPhysical::class);

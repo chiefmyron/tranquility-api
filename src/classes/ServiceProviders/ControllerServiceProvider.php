@@ -1,18 +1,16 @@
 <?php namespace Tranquility\ServiceProviders;
 
-// Fractal class libraries
-use League\Fractal\Manager;
-use League\Fractal\Serializer\JsonApiSerializer;
-
 // OAuth server class libraries
 use OAuth2\Server;
 
 // Data resource libraries
 use Tranquility\Services\UserService as UserService;
+use Tranquility\Services\PersonService as PersonService;
 
 // Controller libraries
 use Tranquility\Controllers\AuthController as AuthController;
 use Tranquility\Controllers\UserController as UserController;
+use Tranquility\Controllers\PersonController as PersonController;
 
 class ControllerServiceProvider extends AbstractServiceProvider {
     /**
@@ -35,6 +33,12 @@ class ControllerServiceProvider extends AbstractServiceProvider {
             $service->registerValidationRules();
             $router = $container->get('router');
             return new UserController($service, $router);
+        };
+        $container[PersonController::class] = function($container) {
+            $service = new PersonService($container->get('em'));
+            $service->registerValidationRules();
+            $router = $container->get('router');
+            return new PersonController($service, $router);
         };
     }
 }
