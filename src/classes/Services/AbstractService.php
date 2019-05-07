@@ -169,7 +169,7 @@ abstract class AbstractService {
         // Validate order conditions
         foreach ($sortingConditions as $sortField) {
             if (!in_array($sortField[0], $publicFields)) {
-                throw new InvalidQueryParameterException(MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a sortable field", $sortField[0]), 'sort');
+                throw new InvalidQueryParameterException(int(MessageCodes::ValidationInvalidQueryParameter), sprintf("'%s' is not a sortable field", $sortField[0]), 'sort');
             }
         }
 
@@ -180,7 +180,7 @@ abstract class AbstractService {
             }
 
             if (!in_array($filterField[0], $publicFields)) {
-                throw new InvalidQueryParameterException(MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
+                throw new InvalidQueryParameterException(int(MessageCodes::ValidationInvalidQueryParameter), sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
             }
         }
 
@@ -270,6 +270,7 @@ abstract class AbstractService {
         $meta = Utility::extractValue($payload, 'meta', array());
         $data = Utility::extractValue($payload, 'data', array());
         $attributes = Utility::extractValue($data, 'attributes', array());
+        $relationships = Utility::extractValue($data, 'relationships', array());
 
         // Validate input
         $validationRuleGroups = array('default', 'create');

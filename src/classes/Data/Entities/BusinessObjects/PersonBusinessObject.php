@@ -63,7 +63,7 @@ class PersonBusinessObject extends AbstractBusinessObject {
         $builder->createField('position', 'string')->nullable()->build();
         
         // Add relationships
-        $builder->createOneToOne(EntityTypeEnum::User, User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
+        $builder->createOneToOne('user', User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
     }
 
     /** 
