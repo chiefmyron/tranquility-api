@@ -63,7 +63,8 @@ class PersonBusinessObject extends AbstractBusinessObject {
         $builder->createField('position', 'string')->nullable()->build();
         
         // Add relationships
-        $builder->createOneToOne('user', User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
+        //$builder->createOneToOne('user', User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
+        $builder->createOneToOne('user', User::class)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
     }
 
     /** 
@@ -73,5 +74,9 @@ class PersonBusinessObject extends AbstractBusinessObject {
      */
     public static function getPublicFields() {
         return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    protected function _getUser() {
+        return $this->user;
     }
 }

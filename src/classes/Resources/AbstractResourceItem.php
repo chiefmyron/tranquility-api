@@ -57,12 +57,10 @@ abstract class AbstractResourceItem extends AbstractResource {
         $relationships = [
             'updatedByUser' => [
                 'links' => [
+                    'self' => $this->generateUri($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => 'updatedByUser']),
                     'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => 'updatedByUser'])
                 ],
-                'data' => [
-                    'type' => $this->data->audit->user->type,
-                    'id' => $this->data->audit->user->id
-                ]
+                'data' => $this->_generateResourceLinkage($this->data->audit->user)
             ]
         ];
 
@@ -106,6 +104,23 @@ abstract class AbstractResourceItem extends AbstractResource {
             }
         }
         return $attributes;
+    }
+
+    /**
+     * Generates a resource linkage compound document from the supplied entity. If no entity is provided, null is returned.
+     *
+     * @param \Tranquility\Data\AbstractEntity $entity
+     * @return mixed Array or null
+     */
+    protected function _generateResourceLinkage($entity) {
+        $resourceLinkage = null;
+        if (!is_null($entity)) {
+            $resourceLinkage = [
+                'type' => $entity->type,
+                'id' => $entity->id
+            ];
+        }
+        return $resourceLinkage;
     }
 }
 
