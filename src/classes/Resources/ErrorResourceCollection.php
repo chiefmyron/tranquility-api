@@ -1,13 +1,14 @@
 <?php namespace Tranquility\Resources;
 
 class ErrorResourceCollection extends AbstractResourceCollection {
+    
     /**
-     * Transform the resource into an array.
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
+    public function data($request) {
         if (is_array($this->data) == false) {
             return array();
         }

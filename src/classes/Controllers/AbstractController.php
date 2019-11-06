@@ -100,7 +100,6 @@ class AbstractController {
     public function create($request, $response, $args) {
         // Get data from request
         $payload = $request->getParsedBody();
-        $payload['meta']['updateReason'] = 'user_create_new_record';
 
         // Attempt to create the user entity
         $data = $this->service->create($payload);
@@ -117,7 +116,6 @@ class AbstractController {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $payload = $request->getParsedBody();
-        $payload['meta']['updateReason'] = 'user_update_existing_record';
 
         // Attempt to update the user entity
         $data = $this->service->update($id, $payload);
@@ -134,7 +132,6 @@ class AbstractController {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $payload = $request->getParsedBody();
-        $payload['meta']['updateReason'] = 'user_delete_existing_record';
 
         // Attempt to update the user entity
         $data = $this->service->delete($id, $payload);
@@ -175,6 +172,28 @@ class AbstractController {
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
+    public function relationships($request, $response, $args) {
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
+
+        // Retrieve entity data
+        $data = $this->service->find($id);
+        if ($this->_checkInstanceOfEntity($data) === false) {
+            return $this->_generateJsonErrorResponse($request, $response, $id, $data);
+        }
+
+        // Generate response document for entity
+        $resource = new $this->entityResourceClassname($data, $this->router);
+        $relationships = $resource->getRelationships($request);
+
+        // Extract only the relationship for the specified resource, and return as they response
+        if (array_key_exists($resourceName, $relationships) === false) {
+            return $this->_generateJsonErrorResponse($request, $response, $id, false);
+        }
+        return $this->_generateJsonResponse($request, $response, $relationships[$resourceName], HttpStatus::OK);
+    }
+
     protected function _generateJsonResponse($request, $response, $resource, $responseCode) {
         if ($resource instanceof AbstractResource) {
             $payload = $resource->toResponseArray($request);
@@ -192,11 +211,11 @@ class AbstractController {
         $resource = null;
         $httpStatusCode = null;
         
-        if ($data === false) {
+        if ($data === false || is_null($data)) {
             // Entity does not exist
             $resource = new ErrorNotFoundResource($id, $this->router);
             $httpStatusCode = HttpStatus::NotFound;
-        } elseif (!($data instanceof User)) {
+        } elseif (!($data instanceof Entity)) {
             // Service has encountered an error
             $resource = new ErrorValidationResource($data, $this->router);
             $httpStatusCode = HttpStatus::UnprocessableEntity;

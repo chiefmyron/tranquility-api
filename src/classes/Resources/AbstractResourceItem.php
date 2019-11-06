@@ -5,12 +5,12 @@ use Carbon\Carbon;
 abstract class AbstractResourceItem extends AbstractResource {
 
     /**
-     * Generate full representation of the entity as a resource
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
+    public function data($request) {
         // Format entity-specific data and attributes
         $entityData = [
             'type' => $this->data->type,
@@ -27,6 +27,17 @@ abstract class AbstractResourceItem extends AbstractResource {
 
         // Return formatted entity
         return $entityData;
+    }
+
+    /**
+     * Generate 'included' representation for the resource
+     *
+     * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return array
+     */
+    public function included($request) {
+        $included = parent::included($request);
+        return $included;
     }
 
     /**

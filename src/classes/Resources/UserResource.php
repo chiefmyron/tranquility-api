@@ -1,14 +1,15 @@
 <?php namespace Tranquility\Resources;
 
 class UserResource extends AbstractResourceItem {
+    
     /**
-     * Generate full representation of the entity as a resource
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
-        return parent::toArray($request);
+    public function data($request) {
+        return parent::data($request);
     }
 
     /**

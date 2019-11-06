@@ -11,20 +11,11 @@ abstract class AbstractResource {
     protected $data;
 
     /**
-     * The additional data that should be added to the top-level resource array.
-     *
-     * @var array
+     * Wrapping element around $data
+     * 
+     * @var string
      */
-    protected $with = [];
-
-    /**
-     * The additional meta data that should be added to the resource response.
-     *
-     * Added during response construction by the developer.
-     *
-     * @var array
-     */
-    protected $additional = [];
+    protected $wrapper = 'data';
 
     /**
      * Version of the JSON:API spec that output will conform to
@@ -34,13 +25,6 @@ abstract class AbstractResource {
      * @var string
      */
     protected $jsonApiVersion = "1.0";
-
-    /**
-     * Wrapping element around $data
-     * 
-     * @var string
-     */
-    protected $wrapper = 'data';
 
     /**
      * Application router
@@ -66,12 +50,12 @@ abstract class AbstractResource {
     }
 
     /**
-     * Transform the resource into an array.
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
+    public function data($request) {
         if (is_null($this->data)) {
             return [];
         }
@@ -84,34 +68,47 @@ abstract class AbstractResource {
     }
 
     /**
-     * Get any additional data that should be returned with the resource array.
+     * Generate 'meta' top-level member for response
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      */
-    public function with($request) {
-        return $this->with;
+    public function meta($request) {
+        return [];
     }
 
     /**
-     * Add additional meta data to the resource response.
+     * Generate 'links' top-level member for response
      *
-     * @param  array  $data
-     * @return $this
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return array
      */
-    public function additional(array $data) {
-        $this->additional = $data;
-
-        return $this;
+    public function links($request) {
+        $links = [
+            'self' => $request->getUri()->getBaseUrl().$request->getRequestTarget()
+        ];
+        return $links;
     }
 
     /**
-     * Add JSON:API spec version details to the resource response
+     * Generate 'included' top-level member for response
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return array
+     */
+    public function included($request) {
+        return [];
+    }
+
+    /**
+     * Generate 'jsonapi' top-level member for response. Adds the 
+     * JSON:API spec version details to the resource response
      * 
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      */
-    public function jsonapi() {
-        return ["jsonapi" => ["version" => $this->jsonApiVersion]];
+    public function jsonapi($request) {
+        return ["version" => $this->jsonApiVersion];
     }
 
     /**
@@ -121,34 +118,39 @@ abstract class AbstractResource {
      * @return array
      */
     public function toResponseArray($request) {
-        // Resolve resource
-        $data = $this->resolve($request);
+        $responseArray = [];
 
-        // Apply filters and resolve any embedded resources
-        $data = $this->filter($data, $request);
-
-        // Add wrapping to data resource (if not already wrapped)
+        // Generate 'data' top-level member
+        $data = $this->toArray($request);
+        $data = $this->resolve($data, $request);
         if (array_key_exists($this->wrapper, $data) == false) {
-            $data = [$this->wrapper => $data];
+            // Add wrapping to data resource (if not already wrapped)
+            $responseArray[$this->wrapper] = $data;
+        } else {
+            $responseArray = $data;
         }
 
-        // Resolve additional related resource
-        $with = $this->with($request);
-        $additional = $this->additional;
-        $jsonapi = $this->jsonapi();
-        return array_merge_recursive($data, $with, $additional, $jsonapi);
+        // Add other top-level members
+        $memberNames = ['meta', 'links', 'included', 'jsonapi'];
+        foreach ($memberNames as $name) {
+            $value = $this->$name($request);
+            if (is_array($value) && count($value) > 0) {
+                $responseArray[$name] = $value;
+            }
+        }
+
+        return $responseArray;
     }
 
     /**
-     * Resolve the resource to an array. Recursively processes any related resources.
+     * Converts the resource data to an array
      *
      * @param  \Psr\Http\Message\ServerRequestInterface  $request  PSR7 request
      * @return array
      */
-    public function resolve($request) {
+    public function toArray($request) {
         // Convert resource into array
-        $data = $this->toArray($request);
-
+        $data = $this->data($request);
         if ($data instanceof Arrayable) {
             $data = $data->toArray();
         }
@@ -156,19 +158,27 @@ abstract class AbstractResource {
         return $data;
     }
 
-    public function filter($data, $request) {
+    /**
+     * Iterates through the array representation of the resource data and recursively 
+     * processes any related resources.
+     *
+     * @param array $data
+     * @param \Psr\Http\Message\ServerRequestInterface  $request  PSR7 request
+     * @return array
+     */
+    public function resolve($data, $request) {
         // Recursively resolve embedded resources and correctly format values
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 // If value is an array, filter all elements of the array
-                $data[$key] = $this->filter($value, $request);
+                $data[$key] = $this->resolve($value, $request);
             } elseif ($value instanceof \DateTime) {
                 // If value is a DateTime value, convert to ISO8601 valid string
                 $data[$key] = Carbon::instance($value)->toIso8601String();
             } elseif ($value instanceof AbstractResource) {
                 // If value is another Resource, convert it to an array and filter
-                $resource = $value->resolve($request);
-                $data[$key] = $this->filter($resource, $request);
+                $resource = $value->toArray($request);
+                $data[$key] = $this->resolve($resource, $request);
             }
         }
 

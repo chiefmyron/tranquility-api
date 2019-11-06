@@ -6,12 +6,12 @@ use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 class ErrorNotFoundResource extends ErrorResource {
 
     /**
-     * Generate full representation of the error set as a resource
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
+    public function data($request) {
         $messageCode = MessageCodes::RecordNotFound;
         $messageDetails = MessageCodes::getMessageDetails($messageCode);
 

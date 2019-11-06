@@ -6,12 +6,12 @@ use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 class ErrorValidationResource extends ErrorResource {
 
     /**
-     * Generate full representation of the error set as a resource
+     * Generate 'data' representation for the resource
      *
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function toArray($request) {
+    public function data($request) {
         $errorCollection = array();
         foreach ($this->data as $field => $messages) {
             foreach ($messages as $code) {
