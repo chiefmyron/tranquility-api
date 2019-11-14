@@ -23,7 +23,7 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Related entities
     protected $user;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'title',
         'firstName',
@@ -52,7 +52,7 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */

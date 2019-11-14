@@ -29,7 +29,7 @@ class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Related extension data objects
     protected $userTokens;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'username',
         'timezoneCode',
@@ -84,7 +84,7 @@ class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */

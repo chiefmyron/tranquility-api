@@ -31,7 +31,7 @@ class UserBusinessObject extends AbstractBusinessObject {
     // Related extension data objects
     protected $userTokens;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'username',
         'timezoneCode',
@@ -39,6 +39,11 @@ class UserBusinessObject extends AbstractBusinessObject {
         'active',
         'securityGroupId',
         'registeredDateTime'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        //["name" => "person", "entityType" => EntityTypeEnum::Person, "relationshipType" => "single"]
     );
 
     /**
@@ -95,12 +100,21 @@ class UserBusinessObject extends AbstractBusinessObject {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */
     public static function getPublicFields() {
         return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 
     /**

@@ -26,7 +26,7 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     protected $audit;
     protected $tagCollection;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $entityPublicFields = array(
         'id',
         'version',
@@ -80,7 +80,7 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      * @abstract

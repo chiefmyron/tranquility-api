@@ -31,6 +31,9 @@ abstract class AbstractEntity {
         } elseif (in_array($name, $this->getPublicFields())) {
             // Retrieve value directly
             return $this->$name;
+        } elseif (array_key_exists($name, $this->getPublicRelationships())) {
+            // Retrieve related entity
+            return $this->$name;
         } else {
             throw new \Exception('Cannot get property value - class "'.get_class($this).'" does not have a property named "'.$name.'"');
         }
@@ -73,6 +76,8 @@ abstract class AbstractEntity {
                 return true;
             }
         } elseif (in_array($name, $this->getPublicFields())){
+            return isset($this->name);
+        } elseif (array_key_exists($name, $this->getPublicRelationships())){
             return isset($this->name);
         } else {
             return false;
@@ -125,10 +130,18 @@ abstract class AbstractEntity {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      * @abstract
      */
     abstract public static function getPublicFields();
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     * @abstract
+     */
+    abstract public static function getPublicRelationships();
 }

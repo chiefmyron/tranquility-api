@@ -5,8 +5,6 @@ use Slim\Router;
 
 // Tranquility class libraries
 use Tranquility\Services\UserService;
-use Tranquility\Resources\UserResource;
-use Tranquility\Resources\UserResourceCollection;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class UserController extends AbstractController {
@@ -14,8 +12,6 @@ class UserController extends AbstractController {
     public function __construct(UserService $service, Router $router) {
         // Set the resources used to represent User entities
         $this->entityClassname = User::class;
-        $this->entityResourceClassname = UserResource::class;
-        $this->entityResourceCollectionClassname = UserResourceCollection::class;
         return parent::__construct($service, $router);
     }
 

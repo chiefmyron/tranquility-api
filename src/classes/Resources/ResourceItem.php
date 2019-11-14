@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 
-abstract class AbstractResourceItem extends AbstractResource {
+class ResourceItem extends AbstractResource {
 
     /**
      * Generate 'data' representation for the resource
@@ -37,6 +37,19 @@ abstract class AbstractResourceItem extends AbstractResource {
      */
     public function included($request) {
         $included = parent::included($request);
+
+        // Check to see if the client has requested a compound document
+        $include = trim($request->getQueryParam("include", ""));
+        if ($include == "") {
+            return $included;
+        }
+
+        // Add include for each specified entity type
+        $includeTypes = explode(",", $include);
+        foreach ($includeTypes as $includesPath) {
+            $included = $this->getIncludeDetail($included, $includesPath, $this->data, $request);
+        }
+
         return $included;
     }
 
@@ -47,14 +60,28 @@ abstract class AbstractResourceItem extends AbstractResource {
      * @return array
      */
     public function getAttributes($request) {
-        // Always include audit trail and common entity attributes
-        $attributes = [
-            'version' => $this->data->version,
-            'transactionId' => $this->data->audit->transactionId,
-            'client' => $this->data->audit->client->clientId,
-            'timestamp' => Carbon::instance($this->data->audit->timestamp)->toIso8601String(),
-            'updateReason' => $this->data->audit->updateReason
-        ];
+        // List of top-level fields to exclude from the entity attribute list
+        $excludes = array('id', 'type');
+        $fields = $this->data->getPublicFields();
+
+        // Get the set of publicly available fields for the entity
+        $attributes = array();
+        foreach ($fields as $field) {
+            if (in_array($field, $excludes) == true) {
+                continue; // Do not add this field to the attribute set
+                
+            }
+
+            // Handle date values
+            $value = $this->data->$field;
+            if ($value instanceof \DateTime) {
+                $value = Carbon::instance($value)->toIso8601String();
+            }
+            $attributes[$field] = $value;
+        }
+
+        // If a sparse fieldset has been specified, apply it before returning
+        $attributes = $this->_applySparseFieldset($request, $attributes);
         return $attributes;
     }
 
@@ -65,19 +92,41 @@ abstract class AbstractResourceItem extends AbstractResource {
      * @return array
      */
     public function getRelationships($request) {
-        $relationships = [
-            'updatedByUser' => [
+        // Get the set of publicly available related entities and entity collections for the entity
+        $relations = $this->data->getPublicRelationships();
+
+        $relationships = array();
+        foreach ($relations as $name => $relation) {
+            $relationships[$name] = [
                 'links' => [
-                    'self' => $this->generateUri($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => 'updatedByUser']),
-                    'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => 'updatedByUser'])
+                    'self' => $this->generateUri($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => $name]),
+                    'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => $name])
                 ],
-                'data' => $this->_generateResourceLinkage($this->data->audit->user)
-            ]
-        ];
+                'data' => $this->_generateResourceLinkage($this->data->$name)
+            ];
+        }
 
         // If a sparse fieldset has been specified, apply it before returning
         $relationships = $this->_applySparseFieldset($request, $relationships);
         return $relationships;
+    }
+
+    public function getIncludeDetail($includes, $entityPath, $entity, $request) {
+        // Explode out the entity name, in case it has been specified as a multi-part path
+        $entityPathParts = explode(".", $entityPath, 2);
+
+        // Build a resource document for the first entity specified in the path
+        $entityName = $entityPathParts[0];
+        $childEntity = $entity->$entityName;
+        $resource = new ResourceItem($childEntity, $this->router);
+        $includes[] = $resource->data($request);
+
+        // If there are other entities specified in the remaineder of the multi-part path, continue adding them
+        if (isset($entityPathParts[1]) && trim($entityPathParts[1] != "")) {
+            $includes = $this->getIncludeDetail($includes, $entityPathParts[1], $childEntity, $request);
+        }
+
+        return $includes;
     }
 
     /**

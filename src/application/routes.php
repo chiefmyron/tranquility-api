@@ -20,6 +20,15 @@ $routeGroupMiddlewares = [
 
 // Version 1 API route group (authenticated)
 $routeGroup = $app->group('/v1', function() {
+    // Audit trail resource
+    $this->get('/transations', UserController::class.':list')->setName('transaction-list');
+    $this->post('/transactions', UserController::class.':create');
+    $this->get('/transactions/{id}', UserController::class.':show')->setName('transaction-detail');
+    $this->patch('/transactions/{id}', UserController::class.':update');
+    $this->delete('/transactions/{id}', UserController::class.':delete');
+    $this->get('/transactions/{id}/related/{resource}', UserController::class.':related')->setName('transaction-related');
+    $this->get('/transactions/{id}/relationships/{resource}', UserController::class.':relationships')->setName('transaction-relationships');
+    
     // User resource
     $this->get('/users', UserController::class.':list')->setName('user-list');
     $this->post('/users', UserController::class.':create');

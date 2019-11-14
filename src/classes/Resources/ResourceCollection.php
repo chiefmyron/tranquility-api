@@ -6,14 +6,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
 // Class libraries
 use Tranquility\System\Utility;
 
-abstract class AbstractResourceCollection extends AbstractResource {
-
-    /**
-     * Class name of the singleton resource for the resource collection
-     * 
-     * @var mixed
-     */
-    protected $resourceClassname;
+class ResourceCollection extends AbstractResource {
 
     /**
      * Generate 'data' representation for the resource
@@ -29,7 +22,7 @@ abstract class AbstractResourceCollection extends AbstractResource {
         // Generate data for each resource in the array
         $collectionData = array();
         foreach ($this->data as $entity) {
-            $user = new $this->resourceClassname($entity, $this->router);
+            $user = new ResourceCollection($entity, $this->router);
             $collectionData[] = $user;
         }
 

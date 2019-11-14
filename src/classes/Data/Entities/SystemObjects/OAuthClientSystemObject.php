@@ -14,7 +14,7 @@ class OAuthClientSystemObject extends OAuthAbstractHashableField {
     protected $clientSecret;
     protected $redirectUri;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     private static $entityPublicFields = array(
         'clientId',
         'clientSecret',
@@ -23,6 +23,10 @@ class OAuthClientSystemObject extends OAuthAbstractHashableField {
 
     public static function getPublicFields() {
         return self::$entityPublicFields;
+    }
+
+    public static function getPublicRelationships() {
+        return [];
     }
 
     public function setClientId($clientId) {

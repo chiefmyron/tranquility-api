@@ -18,7 +18,7 @@ abstract class AbstractReferenceDataObject extends AbstractEntity {
     protected $effectiveFrom;
     protected $effectiveUntil;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected $referenceDataPublicFields = array(
         'code',
         'description',

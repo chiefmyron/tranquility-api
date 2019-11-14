@@ -18,7 +18,7 @@ class TagSystemObject extends AbstractSystemObject {
     // Related entities
     protected $entities;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected $entityPublicFields = array(
         'id',
         'text'

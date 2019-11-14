@@ -17,9 +17,10 @@ use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 // Tranquility resources
-use Tranquility\Resources\UserResource;
 use Tranquility\Resources\ErrorNotFoundResource;
 use Tranquility\Resources\ErrorValidationResource;
+use Tranquility\Resources\ResourceCollection;
+use Tranquility\Resources\ResourceItem;
 
 class AbstractController {
     /**
@@ -44,20 +45,6 @@ class AbstractController {
     protected $entityClassname;
     
     /**
-     * Class name of the resource used to represent a single entity
-     * 
-     * @var string
-     */
-    protected $entityResourceClassname;
-
-    /**
-     * Class name of the resource used to represent a collection of entities
-     * 
-     * @var string
-     */
-    protected $entityResourceCollectionClassname;
-
-    /**
      * Constructor
      *
      * @param AbstractService  $service  Service used to interact with the primary entity data
@@ -80,7 +67,7 @@ class AbstractController {
         }
 
         // Data is a collection of users
-        $resource = new $this->entityResourceCollectionClassname($data, $this->router);
+        $resource = new ResourceCollection($data, $this->router);
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
@@ -93,7 +80,7 @@ class AbstractController {
         }
 
         // Data is an instance of a user
-        $resource = new $this->entityResourceClassname($data, $this->router);
+        $resource = new ResourceItem($data, $this->router);
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
@@ -108,7 +95,7 @@ class AbstractController {
         }
 
         // Data is an instance of a user
-        $resource = new $this->entityResourceClassname($data, $this->router);
+        $resource = new ResourceItem($data, $this->router);
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::Created);
     }
 
@@ -124,7 +111,7 @@ class AbstractController {
         }
 
         // Transform for output
-        $resource = new $this->entityResourceClassname($data, $this->router);
+        $resource = new ResourceItem($data, $this->router);
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
     }
 
@@ -154,8 +141,10 @@ class AbstractController {
             return $this->_generateJsonErrorResponse($request, $response, $id, $entity);
         }
 
+        $resource = new ResourceItem($entity, $this->router);
+
         // Return related entity
-        $relatedEntityClass = new \ReflectionClass($entity);
+        /*$relatedEntityClass = new \ReflectionClass($entity);
         $relatedEntityClassname = $relatedEntityClass->getName();
         if ($entity instanceof \Doctrine\ORM\Proxy\Proxy) {
             // Handle lazy-loaded related entities
@@ -166,7 +155,7 @@ class AbstractController {
             case User::class:
                 $resource = new UserResource($entity, $this->router);
                 break;
-        }
+        }*/
 
         // Transform for output
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
@@ -202,7 +191,7 @@ class AbstractController {
         } elseif (is_null($resource)) {
             $payload = null;   
         } else {
-            throw new \Exception("Resource provided is not an instance of \Tranquility\AbstractResource, an array or null.");
+            throw new \Exception("Resource provided is not an instance of '" . AbstractResource::class . "', an array or null.");
         }
         return $response->withJson($payload, $responseCode);
     }

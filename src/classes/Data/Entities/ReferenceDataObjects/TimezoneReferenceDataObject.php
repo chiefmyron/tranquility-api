@@ -8,13 +8,13 @@ class TimezoneReferenceDataObject extends AbstractReferenceDataObject {
     // Entity properties
     protected $daylightSavings;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected $publicFields = array(
         'daylightSavings'
     );
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */

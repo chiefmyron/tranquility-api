@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 class LocaleReferenceDataObject extends AbstractReferenceDataObject {
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */

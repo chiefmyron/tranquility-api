@@ -6,7 +6,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
 
 // Tranquility data entities
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\FilterOperatorEnum;
@@ -50,29 +50,29 @@ abstract class AbstractRepository extends EntityRepository {
     /**
      * Creates a new record
      * 
-     * @param  array           $data   Input data to create the record
-     * @param  AuditTrail      $audit  Audit trail object
+     * @param  array           $data         Input data to create the record
+     * @param  Transaction     $transaction  Audit trail transaction entity
      * @return AbstractEntity
      */
-    abstract public function create(array $data, AuditTrail $audit = null);
+    abstract public function create(array $data, Transaction $transaction = null);
     
     /**
      * Updates an existing record
      *
-     * @param  AbstractEntity  $entity  The updated entity to persist
-     * @param  AuditTrail      $audit   Audit trail object
+     * @param  AbstractEntity  $entity       The updated entity to persist
+     * @param  Transaction     $transaction  Audit trail transaction entity
      * @return AbstractEntity
      */ 
-    abstract public function update(AbstractEntity $entity, AuditTrail $audit = null);
+    abstract public function update(AbstractEntity $entity, Transaction $transaction = null);
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param  AbstractEntity  $entity  The entity to logically delete
-     * @param  AuditTrail      $audit   Audit trail object
+	 * @param  AbstractEntity  $entity       The entity to logically delete
+     * @param  Transaction     $transaction  Audit trail transaction entity
 	 * @return AbstractEntity
 	 */
-    abstract public function delete(AbstractEntity $entity, AuditTrail $audit = null);
+    abstract public function delete(AbstractEntity $entity, Transaction $transaction = null);
 
     /**
 	 * Used to add additional query conditions, ordering and set limits to a selection query

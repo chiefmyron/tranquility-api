@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Data\Entities\BusinessObjects\PersonBusinessObject as Person;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
@@ -24,10 +24,10 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     protected $locks;
 
     // Related extension data objects
-    protected $audit;
+    protected $transaction;
     protected $tagCollection;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $entityPublicFields = array(
         'id',
         'version',
@@ -35,6 +35,12 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         'subType',
         'deleted',
         'locks'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $entityPublicRelationships = array(
+        "transaction" => ["entityType" => EntityTypeEnum::Transaction, "relationshipType" => "single"]
+        //["name" => "tags", "entityType" => EntityTypeEnum::Tag, "relationshipType" => "collection"]
     );
 
     /**
@@ -58,35 +64,43 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     }
 
     /**
-     * Set the audit trail details for an entity
+     * Set the audit trail transaction details for an entity
      *
-     * @param AuditTrail $audit
+     * @param Tranquility\Data\Entities\SystemObjects\TransactionSystemObject $transaction
      * @return void
      */
-    protected function _setAudit($audit) {
-        if (!($audit instanceof AuditTrail)) {
-            throw new \Exception('Audit trail information must be provided as a Tranquility\Data\Entities\Extensions\AuditTrailExtension object');
+    protected function _setTransaction($transaction) {
+        if (!($transaction instanceof Transaction)) {
+            throw new \Exception('Audit trail transaction information must be provided as a ' . Transaction::class . ' object');
         }
         
-        $this->audit = $audit;
+        $this->transaction = $transaction;
     }
     
     /**
      * Retrieve audit trail details for the entity as an array
      *
-     * @return Tranquility\Data\Entities\Extensions\AuditTrailExtension
+     * @return Tranquility\Data\Entities\SystemObjects\TransactionSystemObject
      */
-    protected function _getAudit() {
-        return $this->audit;
+    protected function _getTransaction() {
+        return $this->transaction;
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      * @abstract
      */
     abstract public static function getPublicFields();
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     * @abstract
+     */
+    abstract public static function getPublicRelationships();
 
     /**
      * Returns the name of the class used to model the historical records for this business object
@@ -123,7 +137,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         $builder->addField('deleted', 'boolean');
         
         // Add relationships
-        $builder->createOneToOne('audit', AuditTrail::class)->addJoinColumn('transactionId','transactionId')->build();
+        $builder->createOneToOne('transaction', Transaction::class)->addJoinColumn('transactionId','id')->build();
         //$builder->createManyToMany('tags', Tag::class)->inversedBy('entities')->setJoinTable('entity_tags_xref')->addJoinColumn('entityId', 'id')->addInverseJoinColumn('tagId', 'id')->build();
         //$builder->createManyToMany('relatedEntities', BusinessObject::class)->setJoinTable('entity_entity_xref')->addJoinColumn('parentId', 'id')->addInverseJoinColumn('childId', 'id')->build();
     }

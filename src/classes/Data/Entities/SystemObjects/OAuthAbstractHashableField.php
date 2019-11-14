@@ -12,7 +12,7 @@ abstract class OAuthAbstractHashableField extends AbstractSystemObject {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      * @abstract

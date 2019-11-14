@@ -12,9 +12,9 @@ use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
-class AuditTrailSystemObject extends AbstractSystemObject {
+class TransactionSystemObject extends AbstractSystemObject {
     // Entity type
-    protected $type = EntityTypeEnum::Audit;
+    protected $type = EntityTypeEnum::Transaction;
     
     // Entity properties
     protected $id;
@@ -27,10 +27,13 @@ class AuditTrailSystemObject extends AbstractSystemObject {
     protected static $publicFields = array(
         'id',
         'type',
-        'user',
-        'client',
         'timestamp',
         'updateReason'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        "user" => ["entityType" => EntityTypeEnum::User, "relationshipType" => "single"]
     );
 
     /** Retrieves the set of publicly accessible fields for the entity extension object
@@ -39,6 +42,16 @@ class AuditTrailSystemObject extends AbstractSystemObject {
      */
     public static function getPublicFields() {
         return self::$publicFields;
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return self::$publicRelationships;
+        
     }
 
     /**

@@ -21,7 +21,7 @@ class OAuthAuthorisationCodeSystemObject extends AbstractSystemObject {
     protected $redirectUri;
     protected $scope;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     private static $entityPublicFields = array(
         'code',
         'client',
@@ -33,6 +33,10 @@ class OAuthAuthorisationCodeSystemObject extends AbstractSystemObject {
 
     public static function getPublicFields() {
         return self::$entityPublicFields;
+    }
+
+    public static function getPublicRelationships() {
+        return [];
     }
 
     public function setCode($code) {

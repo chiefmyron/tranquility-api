@@ -16,5 +16,8 @@ class EntityTypeEnum extends AbstractEnum {
 	const Account = 'account';
 	const Contact = 'contact';
     const Address = 'address';
-    const AddressPhysical = 'addressPhysical';
+	const AddressPhysical = 'addressPhysical';
+	const Tag     = 'tag';
+	const Audit   = 'audit';
+	const Transaction = 'transaction';
 }

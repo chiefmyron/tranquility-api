@@ -26,12 +26,17 @@ class PersonBusinessObject extends AbstractBusinessObject {
     // Related entities
     protected $user;
 
-    // Define the set of fields that are publically accessible
+    // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'title',
         'firstName',
         'lastName',
         'position'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        ["name" => "user", "entityType" => EntityTypeEnum::User, "relationshipType" => "single"]
     );
 
     /**
@@ -68,12 +73,21 @@ class PersonBusinessObject extends AbstractBusinessObject {
     }
 
     /** 
-     * Retrieves the set of publically accessible fields for the entity
+     * Retrieves the set of publicly accessible fields for the entity
      * 
      * @return array
      */
     public static function getPublicFields() {
         return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 
     protected function _getUser() {
