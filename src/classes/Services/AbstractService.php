@@ -28,6 +28,13 @@ abstract class AbstractService {
     protected $entityManager;
 
     /**
+     * Class name of the data entity primarily related to the service
+     *
+     * @var Tranquility\Data\Entities\AbstractEntity
+     */
+    protected $entityClassname;
+
+    /**
      * Array of validation rules used to validate the data entity associated with the resource
      * 
      * @var array
@@ -43,18 +50,24 @@ abstract class AbstractService {
     public function __construct(EntityManagerInterface $em) {
         // Create entity manager for interface to repositories and entities
         $this->entityManager = $em;
+
+        // Register validation rules for the service
+        $this->registerValidationRules();
     }
 
     /**
      * Returns the classname for the Entity object associated with this instance of the resource
      * 
-     * @abstract
      * @return string
      */
-    abstract public function getEntityClassname();
+    public function getEntityClassname() {
+        return $this->entityClassname;
+    }
 
     /**
      * Returns the set of publicly available fields for the Entity object associated with this resource
+     * 
+     * @return array
      */
     public function getEntityPublicFields() {
         $entityName = $this->getEntityClassname();
@@ -62,15 +75,22 @@ abstract class AbstractService {
     }
 
     /**
+     * Returns an array describing the related entities or entity collections for the entity
+     *
+     * @return array
+     */
+    public function getEntityPublicRelationships() {
+        $entityName = $this->getEntityClassname();
+        return $entityName::getPublicRelationships();
+    }
+
+    /**
      * Registers the validation rules that are common to all entities.
      * 
+     * @abstract
      * @return void
      */
-    public function registerValidationRules() {
-        // Common validation rules for all entities
-        // TODO: Validation to prevent user setting values for audit trail fields and deleted flag
-        return;
-    }
+    abstract public function registerValidationRules();
 
     /**
      * Validate a data array against the defined rules for the resource
@@ -353,22 +373,16 @@ abstract class AbstractService {
             return $entity;
         }
 
-        // If the related entity is from the audit trail, use the audit trail entity instead
-        if ($relatedEntityName == 'updatedByUser') {
-            $relatedEntityName = 'user';
-            $entity = $entity->audit;
-        }
-
-        // Check that the relationship is a public field and has been set
-        if (!in_array($relatedEntityName, $entity::getPublicFields())) {
+        // Check that the relationship is a public field
+        if (!array_key_exists($relatedEntityName, $entity::getPublicRelationships())) {
             return false;
         }
 
+        // Check that the relationship has a value
         $relatedEntity = $entity->$relatedEntityName;
         if (is_null($relatedEntity)) {
             return false;
         }
-        
 
         // Return related entity
         return $relatedEntity;

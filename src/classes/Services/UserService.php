@@ -1,7 +1,10 @@
 <?php namespace Tranquility\Services;
 
-// ORM class libraries
+// Utility libraries
 use Carbon\Carbon as Carbon;
+
+// ORM class libraries
+use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 // Tranquility data entities
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
@@ -13,6 +16,19 @@ use Tranquility\System\Utility as Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 
 class UserService extends AbstractService {
+
+    /** 
+     * Creates an instance of a resource that handles business logic for a data entity
+     * 
+     * @param  \Doctrine\ORM\EntityManagerInterface  $prefix  String to use as database table name prefix
+     * @return void
+     */
+    public function __construct(EntityManagerInterface $em) {
+        parent::__construct($em);
+
+        // Set the entity classname for this service
+        $this->entityClassname = User::class;
+    }
 
     /**
      * Registers the validation rules that are specific to this entity.
@@ -93,14 +109,5 @@ class UserService extends AbstractService {
         $data['attributes'] = $attributes;
         $payload['data'] = $data;
         return parent::update($id, $payload);
-    }
-
-    /**
-     * Returns the classname for the Entity object associated with this instance of the resource
-     * 
-     * @return string
-     */
-    public function getEntityClassname() {
-        return User::class;
     }
 }

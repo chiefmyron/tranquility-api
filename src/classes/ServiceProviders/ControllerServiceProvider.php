@@ -21,7 +21,6 @@ class ControllerServiceProvider extends AbstractServiceProvider {
     public function register(string $name) {
         // Get the dependency injection container
         $container = $this->app->getContainer();
-        $baseUrl = $container->config->get('app.base_url', "");
 
         // Register controllers with the container
         $container[AuthController::class] = function($container) {

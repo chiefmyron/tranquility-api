@@ -22,7 +22,7 @@ class ResourceCollection extends AbstractResource {
         // Generate data for each resource in the array
         $collectionData = array();
         foreach ($this->data as $entity) {
-            $user = new ResourceCollection($entity, $this->router);
+            $user = new ResourceItem($entity, $this->router);
             $collectionData[] = $user;
         }
 

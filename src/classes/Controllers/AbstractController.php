@@ -140,22 +140,7 @@ class AbstractController {
         if ($entity === false) {
             return $this->_generateJsonErrorResponse($request, $response, $id, $entity);
         }
-
         $resource = new ResourceItem($entity, $this->router);
-
-        // Return related entity
-        /*$relatedEntityClass = new \ReflectionClass($entity);
-        $relatedEntityClassname = $relatedEntityClass->getName();
-        if ($entity instanceof \Doctrine\ORM\Proxy\Proxy) {
-            // Handle lazy-loaded related entities
-            $relatedEntityClassname = $relatedEntityClass->getParentClass()->getName();
-        }
-
-        switch ($relatedEntityClassname) {
-            case User::class:
-                $resource = new UserResource($entity, $this->router);
-                break;
-        }*/
 
         // Transform for output
         return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
@@ -173,7 +158,7 @@ class AbstractController {
         }
 
         // Generate response document for entity
-        $resource = new $this->entityResourceClassname($data, $this->router);
+        $resource = new ResourceItem($data, $this->router);
         $relationships = $resource->getRelationships($request);
 
         // Extract only the relationship for the specified resource, and return as they response
