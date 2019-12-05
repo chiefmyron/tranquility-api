@@ -35,10 +35,10 @@ class BusinessObjectRepository extends AbstractRepository {
      * @param  Transaction  $transaction  Audit trail transaction entity
      * @return BusinessObject
      */
-    public function create(array $data, Transaction $audit = null) {
+    public function create(array $data, Transaction $transaction = null) {
         // Audit trail transaction information is mandatory when creating a BusinessObject entity
         if (is_null($transaction)) {
-            throw \Exception("A '" . Transaction::class . "' object must be supplied when creating a '" . BusinessObject::class . "' entity");
+            throw new \Exception("A '" . Transaction::class . "' object must be supplied when creating a '" . BusinessObject::class . "' entity");
         }
         
         // Create new audit trail transaction record
@@ -48,7 +48,7 @@ class BusinessObjectRepository extends AbstractRepository {
         $entityName = $this->getEntityName();
         $entity = new $entityName($data);
         $entity->version = 1; // Force version for new records to be 1
-        $entity->audit = $audit;
+        $entity->transaction = $transaction;
         $this->_em->persist($entity);
         $this->_em->flush();
 		
@@ -67,7 +67,7 @@ class BusinessObjectRepository extends AbstractRepository {
     public function update(AbstractEntity $entity, Transaction $transaction = null) {
         // Audit trail transaction information is mandatory when creating a BusinessObject entity
         if (is_null($transaction)) {
-            throw \Exception("A '" . Transaction::class . "' object must be supplied when creating a '" . BusinessObject::class . "' entity");
+            throw new \Exception("A '" . Transaction::class . "' object must be supplied when creating a '" . BusinessObject::class . "' entity");
         }
 
         // Make sure that the entity supplied is a BusinessObject Entity
@@ -113,72 +113,4 @@ class BusinessObjectRepository extends AbstractRepository {
         $entity->deleted = 1;
         return $this->update($entity, $transaction);
 	}
-    
-    /**
-     * Associate a tag with the entity
-     *
-     * @param  int  $id   Business object entity ID
-     * @param  Tag  $tag  Tag to associate
-     * @return BusinessObject
-     */ 
-    public function addTag($id, $tag) {
-        Log::info('Adding tag "'.$tag.'" to entity ID '.$id);
-
-        // Retrieve existing record
-        $entity = $this->find($id);
-        $entity->addTag($tag);
-        $this->_em->flush();
-        
-        // Return updated entity
-        return $entity;
-    }
-    
-    /**
-     * Disassociate a tag from an entity
-     *
-     * @param  int  $id   Business object entity ID
-     * @param  Tag  $tag  Tag to disassociate
-     * @return BusinessObject
-     */ 
-    public function removeTag($id, $tag) {
-        Log::info('Removing tag "'.$tag.'" from entity ID '.$id);
-
-        // Retrieve existing record
-        $entity = $this->find($id);
-        $entity->removeTag($tag);
-        $this->_em->flush();
-        
-        // Return updated entity
-        return $entity;
-    }
-    
-    /**
-     * Sets the list of tags to be associated with an entity
-     * 
-     * @param  int    $id             Business object entity ID
-     * @param  array  $tagCollection  Array of Tag objects to associate
-     * @return BusinessObject
-     */
-    public function setTags($id, array $tagCollection) {
-        // Retrieve existing record
-        $entity = $this->find($id);
-        
-        // Get existing tag collection for entity
-        $existingTags = $entity->getTags();
-        
-        // Determine which tags need to be added
-        $adds = array_diff($tagCollection, $existingTags);
-        foreach($adds as $addTag) {
-            $entity = $this->addTag($id, $addTag);
-        }
-        
-        // Determine which tags need to be removed from the collection
-        $removes = array_diff($existingTags, $tagCollection);
-        foreach ($removes as $removeTag) {
-            $entity = $this->removeTag($id, $removeTag);
-        }
-        
-        // Return updated entity
-        return $entity;
-    }
 }

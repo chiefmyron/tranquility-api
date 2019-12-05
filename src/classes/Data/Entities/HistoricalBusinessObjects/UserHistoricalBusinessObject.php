@@ -4,11 +4,13 @@
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
+// Entity classes
+use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
+use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-
-// Entity repository
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Entity type
@@ -26,9 +28,6 @@ class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Related entities
     protected $person;
 
-    // Related extension data objects
-    protected $userTokens;
-
     // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'username',
@@ -37,6 +36,11 @@ class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
         'active',
         'securityGroupId',
         'registeredDateTime'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        //'person' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
 
     /**
@@ -92,14 +96,12 @@ class UserHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
         return array_merge(self::$entityPublicFields, self::$publicFields);
     }
 
-    /**
-     * Get the password for the user. 
-     * NOTE: Required for OAuth implementation.
-     * @see Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository
-     *
-     * @return string
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
      */
-    public function getPassword() {
-        return $this->password;
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 }

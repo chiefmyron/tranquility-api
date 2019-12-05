@@ -4,12 +4,13 @@
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
-// Tranquility class libraries
-use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-
-// Entity repository
+// Entity classes
 use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
 use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
+
+// Tranquility class libraries
+use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class UserBusinessObject extends AbstractBusinessObject {
     // Entity type
@@ -28,9 +29,6 @@ class UserBusinessObject extends AbstractBusinessObject {
     // Related entities
     protected $person;
 
-    // Related extension data objects
-    protected $userTokens;
-
     // Define the set of fields that are publicly accessible
     protected static $publicFields = array(
         'username',
@@ -43,7 +41,7 @@ class UserBusinessObject extends AbstractBusinessObject {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
-        //["name" => "person", "entityType" => EntityTypeEnum::Person, "relationshipType" => "single"]
+        //'person' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
 
     /**

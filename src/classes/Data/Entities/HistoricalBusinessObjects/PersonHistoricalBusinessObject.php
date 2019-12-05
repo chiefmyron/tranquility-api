@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 // Entity repository
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
@@ -29,6 +30,11 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
         'firstName',
         'lastName',
         'position'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        'user' => ['entityType' => EntityTypeEnum::User, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
     
     /**
@@ -58,5 +64,14 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
      */
     public static function getPublicFields() {
         return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 }

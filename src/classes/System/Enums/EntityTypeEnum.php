@@ -10,6 +10,7 @@ use Tranquility\System\Enums\AbstractEnum as AbstractEnum;
  */
 
 class EntityTypeEnum extends AbstractEnum {
+	const Entity = 'entity';
 	const Person  = 'person';
 	const Content = 'content';
 	const User    = 'user';
@@ -20,4 +21,5 @@ class EntityTypeEnum extends AbstractEnum {
 	const Tag     = 'tag';
 	const Audit   = 'audit';
 	const Transaction = 'transaction';
+	const Client = 'client';
 }

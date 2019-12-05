@@ -1,7 +1,7 @@
 <?php namespace Tranquility\Data\Entities;
 
-// ORM class libraries
-use Doctrine\ORM\Mapping\ClassMetadata;
+// Tranquility class libraries
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 abstract class AbstractEntity {
     /**
@@ -57,6 +57,11 @@ abstract class AbstractEntity {
             if ($value !== '') {
                 $this->$name = $value;
             }
+        } elseif (array_key_exists($name, $this->getPublicRelationships())) {
+            // Store related entity object
+            if ($value instanceof AbstractEntity) {
+                $this->$name = $value;
+            }
         } else {
             throw new \Exception('Cannot set property - class "'.get_class($this).'" does not have a property named "'.$name.'"');
         }
@@ -102,9 +107,22 @@ abstract class AbstractEntity {
 
         // Assign relevant data to the entity fields
         $entityFields = $this->getPublicFields();
-        foreach ($entityFields as $field) {
-            if (isset($data[$field])) {
-                $this->$field = $data[$field];
+        $entityRelationships = $this->getPublicRelationships();
+        foreach ($data as $field => $value) {
+            // Make sure we are only setting values for publicly available fields and relationships
+            if (in_array($field, $entityFields) == true) {
+                // Assign data to entity field
+                $this->$field = $value;
+            } elseif (array_key_exists($field, $entityRelationships)) {
+                // Assign object(s) to entity relationships
+                $relationshipType = $entityRelationships[$field]['relationshipType'];
+                if ($relationshipType == EntityRelationshipTypeEnum::Single) {
+                    $this->$field = $value;
+                } elseif ($relationshipType == EntityRelationshipTypeEnum::Collection && is_array($value) == false) {
+                    $this->$field[] = $value;
+                } elseif ($relationshipType == EntityRelationshipTypeEnum::Collection && is_array($value) == true) {
+                    $this->$field = array_merge($this->$field, $value);
+                }
             }
         }
         

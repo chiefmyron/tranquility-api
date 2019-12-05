@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 // Entity repository
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository;
@@ -36,7 +37,7 @@ class PersonBusinessObject extends AbstractBusinessObject {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
-        ["name" => "user", "entityType" => EntityTypeEnum::User, "relationshipType" => "single"]
+        'user' => ['entityType' => EntityTypeEnum::User, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
 
     /**
@@ -69,7 +70,7 @@ class PersonBusinessObject extends AbstractBusinessObject {
         
         // Add relationships
         //$builder->createOneToOne('user', User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
-        $builder->createOneToOne('user', User::class)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
+        $builder->createOneToOne('user', User::class)->addJoinColumn('userId', 'id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
     }
 
     /** 
@@ -88,9 +89,5 @@ class PersonBusinessObject extends AbstractBusinessObject {
      */
     public static function getPublicRelationships() {
         return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
-    }
-
-    protected function _getUser() {
-        return $this->user;
     }
 }

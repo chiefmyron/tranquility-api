@@ -1,6 +1,10 @@
 <?php namespace Tranquility\Resources;
 
+// Utility libraries
 use Carbon\Carbon;
+
+// Tranquility class libraries
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class ResourceItem extends AbstractResource {
 
@@ -102,7 +106,7 @@ class ResourceItem extends AbstractResource {
                     'self' => $this->generateUri($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => $name]),
                     'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => $name])
                 ],
-                'data' => $this->_generateResourceLinkage($this->data->$name)
+                'data' => $this->_generateResourceLinkage($this->data->$name, $relation['relationshipType'])
             ];
         }
 
@@ -170,16 +174,33 @@ class ResourceItem extends AbstractResource {
      * Generates a resource linkage compound document from the supplied entity. If no entity is provided, null is returned.
      *
      * @param \Tranquility\Data\AbstractEntity $entity
+     * @param string                           $relationshipType
      * @return mixed Array or null
      */
-    protected function _generateResourceLinkage($entity) {
+    protected function _generateResourceLinkage($entity, $relationshipType) {
         $resourceLinkage = null;
-        if (!is_null($entity)) {
-            $resourceLinkage = [
-                'type' => $entity->type,
-                'id' => $entity->id
-            ];
+
+        // Linkage document format will depend on the relationship type
+        if ($relationshipType == EntityRelationshipTypeEnum::Single) {
+            if (!is_null($entity)) {
+                $resourceLinkage = [
+                    'type' => $entity->type,
+                    'id' => $entity->id
+                ];
+            }
+        } elseif ($relationshipType == EntityRelationshipTypeEnum::Collection) {
+            $resourceLinkage = [];
+
+            if (is_iterable($entity) && count($entity) > 0) {
+                foreach($entity as $item) {
+                    $resourceLinkage[] = [
+                        'type' => $item->type,
+                        'id' => $item->id
+                    ];
+                }
+            }
         }
+
         return $resourceLinkage;
     }
 }

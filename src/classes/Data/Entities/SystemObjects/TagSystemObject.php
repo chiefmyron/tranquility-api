@@ -9,8 +9,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Tranquility\Data\Entities\AbstractEntity as Entity;
 use Tranquility\Data\Repositories\SystemObjectRepository as SystemObjectRepository;
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class TagSystemObject extends AbstractSystemObject {
+    // Entity type
+    protected $type = EntityTypeEnum::Tag;
+    
     // Entity properties
     protected $id;
     protected $text;
@@ -19,57 +23,32 @@ class TagSystemObject extends AbstractSystemObject {
     protected $entities;
 
     // Define the set of fields that are publicly accessible
-    protected $entityPublicFields = array(
+    protected static $publicFields = array(
         'id',
+        'type',
         'text'
     );
 
-    /**
-     * Create a new instance of the Tag
-     * 
-     * @return void
-     */
-    public function __construct() {
-        // Initialise collection for related entities
-        $this->entities = new ArrayCollection();
-    }
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $publicRelationships = array(
+        'entities' => ['entityType' => EntityTypeEnum::Entity, 'relationshipType' => EntityRelationshipTypeEnum::Collection]
+    );
 
-    /**
-     * Retreive a collection of business object entities associated with this tag
-     *
+    /** Retrieves the set of publicly accessible fields for the entity extension object
+     * 
      * @return array
      */
-    public function getRelatedEntities() {
-        return $this->entities->toArray();
+    public static function getPublicFields() {
+        return self::$publicFields;
     }
-    
-    /**
-     * Remove an entity from the collection of related entities for the tag
-     *
-     * @param Tranquility\Data\Entities\AbstractEntity $entity   Existing entity to remove from the collection of related entities
-     * @return Tranquility\Data\Entities\Extensions\TagEntityExtension
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
      */
-    public function removeRelatedEntity(Entity $entity) {
-        if ($this->entities->contains($entity) === false) {
-            return $this;
-        }
-        $this->entities->removeElement($entity);
-        return $this;
-    }
-    
-    /**
-     * Add a new entity to the collection of related entities for the tag
-     *
-     * @param Tranquility\Data\Entities\AbstractEntity $entity   New entity to associated with the tag
-     * @return Tranquility\Data\Entities\Extensions\TagEntityExtension
-     */
-    public function addRelatedEntity(Entity $entity) {
-        if ($this->entities->contains($entity) === true) {
-            return $this;
-        }
-        
-        $this->entities->add($entity);
-        return $this;
+    public static function getPublicRelationships() {
+        return self::$publicRelationships;
     }
 
     /**
@@ -88,8 +67,8 @@ class TagSystemObject extends AbstractSystemObject {
         // Define fields
         $builder->createField('id', 'integer')->isPrimaryKey()->generatedValue()->build();
         $builder->addField('text', 'string');
-        
+
         // Add relationships
-        $builder->createManyToMany('entities', Entity::class)->mappedBy('tags')->build();
+        $builder->createManyToMany('entities', Entity::class)->setJoinTable('entity_tags_xref')->mappedBy('tags')->build();
     }
 }

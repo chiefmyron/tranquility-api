@@ -14,7 +14,7 @@ use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 // Tranquility entity classes
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+use Tranquility\Data\Entities\AbstractEntity as Entity;
 
 // Tranquility resources
 use Tranquility\Resources\ErrorNotFoundResource;

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 // Tranquility class libraries
 use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
@@ -33,7 +34,8 @@ class TransactionSystemObject extends AbstractSystemObject {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
-        "user" => ["entityType" => EntityTypeEnum::User, "relationshipType" => "single"]
+        'user' => ['entityType' => EntityTypeEnum::User, 'relationshipType' => EntityRelationshipTypeEnum::Single],
+        'client' => ['entityType' => EntityTypeEnum::Client, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
 
     /** Retrieves the set of publicly accessible fields for the entity extension object

@@ -3,9 +3,7 @@
 // Tranquility data entities
 use Tranquility\Data\Repositories\AbstractRepository;
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Entities\BusinessObjects\AbstractBusinessObject as BusinessObject;
-use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 
 class ReferenceDataObjectRepository extends AbstractRepository {
 
@@ -42,33 +40,33 @@ class ReferenceDataObjectRepository extends AbstractRepository {
     /**
      * Creates a new record
      * 
-     * @param  array       $data   Input data to create the record
-     * @param  AuditTrail  $audit  Audit trail object
+     * @param  array        $data         Input data to create the record
+     * @param  Transaction  $transaction  Audit trail transaction entity
      * @return mixed
      */
-    public function create(array $data, AuditTrail $audit = null) {
+    public function create(array $data, Transaction $transaction = null) {
         throw new \Exception("ReferenceDataObjectRepository::create() not implemented.");
     }
     
     /**
      * Updates an existing record
      *
-     * @param  AbstractEntity  $entity  The updated entity to persist
-     * @param  AuditTrail      $audit   Audit trail object
+     * @param  AbstractEntity  $entity       The updated entity to persist
+     * @param  Transaction     $transaction  Audit trail transaction entity
      * @return AbstractEntity
      */ 
-    public function update(AbstractEntity $entity, AuditTrail $audit = null) {
+    public function update(AbstractEntity $entity, Transaction $transaction = null) {
         throw new \Exception("ReferenceDataObjectRepository::update() not implemented.");
     }
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param  AbstractEntity  $entity  The entity to logically delete
-     * @param  AuditTrail      $audit   Audit trail object
+	 * @param  AbstractEntity  $entity       The entity to logically delete
+     * @param  Transaction     $transaction  Audit trail transaction entity
 	 * @return AbstractEntity
 	 */
-    public function delete(AbstractEntity $entity, AuditTrail $audit = null) {
+    public function delete(AbstractEntity $entity, Transaction $transaction = null) {
         throw new \Exception("ReferenceDataObjectRepository::delete() not implemented.");
     }
 }

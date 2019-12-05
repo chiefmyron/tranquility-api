@@ -38,9 +38,17 @@ class TablePrefixExtension {
 
         // If the event involves associations, apply the table prefix to associated tables as well
         foreach ($classMetadata->getAssociationMappings() as $fieldName => $mapping) {
-            if ($mapping['type'] == ClassMetadataInfo::MANY_TO_MANY && $mapping['isOwningSide'] == true) {
-                $mappedTableName = $mapping['joinTable']['name'];
-                $classMetadata->associationMappings[$fieldName]['joinTable']['name'] = $this->prefix.$mappedTableName;
+            if ($mapping['type'] == ClassMetadataInfo::MANY_TO_MANY) {
+                if (!isset($classMetadata->associationMappings[$fieldName]['joinTable'])) { 
+                    // There is no join table to prefix, so move on
+                    continue; 
+                }
+
+                // Apply prefix to the joining table (if not already applied)
+                $mappedTableName = $classMetadata->associationMappings[$fieldName]['joinTable']['name'];
+                if (strpos($mappedTableName, $this->prefix) !== 0) {
+                    $classMetadata->associationMappings[$fieldName]['joinTable']['name'] = $this->prefix.$mappedTableName;
+                }
             }
         }
     }

@@ -27,6 +27,15 @@ abstract class AbstractReferenceDataObject extends AbstractEntity {
         'effectiveUntil'
     );
 
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array();
+    }
+
     /**
      * Metadata used to define object relationship to database
      *

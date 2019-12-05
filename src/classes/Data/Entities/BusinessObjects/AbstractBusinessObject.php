@@ -3,16 +3,19 @@
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
+use Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
 
 // Entity classes
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Data\Entities\BusinessObjects\PersonBusinessObject as Person;
+use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
 use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
+use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
-use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 abstract class AbstractBusinessObject extends AbstractEntity {
     // Entity properties
@@ -23,9 +26,9 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     protected $deleted;
     protected $locks;
 
-    // Related extension data objects
+    // Related entities
     protected $transaction;
-    protected $tagCollection;
+    protected $tags;
 
     // Define the set of fields that are publicly accessible
     protected static $entityPublicFields = array(
@@ -39,8 +42,8 @@ abstract class AbstractBusinessObject extends AbstractEntity {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $entityPublicRelationships = array(
-        "transaction" => ["entityType" => EntityTypeEnum::Transaction, "relationshipType" => "single"]
-        //["name" => "tags", "entityType" => EntityTypeEnum::Tag, "relationshipType" => "collection"]
+        'transaction' => ['entityType' => EntityTypeEnum::Transaction, 'relationshipType' => EntityRelationshipTypeEnum::Single],
+        'tags' => ['entityType' => EntityTypeEnum::Tag, 'relationshipType' => EntityRelationshipTypeEnum::Collection]
     );
 
     /**
@@ -61,29 +64,14 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         if (!isset($this->deleted)) {
             $this->deleted = 0;
         }
-    }
 
-    /**
-     * Set the audit trail transaction details for an entity
-     *
-     * @param Tranquility\Data\Entities\SystemObjects\TransactionSystemObject $transaction
-     * @return void
-     */
-    protected function _setTransaction($transaction) {
-        if (!($transaction instanceof Transaction)) {
-            throw new \Exception('Audit trail transaction information must be provided as a ' . Transaction::class . ' object');
+        // Initialise related entity collections
+        $relationships = $this->getPublicRelationships();
+        foreach ($relationships as $name => $relationship) {
+            if ($relationship['relationshipType'] == EntityRelationshipTypeEnum::Collection) {
+                $this->$name = new ArrayCollection;
+            }
         }
-        
-        $this->transaction = $transaction;
-    }
-    
-    /**
-     * Retrieve audit trail details for the entity as an array
-     *
-     * @return Tranquility\Data\Entities\SystemObjects\TransactionSystemObject
-     */
-    protected function _getTransaction() {
-        return $this->transaction;
     }
 
     /** 
@@ -117,6 +105,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
      */
     public static function loadMetadata(ClassMetadata $metadata) {
         $builder = new ClassMetadataBuilder($metadata);
+
         // Define table name
         $builder->setTable('entity');
         $builder->setCustomRepositoryClass(BusinessObjectRepository::class);
@@ -138,7 +127,6 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         
         // Add relationships
         $builder->createOneToOne('transaction', Transaction::class)->addJoinColumn('transactionId','id')->build();
-        //$builder->createManyToMany('tags', Tag::class)->inversedBy('entities')->setJoinTable('entity_tags_xref')->addJoinColumn('entityId', 'id')->addInverseJoinColumn('tagId', 'id')->build();
-        //$builder->createManyToMany('relatedEntities', BusinessObject::class)->setJoinTable('entity_entity_xref')->addJoinColumn('parentId', 'id')->addInverseJoinColumn('childId', 'id')->build();
+        $builder->createManyToMany('tags', Tag::class)->setJoinTable('entity_tags_xref')->addInverseJoinColumn('tagId', 'id')->addJoinColumn('entityId', 'id')->inversedBy('entities')->build();
     }
 }

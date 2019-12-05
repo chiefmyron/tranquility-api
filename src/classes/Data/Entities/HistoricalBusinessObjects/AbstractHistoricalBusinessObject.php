@@ -8,10 +8,11 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
 use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
 use Tranquility\Data\Entities\HistoricalBusinessObjects\PersonHistoricalBusinessObject as HistoricalPerson;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     // Entity properties
@@ -23,8 +24,7 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
     protected $locks;
 
     // Related extension data objects
-    protected $audit;
-    protected $tagCollection;
+    protected $transaction;
 
     // Define the set of fields that are publicly accessible
     protected static $entityPublicFields = array(
@@ -34,6 +34,11 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
         'subType',
         'deleted',
         'locks'
+    );
+
+    // Define the set of related entities or entity collections that are publicly available
+    protected static $entityPublicRelationships = array(
+        'transaction' => ['entityType' => EntityTypeEnum::Transaction, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
 
     /**
@@ -56,29 +61,6 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
         }
     }
 
-    /**
-     * Set the audit trail details for an entity
-     *
-     * @param AuditTrail $audit
-     * @return void
-     */
-    protected function _setAudit($audit) {
-        if (!($audit instanceof AuditTrail)) {
-            throw new \Exception('Audit trail information must be provided as a Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject entity');
-        }
-        
-        $this->audit = $audit;
-    }
-    
-    /**
-     * Retrieve audit trail details for the entity as an array
-     *
-     * @return AuditTrail
-     */
-    protected function _getAudit() {
-        return $this->audit;
-    }
-
     /** 
      * Retrieves the set of publicly accessible fields for the entity
      * 
@@ -86,6 +68,14 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
      * @abstract
      */
     abstract public static function getPublicFields();
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     * @abstract
+     */
+    abstract public static function getPublicRelationships();
 
     /**
      * Metadata used to define object relationship to database
@@ -114,8 +104,6 @@ abstract class AbstractHistoricalBusinessObject extends AbstractEntity {
         $builder->addField('deleted', 'boolean');
         
         // Add relationships
-        $builder->createOneToOne('audit', AuditTrail::class)->addJoinColumn('transactionId','transactionId')->build();
-        //$builder->createManyToMany('tags', Tag::class)->inversedBy('entities')->setJoinTable('entity_tags_xref')->addJoinColumn('entityId', 'id')->addInverseJoinColumn('tagId', 'id')->build();
-        //$builder->createManyToMany('relatedEntities', BusinessObject::class)->setJoinTable('entity_entity_xref')->addJoinColumn('parentId', 'id')->addInverseJoinColumn('childId', 'id')->build();
+        $builder->createOneToOne('transaction', Transaction::class)->addJoinColumn('transactionId','id')->build();
     }
 }

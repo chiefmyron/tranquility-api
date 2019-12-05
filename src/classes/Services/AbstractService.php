@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 use Tranquility\Data\Entities\AbstractEntity as Entity;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
-use Tranquility\Data\Entities\SystemObjects\AuditTrailSystemObject as AuditTrail;
+use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
@@ -189,7 +189,7 @@ abstract class AbstractService {
         // Validate order conditions
         foreach ($sortingConditions as $sortField) {
             if (!in_array($sortField[0], $publicFields)) {
-                throw new InvalidQueryParameterException(int(MessageCodes::ValidationInvalidQueryParameter), sprintf("'%s' is not a sortable field", $sortField[0]), 'sort');
+                throw new InvalidQueryParameterException((int)MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a sortable field", $sortField[0]), 'sort');
             }
         }
 
@@ -200,7 +200,7 @@ abstract class AbstractService {
             }
 
             if (!in_array($filterField[0], $publicFields)) {
-                throw new InvalidQueryParameterException(int(MessageCodes::ValidationInvalidQueryParameter), sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
+                throw new InvalidQueryParameterException((int)MessageCodes::ValidationInvalidQueryParameter, sprintf("'%s' is not a filterable field", $filterField[0]), 'filter');
             }
         }
 
@@ -302,8 +302,8 @@ abstract class AbstractService {
         }
 
         // Data is valid - create the entity
-        $auditTrail = $this->createAuditTrail($meta);
-        $entity = $this->getRepository()->create($attributes, $auditTrail);
+        $transaction = $this->createTransaction($meta);
+        $entity = $this->getRepository()->create($attributes, $transaction);
         return $entity;
     }
 
@@ -339,8 +339,8 @@ abstract class AbstractService {
         }
 
         // Data is valid - update the entity
-        $auditTrail = $this->createAuditTrail($meta);
-        $entity = $this->getRepository()->update($entity, $auditTrail);
+        $transaction = $this->createTransaction($meta);
+        $entity = $this->getRepository()->update($entity, $transaction);
         return $entity;
     }
 
@@ -398,26 +398,26 @@ abstract class AbstractService {
     }
 
     /**
-     * Generate an AuditTrail entity based on metadata in request payload
+     * Generate an Transaction audit trail entity based on metadata in request payload
      *
      * @param array $meta
-     * @return Tranquility\Data\Entities\System\AuditTrailSystemObject
+     * @return Tranquility\Data\Entities\System\Transaction
      */
-    protected function createAuditTrail(array $meta) {
+    protected function createTransaction(array $meta) {
         // Get audit trail details from authentication token
         $userId = Utility::extractValue($meta, 'user', 0);
         $clientId = Utility::extractValue($meta, 'client', 'invalid_client_id');
         $updateReason = Utility::extractValue($meta, 'updateReason', 'invalid_update_reason');
 
         // Build audit trail object
-        $auditTrailData = [
+        $transactionData = [
             'user' => $this->findUser($userId),
             'client' => $this->findClient($clientId),
             'timestamp' => Carbon::now(),
             'updateReason' => $updateReason
         ];
-        $auditTrail = new AuditTrail($auditTrailData);
-        return $auditTrail;
+        $transaction = new Transaction($transactionData);
+        return $transaction;
     }
 
     /**
