@@ -4,7 +4,9 @@
 use Carbon\Carbon;
 
 // Tranquility class libraries
+use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
+use Tranquility\System\Exceptions\InvalidQueryParameterException;
 
 class ResourceItem extends AbstractResource {
 
@@ -119,8 +121,13 @@ class ResourceItem extends AbstractResource {
         // Explode out the entity name, in case it has been specified as a multi-part path
         $entityPathParts = explode(".", $entityPath, 2);
 
-        // Build a resource document for the first entity specified in the path
+        // Check that the first 'include' entity specified in the path is valid for the current parent entity
         $entityName = $entityPathParts[0];
+        if (array_key_exists($entityName, $entity->getPublicRelationships()) == false) {
+            throw new InvalidQueryParameterException((int)MessageCodes::ValidationInvalidIncludedResourceType, sprintf("Resource type '%s' is not a related resource for this entity.", $entityName), 'include');
+        }
+
+        // Build a resource document for the first entity specified in the path
         $childEntity = $entity->$entityName;
         $resource = new ResourceItem($childEntity, $this->router);
         $includes[] = $resource->data($request);

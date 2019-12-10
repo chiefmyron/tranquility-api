@@ -5,9 +5,13 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
+use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Repositories\SystemObjects\OAuthClientRepository;
 
 class OAuthClientSystemObject extends OAuthAbstractHashableField {
+    // Entity type
+    protected $type = EntityTypeEnum::Client;
+
     // Entity properties
     protected $id;
     protected $clientId;
@@ -16,6 +20,8 @@ class OAuthClientSystemObject extends OAuthAbstractHashableField {
 
     // Define the set of fields that are publicly accessible
     private static $entityPublicFields = array(
+        'id',
+        'type',
         'clientId',
         'clientSecret',
         'redirectUri'

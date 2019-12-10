@@ -9,24 +9,58 @@ use Tranquility\System\Utility;
 class ResourceCollection extends AbstractResource {
 
     /**
-     * Generate 'data' representation for the resource
-     *
+     * Transform the resource into a JSON:API compatible array.
+     * 
      * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
      * @return array
      */
-    public function data($request) {
+    public function toResponseArray($request) {
         if (is_iterable($this->data) == false) {
-            return array();
+            return array(); // TODO: Throw exception, or generate error response?
         }
 
-        // Generate data for each resource in the array
-        $collectionData = array();
+        // Create resource item and includes for each member in the data array
+        $data = [];
+        $included = [];
+        $uniqueIncludes = [];
         foreach ($this->data as $entity) {
-            $user = new ResourceItem($entity, $this->router);
-            $collectionData[] = $user;
+            // Generate resource item for entity
+            $resourceItem = new ResourceItem($entity, $this->router);
+            $data[] = $resourceItem->data($request);
+
+            // Get includes for resource item
+            $resourceIncludes = $resourceItem->included($request);
+            foreach ($resourceIncludes as $include) {
+                $includeKey = $include['type'].'-'.$include['id'];
+                if (in_array($includeKey, $uniqueIncludes) == false) {
+                    $included[] = $include;
+                    $uniqueIncludes[] = $includeKey;
+                }
+            }
         }
 
-        return $collectionData;
+        // Build response structure
+        $responseArray = [];
+        if (array_key_exists($this->wrapper, $data) == false) {
+            // Add wrapping to data resource
+            $responseArray[$this->wrapper] = $data;
+        } else {
+            $responseArray = $data;
+        }
+
+        // Add included members
+        $responseArray['included'] = $included;
+
+        // Add other top-level members
+        $memberNames = ['meta', 'links', 'jsonapi'];
+        foreach ($memberNames as $name) {
+            $value = $this->$name($request);
+            if (is_array($value) && count($value) > 0) {
+                $responseArray[$name] = $value;
+            }
+        }
+
+        return $responseArray;
     }
 
     /**

@@ -22,6 +22,6 @@ class InvalidQueryParameterException extends ApplicationException {
             'status' => HttpStatus::BadRequest
         ];
 
-        parent::__construct($details['status'], Logger::DEBUG, $errorCode, $message, $details, $previous);
+        parent::__construct((int)$details['status'], Logger::DEBUG, $errorCode, $message, $details, $previous);
     }
 }
