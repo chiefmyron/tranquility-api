@@ -36,6 +36,33 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     protected static $publicRelationships = array(
         'user' => ['entityType' => EntityTypeEnum::User, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
+
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::Person;
+    }
+
+    /** 
+     * Retrieves the set of publicly accessible fields for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicFields() {
+        return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
+    }
     
     /**
      * Metadata used to define object relationship to database
@@ -55,23 +82,5 @@ class PersonHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
         $builder->addField('firstName', 'string');
         $builder->addField('lastName', 'string');
         $builder->addField('position', 'string');
-    }
-
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicFields() {
-        return array_merge(self::$entityPublicFields, self::$publicFields);
-    }
-
-    /** 
-     * Retrieves the an array describing the related entities or entity collections for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicRelationships() {
-        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 }

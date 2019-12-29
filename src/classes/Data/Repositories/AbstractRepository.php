@@ -50,11 +50,12 @@ abstract class AbstractRepository extends EntityRepository {
     /**
      * Creates a new record
      * 
-     * @param  array           $data         Input data to create the record
-     * @param  Transaction     $transaction  Audit trail transaction entity
+     * @param  array           $attributes     Input data to create the record
+     * @param  array           $relationships  Array of related entities
+     * @param  Transaction     $transaction    Audit trail transaction entity
      * @return AbstractEntity
      */
-    abstract public function create(array $data, Transaction $transaction = null);
+    abstract public function create(array $attributes, array $relationships, Transaction $transaction = null);
     
     /**
      * Updates an existing record

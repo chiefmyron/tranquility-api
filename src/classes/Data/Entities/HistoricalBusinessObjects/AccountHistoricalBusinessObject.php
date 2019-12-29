@@ -1,4 +1,4 @@
-<?php namespace Tranquility\Data\Entities\BusinessObjects;
+<?php namespace Tranquility\Data\Entities\HistoricalBusinessObjects;
 
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -12,7 +12,7 @@ use Tranquility\Data\Entities\HistoricalBusinessObjects\PersonHistoricalBusiness
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
-class AccountBusinessObject extends AbstractBusinessObject {
+class AccountHistoricalBusinessObject extends AbstractHistoricalBusinessObject {
     // Entity type
     protected $type = EntityTypeEnum::Account;
     protected static $historicalEntityClass = HistoricalPerson::class;

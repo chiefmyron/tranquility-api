@@ -1,19 +1,6 @@
 <?php namespace Tranquility\Controllers;
 
-// Framework libraries
-use Slim\Router;
-
-// Tranquility class libraries
-use Tranquility\Services\UserService;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-
 class UserController extends AbstractController {
-
-    public function __construct(UserService $service, Router $router) {
-        // Set the resources used to represent User entities
-        $this->entityClassname = User::class;
-        return parent::__construct($service, $router);
-    }
 
     public function create($request, $response, $args) {
         // Update request with audit trail information in the 'meta' section

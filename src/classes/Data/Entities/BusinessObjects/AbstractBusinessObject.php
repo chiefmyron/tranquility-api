@@ -7,10 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
 
 // Entity classes
 use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-use Tranquility\Data\Entities\BusinessObjects\PersonBusinessObject as Person;
-use Tranquility\Data\Entities\SystemObjects\TagSystemObject as Tag;
-use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
 use Tranquility\Data\Repositories\BusinessObjects\BusinessObjectRepository as BusinessObjectRepository;
 
 // Tranquility class libraries
@@ -21,7 +17,6 @@ abstract class AbstractBusinessObject extends AbstractEntity {
     // Entity properties
     protected $id;
     protected $version;
-    protected $type;
     protected $subType;
     protected $deleted;
     protected $locks;
@@ -74,28 +69,15 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         }
     }
 
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     * @abstract
-     */
-    abstract public static function getPublicFields();
-
-    /** 
-     * Retrieves the an array describing the related entities or entity collections for the entity
-     * 
-     * @return array
-     * @abstract
-     */
-    abstract public static function getPublicRelationships();
-
     /**
      * Returns the name of the class used to model the historical records for this business object
      *
      * @return string
      */
-    abstract public static function getHistoricalEntityClass();
+    public static function getHistoricalEntityClass() {
+        $entityType = static::getEntityType();
+        return EntityTypeEnum::getHistoricalEntityClassname($entityType);
+    }
 
     /**
      * Metadata used to define object relationship to database
@@ -113,8 +95,8 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         // Define inheritence
         $builder->setJoinedTableInheritance();
         $builder->setDiscriminatorColumn('type');
-        $builder->addDiscriminatorMapClass(EntityTypeEnum::User, User::class);
-        $builder->addDiscriminatorMapClass(EntityTypeEnum::Person, Person::class);
+        $builder->addDiscriminatorMapClass(EntityTypeEnum::User, EntityTypeEnum::getEntityClassname(EntityTypeEnum::User));
+        $builder->addDiscriminatorMapClass(EntityTypeEnum::Person, EntityTypeEnum::getEntityClassname(EntityTypeEnum::Person));
 
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Account, Account::class);
         //$builder->addDiscriminatorMapClass(EntityTypeEnum::Address, Address::class);
@@ -126,7 +108,7 @@ abstract class AbstractBusinessObject extends AbstractEntity {
         $builder->addField('deleted', 'boolean');
         
         // Add relationships
-        $builder->createOneToOne('transaction', Transaction::class)->addJoinColumn('transactionId','id')->build();
-        $builder->createManyToMany('tags', Tag::class)->setJoinTable('entity_tags_xref')->addInverseJoinColumn('tagId', 'id')->addJoinColumn('entityId', 'id')->inversedBy('entities')->build();
+        $builder->createOneToOne('transaction', EntityTypeEnum::getEntityClassname(EntityTypeEnum::Transaction))->addJoinColumn('transactionId','id')->build();
+        $builder->createManyToMany('tags', EntityTypeEnum::getEntityClassname(EntityTypeEnum::Tag))->setJoinTable('entity_tags_xref')->addInverseJoinColumn('tagId', 'id')->addJoinColumn('entityId', 'id')->inversedBy('entities')->build();
     }
 }

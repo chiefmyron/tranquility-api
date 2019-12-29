@@ -1,5 +1,7 @@
 <?php namespace Tranquility\System;
 
+use Ramsey\Uuid\Uuid as UuidGenerator;
+
 /**
  * Utility class containing useful shortcut methods
  *
@@ -13,7 +15,7 @@ class Utility {
 	 * Cannot be instantiated - should be static only
 	 */
 	final public function __construct() {
-		throw new Exception('\Tranquility\System\Utility class may not be instantiated');
+		throw new \Exception('\Tranquility\System\Utility class may not be instantiated');
 	}
 	
 	/**
@@ -70,5 +72,14 @@ class Utility {
 		
 		// Return extracted value
 		return $value;
+	}
+
+	/**
+	 * Represents a universally unique identifier (UUID), according to RFC 4122. Generate a version 4 (random) UUID.
+	 *
+	 * @return string
+	 */
+	public static function generateUuidV4() {
+		return UuidGenerator::uuid4()->toString();
 	}
 }

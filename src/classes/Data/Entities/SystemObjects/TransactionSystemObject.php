@@ -14,9 +14,6 @@ use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
 class TransactionSystemObject extends AbstractSystemObject {
-    // Entity type
-    protected $type = EntityTypeEnum::Transaction;
-    
     // Entity properties
     protected $id;
     protected $client;
@@ -35,8 +32,17 @@ class TransactionSystemObject extends AbstractSystemObject {
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
         'user' => ['entityType' => EntityTypeEnum::User, 'relationshipType' => EntityRelationshipTypeEnum::Single],
-        'client' => ['entityType' => EntityTypeEnum::Client, 'relationshipType' => EntityRelationshipTypeEnum::Single]
+        'client' => ['entityType' => EntityTypeEnum::OAuthClient, 'relationshipType' => EntityRelationshipTypeEnum::Single]
     );
+
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::Transaction;
+    }
 
     /** Retrieves the set of publicly accessible fields for the entity extension object
      * 
@@ -53,7 +59,6 @@ class TransactionSystemObject extends AbstractSystemObject {
      */
     public static function getPublicRelationships() {
         return self::$publicRelationships;
-        
     }
 
     /**

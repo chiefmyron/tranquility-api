@@ -26,8 +26,8 @@ $routeGroup = $app->group('/v1', function() {
     $this->get('/transactions/{id}', UserController::class.':show')->setName('transaction-detail');
     $this->patch('/transactions/{id}', UserController::class.':update');
     $this->delete('/transactions/{id}', UserController::class.':delete');
-    $this->get('/transactions/{id}/related/{resource}', UserController::class.':related')->setName('transaction-related');
-    $this->get('/transactions/{id}/relationships/{resource}', UserController::class.':relationships')->setName('transaction-relationships');
+    $this->get('/transactions/{id}/related/{resource}', UserController::class.':showRelated')->setName('transaction-related');
+    $this->get('/transactions/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('transaction-relationships');
     
     // User resource
     $this->get('/users', UserController::class.':list')->setName('user-list');
@@ -35,8 +35,8 @@ $routeGroup = $app->group('/v1', function() {
     $this->get('/users/{id}', UserController::class.':show')->setName('user-detail');
     $this->patch('/users/{id}', UserController::class.':update');
     $this->delete('/users/{id}', UserController::class.':delete');
-    $this->get('/users/{id}/related/{resource}', UserController::class.':related')->setName('user-related');
-    $this->get('/users/{id}/relationships/{resource}', UserController::class.':relationships')->setName('user-relationships');
+    $this->get('/users/{id}/related/{resource}', UserController::class.':showRelated')->setName('user-related');
+    $this->get('/users/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('user-relationships');
     
     // People resource
     $this->get('/people', PersonController::class.':list')->setName('person-list');
@@ -44,8 +44,8 @@ $routeGroup = $app->group('/v1', function() {
     $this->get('/people/{id}', PersonController::class.':show')->setName('person-detail');
     $this->patch('/people/{id}', PersonController::class.':update');
     $this->delete('/people/{id}', PersonController::class.':delete');
-    $this->get('/people/{id}/related/{resource}', PersonController::class.':related')->setName('person-related');
-    $this->get('/people/{id}/relationships/{resource}', PersonController::class.':relationships')->setName('person-relationships');
+    $this->get('/people/{id}/related/{resource}', PersonController::class.':showRelated')->setName('person-related');
+    $this->get('/people/{id}/relationships/{resource}', PersonController::class.':showRelationship')->setName('person-relationships');
 
     // Accounts resource
     $this->get('/accounts', AccountController::class.':list')->setName('accounts-list');

@@ -5,6 +5,30 @@ use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTyp
 
 abstract class AbstractEntity {
     /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     * @abstract
+     */
+    abstract public static function getEntityType();
+
+    /** 
+     * Retrieves the set of publicly accessible fields for the entity
+     * 
+     * @return array
+     * @abstract
+     */
+    abstract public static function getPublicFields();
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     * @abstract
+     */
+    abstract public static function getPublicRelationships();
+
+    /**
      * Create a new instance of the entity
      *
      * @var array $data     [Optional] Initial values for entity fields
@@ -147,19 +171,7 @@ abstract class AbstractEntity {
         return $data;
     }
 
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     * @abstract
-     */
-    abstract public static function getPublicFields();
-
-    /** 
-     * Retrieves the an array describing the related entities or entity collections for the entity
-     * 
-     * @return array
-     * @abstract
-     */
-    abstract public static function getPublicRelationships();
+    protected function _getType() {
+        return static::getEntityType();
+    }
 }

@@ -1,8 +1,5 @@
 <?php namespace Tranquility\Controllers;
 
-// Utility libraries
-use Carbon\Carbon;
-
 // Framework libraries
 use Slim\Router;
 
@@ -13,14 +10,13 @@ use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
-// Tranquility entity classes
-use Tranquility\Data\Entities\AbstractEntity as Entity;
-
 // Tranquility resources
-use Tranquility\Resources\ErrorNotFoundResource;
-use Tranquility\Resources\ErrorValidationResource;
+use Tranquility\Resources\ErrorResource;
 use Tranquility\Resources\ResourceCollection;
 use Tranquility\Resources\ResourceItem;
+
+// Tranquility error messaging
+use Tranquility\App\Errors\Helpers\ErrorCollection;
 
 class AbstractController {
     /**
@@ -36,13 +32,6 @@ class AbstractController {
      * @var Slim\Router
      */
     protected $router;
-
-    /**
-     * Class name of the primary entity for the controller
-     * 
-     * @var string
-     */
-    protected $entityClassname;
     
     /**
      * Constructor
@@ -55,50 +44,61 @@ class AbstractController {
         $this->router = $router;
     }
 
+    /**
+     * Retrieve a list of entities
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
     public function list($request, $response, $args) {
         // Retrieve users
         $params = $this->_parseQueryStringParams($request);
         $data = $this->service->all($params['filters'], $params['sorting'], $params['pagination']['pageNumber'], $params['pagination']['pageSize']);
-
-        // Check that service has returned an array of data
-        if (is_array($data) && count($data) > 0 && $this->_checkInstanceOfEntity($data[0]) === false) {
-            // Service has encountered an error
-            return $this->_generateJsonErrorResponse($request, $response, null, $data);
-        }
-
-        // Data is a collection of users
-        $resource = new ResourceCollection($data, $this->router);
-        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
     }
 
+    /**
+     * Retrieve a single entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
     public function show($request, $response, $args) {
         // Retrieve an individual user
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $data = $this->service->find($id);
-        if ($this->_checkInstanceOfEntity($data) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, $data);
-        }
-
-        // Data is an instance of a user
-        $resource = new ResourceItem($data, $this->router);
-        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
     }
 
+    /**
+     * Create a new entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
     public function create($request, $response, $args) {
         // Get data from request
         $payload = $request->getParsedBody();
 
         // Attempt to create the user entity
         $data = $this->service->create($payload);
-        if ($this->_checkInstanceOfEntity($data) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, null, $data);
-        }
-
-        // Data is an instance of a user
-        $resource = new ResourceItem($data, $this->router);
-        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::Created);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::Created);
     }
 
+    /**
+     * Update an existing entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
     public function update($request, $response, $args) {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
@@ -106,15 +106,17 @@ class AbstractController {
 
         // Attempt to update the user entity
         $data = $this->service->update($id, $payload);
-        if ($this->_checkInstanceOfEntity($data) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, $data);
-        }
-
-        // Transform for output
-        $resource = new ResourceItem($data, $this->router);
-        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
     }
 
+    /**
+     * Delete an existing entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
     public function delete($request, $response, $args) {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
@@ -122,82 +124,99 @@ class AbstractController {
 
         // Attempt to update the user entity
         $data = $this->service->delete($id, $payload);
-        if ($this->_checkInstanceOfEntity($data) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, $data);
-        }
-
-        // Transform for output
-        return $this->_generateJsonResponse($request, $response, null, HttpStatus::NoContent);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::NoContent);
     }
     
-    public function related($request, $response, $args) {
+    /**
+     * Retrieve an entity related to the main entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
+    public function showRelated($request, $response, $args) {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
-        $related = Utility::extractValue($args, 'resource', '', 'string');
+        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
 
         // Retrieve the related entity
-        $entity = $this->service->getRelatedEntity($id, $related);
-        if ($entity === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, $entity);
-        }
-        $resource = new ResourceItem($entity, $this->router);
-
-        // Transform for output
-        return $this->_generateJsonResponse($request, $response, $resource, HttpStatus::OK);
+        $data = $this->service->getRelatedEntity($id, $resourceName);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
     }
 
-    public function relationships($request, $response, $args) {
+    /**
+     * Show details of a relationship for an entity
+     *
+     * @param \Slim\Http\Request    $request
+     * @param \Slim\Http\Response   $response
+     * @param array                 $args
+     * @return \Slim\Http\Response
+     */
+    public function showRelationship($request, $response, $args) {
         // Get data from request
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $resourceName = Utility::extractValue($args, 'resource', '', 'string');
 
         // Retrieve entity data
         $data = $this->service->find($id);
-        if ($this->_checkInstanceOfEntity($data) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, $data);
+        if ($data instanceof ErrorCollection) {
+            return $this->_generateResponse($request, $response, $data, HttpStatus::InternalServerError);
         }
 
         // Generate response document for entity
         $resource = new ResourceItem($data, $this->router);
         $relationships = $resource->getRelationships($request);
 
-        // Extract only the relationship for the specified resource, and return as they response
+        // Extract only the relationship for the specified resource, and return as the response
         if (array_key_exists($resourceName, $relationships) === false) {
-            return $this->_generateJsonErrorResponse($request, $response, $id, false);
+            return $this->_generateResponse($request, $response, null, HttpStatus::InternalServerError);
         }
-        return $this->_generateJsonResponse($request, $response, $relationships[$resourceName], HttpStatus::OK);
+
+        return $response->withJson($relationships[$resourceName], HttpStatus::OK);
     }
 
-    protected function _generateJsonResponse($request, $response, $resource, $responseCode) {
-        if ($resource instanceof AbstractResource) {
-            $payload = $resource->toResponseArray($request);
-        } elseif (is_array($resource) || is_iterable($resource)) {
-            $payload = $resource;
-        } elseif (is_null($resource)) {
-            $payload = null;   
+    // ************************************ Helper functions ************************************ //
+
+    /**
+     * Generates a JSON:API compliant response message for both normal data responses and errors
+     *
+     * @param \Slim\Http\Request   $request         HTTP request object
+     * @param \Slim\Http\Response  $response        HTTP response object
+     * @param mixed                $data            Either an entity, array of entities, an error collection, or null value
+     * @param string               $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
+     * @return \Slim\Http\Response
+     */
+    protected function _generateResponse($request, $response, $data, $httpStatusCode) {
+        // Create resource representation of data
+        $resource = null;
+        if ($data instanceof ErrorCollection) {
+            $resource = new ErrorResource($data, $this->router);
+            //$httpStatusCode = $data->getHttpStatusCode();  // @todo Implement this logic in error collection
+        } elseif (is_array($data) || is_iterable($data)) {
+            $resource = new ResourceCollection($data, $this->router);
+        } elseif (is_null($data) == false) {
+            $resource = new ResourceItem($data, $this->router);
         } else {
             throw new \Exception("Resource provided is not an instance of '" . AbstractResource::class . "', an array or null.");
         }
-        return $response->withJson($payload, $responseCode);
-    }
 
-    protected function _generateJsonErrorResponse($request, $response, $id, $data) {
-        $resource = null;
-        $httpStatusCode = null;
-        
-        if ($data === false || is_null($data)) {
-            // Entity does not exist
-            $resource = new ErrorNotFoundResource($id, $this->router);
-            $httpStatusCode = HttpStatus::NotFound;
-        } elseif (!($data instanceof Entity)) {
-            // Service has encountered an error
-            $resource = new ErrorValidationResource($data, $this->router);
-            $httpStatusCode = HttpStatus::UnprocessableEntity;
+        // Cast resource to array
+        $payload = null;
+        if (is_null($resource) == false) {
+            $payload = $resource->toResponseArray($request);
         }
 
-        return $this->_generateJsonResponse($request, $response, $resource, $httpStatusCode);
+        // Return resource array
+        return $response->withJson($payload, $httpStatusCode);
     }
 
+    /**
+     * Parse the request query string for filtering, sorting and pagination parameters
+     *
+     * @param \Slim\Http\Request $request
+     * @return array
+     */
     protected function _parseQueryStringParams($request) {
         // Get filtering parameters
         $filters = [];
@@ -251,36 +270,17 @@ class AbstractController {
         return $params;
     }
 
-    protected function _checkInstanceOfEntity($data, $entityClassname = "") {
-        // Check that the data provided is an object
-        if (!is_object($data)) {
-            return false;
-        }
-
-        // Get class name of the data object provided
-        $dataClass = new \ReflectionClass($data);
-        $dataClassname = $dataClass->getName();
-        if ($data instanceof \Doctrine\ORM\Proxy\Proxy) {
-            // Handle lazy-loaded related entities
-            $dataClassname = $dataClass->getParentClass()->getName();
-        }
-
-        // If no entity class type has been provided, use the default for the controller
-        if ($entityClassname == "") {
-            $entityClassname = $this->entityClassname;
-        }
-
-        // Check to see if the data object is an instance of the specified entity
-        if ($entityClassname !== $dataClassname) {
-            return false;
-        }
-        return true;
-    }
-
-    protected function _setAuditTrailReason($request, $reasonCode) {
+    /**
+     * Insert audit trail information into the HTTP request
+     *
+     * @param \Slim\Http\Request   $request
+     * @param string               $reasonReason  Text to use as the audit trail 'update reason'
+     * @return \Slim\Http\Request
+     */
+    protected function _setAuditTrailReason($request, $reasonReason) {
         $body = $request->getParsedBody();
         $meta = Utility::extractValue($body, 'meta', array());
-        $meta['updateReason'] = $reasonCode;
+        $meta['updateReason'] = $reasonReason;
         $body['meta'] = $meta;
         $request = $request->withParsedBody($body);
         return $request;

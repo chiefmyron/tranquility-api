@@ -10,12 +10,4 @@ abstract class OAuthAbstractHashableField extends AbstractSystemObject {
     protected function verifyHashedFieldValue($hashedValue, $value) {
         return password_verify($value, $hashedValue);
     }
-
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     * @abstract
-     */
-    abstract public static function getPublicFields();
 }

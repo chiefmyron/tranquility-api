@@ -9,9 +9,6 @@ use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Repositories\SystemObjects\OAuthClientRepository;
 
 class OAuthClientSystemObject extends OAuthAbstractHashableField {
-    // Entity type
-    protected $type = EntityTypeEnum::Client;
-
     // Entity properties
     protected $id;
     protected $clientId;
@@ -27,10 +24,28 @@ class OAuthClientSystemObject extends OAuthAbstractHashableField {
         'redirectUri'
     );
 
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::OAuthClient;
+    }
+
+    /** Retrieves the set of publicly accessible fields for the entity extension object
+     * 
+     * @return array
+     */
     public static function getPublicFields() {
         return self::$entityPublicFields;
     }
 
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
     public static function getPublicRelationships() {
         return [];
     }

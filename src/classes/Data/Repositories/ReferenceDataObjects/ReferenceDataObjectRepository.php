@@ -44,7 +44,7 @@ class ReferenceDataObjectRepository extends AbstractRepository {
      * @param  Transaction  $transaction  Audit trail transaction entity
      * @return mixed
      */
-    public function create(array $data, Transaction $transaction = null) {
+    public function create(array $data, array $relationships, Transaction $transaction = null) {
         throw new \Exception("ReferenceDataObjectRepository::create() not implemented.");
     }
     

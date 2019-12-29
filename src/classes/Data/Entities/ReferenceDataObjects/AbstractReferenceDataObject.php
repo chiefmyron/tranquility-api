@@ -27,6 +27,15 @@ abstract class AbstractReferenceDataObject extends AbstractEntity {
         'effectiveUntil'
     );
 
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return "";
+    }
+
     /** 
      * Retrieves the an array describing the related entities or entity collections for the entity
      * 

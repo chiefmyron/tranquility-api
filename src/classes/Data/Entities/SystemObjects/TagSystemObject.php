@@ -3,7 +3,6 @@
 // ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
-use Doctrine\Common\Collections\ArrayCollection;
 
 // Tranquility class libraries
 use Tranquility\Data\Entities\AbstractEntity as Entity;
@@ -12,9 +11,6 @@ use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class TagSystemObject extends AbstractSystemObject {
-    // Entity type
-    protected $type = EntityTypeEnum::Tag;
-    
     // Entity properties
     protected $id;
     protected $text;
@@ -33,6 +29,15 @@ class TagSystemObject extends AbstractSystemObject {
     protected static $publicRelationships = array(
         'entities' => ['entityType' => EntityTypeEnum::Entity, 'relationshipType' => EntityRelationshipTypeEnum::Collection]
     );
+
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::Tag;
+    }
 
     /** Retrieves the set of publicly accessible fields for the entity extension object
      * 

@@ -41,6 +41,33 @@ class PersonBusinessObject extends AbstractBusinessObject {
     );
 
     /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::Person;
+    }
+
+    /** 
+     * Retrieves the set of publicly accessible fields for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicFields() {
+        return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
+    }
+
+    /**
      * Returns the name of the class used to model the historical records for this business object
      *
      * @return string
@@ -71,23 +98,5 @@ class PersonBusinessObject extends AbstractBusinessObject {
         // Add relationships
         //$builder->createOneToOne('user', User::class)->inversedBy(EntityTypeEnum::Person)->addJoinColumn('userId','id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
         $builder->createOneToOne('user', User::class)->addJoinColumn('userId', 'id')->orphanRemoval(true)->cascadePersist()->cascadeRemove()->fetchLazy()->build();
-    }
-
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicFields() {
-        return array_merge(self::$entityPublicFields, self::$publicFields);
-    }
-
-    /** 
-     * Retrieves the an array describing the related entities or entity collections for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicRelationships() {
-        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 }

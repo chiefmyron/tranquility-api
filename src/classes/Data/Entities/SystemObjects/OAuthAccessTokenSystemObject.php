@@ -5,6 +5,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Tranquility class libraries
+use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
 use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
 
@@ -29,10 +30,28 @@ class OAuthAccessTokenSystemObject extends AbstractSystemObject {
         'user'
     );
 
+    /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::OAuthTokenAccess;
+    }
+
+    /** Retrieves the set of publicly accessible fields for the entity extension object
+     * 
+     * @return array
+     */
     public static function getPublicFields() {
         return self::$entityPublicFields;
     }
 
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
     public static function getPublicRelationships() {
         return [];
     }
@@ -42,12 +61,12 @@ class OAuthAccessTokenSystemObject extends AbstractSystemObject {
         return $this;
     }
 
-    public function setClient(ClientOAuthEntity $client = null) {
+    public function setClient(Client $client = null) {
         $this->client = $client;
         return $this;
     }
 
-    public function setUser(UserBusinessObject $user = null) {
+    public function setUser(User $user = null) {
         $this->user = $user;
         return $this;
     }

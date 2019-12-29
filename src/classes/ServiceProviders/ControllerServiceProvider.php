@@ -29,13 +29,11 @@ class ControllerServiceProvider extends AbstractServiceProvider {
         };
         $container[UserController::class] = function($container) {
             $service = new UserService($container->get('em'));
-            $service->registerValidationRules();
             $router = $container->get('router');
             return new UserController($service, $router);
         };
         $container[PersonController::class] = function($container) {
             $service = new PersonService($container->get('em'));
-            $service->registerValidationRules();
             $router = $container->get('router');
             return new PersonController($service, $router);
         };

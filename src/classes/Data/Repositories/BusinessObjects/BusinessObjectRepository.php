@@ -35,7 +35,7 @@ class BusinessObjectRepository extends AbstractRepository {
      * @param  Transaction  $transaction  Audit trail transaction entity
      * @return BusinessObject
      */
-    public function create(array $data, Transaction $transaction = null) {
+    public function create(array $data, array $relationships, Transaction $transaction = null) {
         // Audit trail transaction information is mandatory when creating a BusinessObject entity
         if (is_null($transaction)) {
             throw new \Exception("A '" . Transaction::class . "' object must be supplied when creating a '" . BusinessObject::class . "' entity");

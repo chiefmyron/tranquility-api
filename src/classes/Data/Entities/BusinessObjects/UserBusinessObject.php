@@ -13,9 +13,6 @@ use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 
 class UserBusinessObject extends AbstractBusinessObject {
-    // Entity type
-    protected $type = EntityTypeEnum::User;
-    protected static $historicalEntityClass = HistoricalUser::class;
 
     // Entity properties
     protected $username;
@@ -45,6 +42,33 @@ class UserBusinessObject extends AbstractBusinessObject {
     );
 
     /**
+     * Retrieves the type code used to describe the entity throughout the system
+     *
+     * @return string
+     */
+    public static function getEntityType() {
+        return EntityTypeEnum::User;
+    }
+
+    /** 
+     * Retrieves the set of publicly accessible fields for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicFields() {
+        return array_merge(self::$entityPublicFields, self::$publicFields);
+    }
+
+    /** 
+     * Retrieves the an array describing the related entities or entity collections for the entity
+     * 
+     * @return array
+     */
+    public static function getPublicRelationships() {
+        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
+    }
+
+    /**
      * Create a new instance of the entity
      *
      * @var array $data     [Optional] Initial values for entity fields
@@ -60,15 +84,6 @@ class UserBusinessObject extends AbstractBusinessObject {
         if (in_array('password', $data)) {
             $this->password = $data['password'];
         }
-    }
-
-    /**
-     * Returns the name of the class used to model the historical records for this business object
-     *
-     * @return string
-     */
-    public static function getHistoricalEntityClass() {
-        return self::$historicalEntityClass;
     }
     
     /**
@@ -95,24 +110,6 @@ class UserBusinessObject extends AbstractBusinessObject {
         
         // Add relationships
         //$builder->createOneToOne('person', Person::class)->mappedBy('user')->build();
-    }
-
-    /** 
-     * Retrieves the set of publicly accessible fields for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicFields() {
-        return array_merge(self::$entityPublicFields, self::$publicFields);
-    }
-
-    /** 
-     * Retrieves the an array describing the related entities or entity collections for the entity
-     * 
-     * @return array
-     */
-    public static function getPublicRelationships() {
-        return array_merge(self::$entityPublicRelationships, self::$publicRelationships);
     }
 
     /**
