@@ -4,6 +4,7 @@
 use Carbon\Carbon;
 
 // Tranquility class libraries
+use Tranquility\System\Utility;
 use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum as EntityRelationshipTypeEnum;
 use Tranquility\System\Exceptions\InvalidQueryParameterException;
@@ -44,8 +45,11 @@ class ResourceItem extends AbstractResource {
     public function included($request) {
         $included = parent::included($request);
 
+        // Get array of query string parameters from request
+        $queryStringParams = $request->getQueryParams();
+
         // Check to see if the client has requested a compound document
-        $include = trim($request->getQueryParam("include", ""));
+        $include = Utility::extractValue($queryStringParams, 'include', '');
         if ($include == "") {
             return $included;
         }
@@ -105,8 +109,8 @@ class ResourceItem extends AbstractResource {
         foreach ($relations as $name => $relation) {
             $relationships[$name] = [
                 'links' => [
-                    'self' => $this->generateUri($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => $name]),
-                    'related' => $this->generateUri($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => $name])
+                    'self' => $this->generateUrl($request, $this->data->type.'-relationships', ['id' => $this->data->id, 'resource' => $name]),
+                    'related' => $this->generateUrl($request, $this->data->type.'-related', ['id' => $this->data->id, 'resource' => $name])
                 ],
                 'data' => $this->_generateResourceLinkage($this->data->$name, $relation['relationshipType'])
             ];
@@ -148,7 +152,7 @@ class ResourceItem extends AbstractResource {
      */
     public function getLinks($request) {
         $links = [
-            'self' => $this->generateUri($request, $this->data->type.'-detail', ['id' => $this->data->id])
+            'self' => $this->generateUrl($request, $this->data->type.'-detail', ['id' => $this->data->id])
         ];
         return $links;
     }
@@ -161,11 +165,14 @@ class ResourceItem extends AbstractResource {
      * @return array
      */
     protected function _applySparseFieldset($request, $attributes) {
+        // Get array of query string parameters from request
+        $queryStringParams = $request->getQueryParams();
+
         // Get entity type
         $type = $this->data->type;
         
         // Check to see if a sparse fieldset has been applied to the entity
-        $fields = $request->getQueryParam("fields", "");
+        $fields = Utility::extractValue($queryStringParams, 'fields', '');
         if (isset($fields[$type])) {
             $fieldNames = explode(",", $fields[$type]);
             foreach ($attributes as $attributeName => $value) {

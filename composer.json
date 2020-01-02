@@ -1,6 +1,7 @@
 {
     "require": {
-        "slim/slim": "^3.9",
+        "slim/slim": "^4.0",
+        "slim/psr7": "^0.6.0",
         "monolog/monolog": "^1.23",
         "robmorgan/phinx": "^0.9.2",
         "vlucas/phpdotenv": "^2.4",
@@ -11,8 +12,9 @@
         "bshaffer/oauth2-server-php": "^1.10",
         "justinrainbow/json-schema": "2.0.0",
         "seld/jsonlint": "1.4.0",
-        "woohoolabs/yin": "^3.0",
-        "ramsey/uuid": "^3.9"
+        "ramsey/uuid": "^3.9",
+        "woohoolabs/yin": "^4.1",
+        "php-di/php-di": "^6.0"
     },
 
     "autoload": {

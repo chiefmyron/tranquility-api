@@ -1,10 +1,15 @@
 <?php namespace Tranquility\Middlewares;
 
-// Yin libraries
+// PSR standards interfaces
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+
+// Library classes
+use Slim\Psr7\Response;
 use WoohooLabs\Yin\JsonApi\Request\JsonApiRequest as JsonRequest;
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiExceptionInterface;
 
-// Tranquility class libraries
+// Tranquility classes
 use Tranquility\System\Utility;
 
 /**
@@ -49,15 +54,13 @@ class JsonApiRequestValidatorMiddleware extends AbstractMiddleware {
     }
 
     /**
-     * Validates the HTTP request against JSON and JSON:API schemas.
+     * Validates the HTTP request and response payloads against JSON and JSON:API schemas.
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
-     * @param  \Psr\Http\Message\ResponseInterface      $response PSR7 response
-     * @param  callable                                 $next     Next middleware
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param Request         $request  PSR-7 request
+     * @param RequestHandler  $handler  PSR-15 request handler
+     * @return Response
      */
-    public function __invoke($request, $response, $next) {
+    public function __invoke(Request $request, RequestHandler $handler): Response {
         // Convert Slim request to JsonApi request
         $jsonRequest = new JsonRequest($request, $this->exceptionFactory);
 
@@ -73,29 +76,29 @@ class JsonApiRequestValidatorMiddleware extends AbstractMiddleware {
             if ($this->validateJsonRequestBody) {
                 // Validate body exists for required HTTP method types
                 $this->requestValidator->validateBodyExistsForMethod($jsonRequest);
-                $this->requestValidator->lintBody($jsonRequest);
-                $this->requestValidator->validateBody($jsonRequest);
+                $this->requestValidator->validateJsonBody($jsonRequest);
             }
         } catch (JsonApiExceptionInterface $ex) {
             // Generate error response and return immediately
             // TODO: Error document generation
-            echo($ex->getMessage());exit();
+            $response = new Response();
+            $response->getBody()->write($ex->getMessage());
             return $response;
         }
 
         // Continue dispatching the request
-        $response = $next($request, $response);
+        $response = $handler->handle($request);
 
         // Validate the response
         try {
             if ($this->validateJsonResponseBody) {
-                $this->responseValidator->lintBody($response);
-                $this->responseValidator->validateBody($response);
+                $this->responseValidator->validateJsonBody($response);
             }
         } catch (JsonApiExceptionInterface $ex) {
             // Generate error response and return immediately
             // TODO: Error document generation
-            echo($ex->getMessage());exit();
+            $response = new Response();
+            $response->getBody()->write($ex->getMessage());
             return $response;
         }
 
