@@ -1,7 +1,8 @@
 <?php namespace Tranquility\Controllers;
 
-// Framework libraries
-use Slim\Router;
+// PSR standards interfaces
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
 // Tranquility class libraries
 use Tranquility\System\Utility;
@@ -25,32 +26,24 @@ class AbstractController {
      * @var Tranquility\Services\AbstractService
      */
     protected $service;
-
-    /**
-     * Application router
-     * 
-     * @var Slim\Router
-     */
-    protected $router;
     
     /**
      * Constructor
      *
      * @param AbstractService  $service  Service used to interact with the primary entity data
-     * @param Router           $router   Application router
+     * @return void
      */
-    public function __construct(AbstractService $service, Router $router) {
+    public function __construct(AbstractService $service) {
         $this->service = $service;
-        $this->router = $router;
     }
 
     /**
      * Retrieve a list of entities
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function list($request, $response, $args) {
         // Retrieve users
@@ -62,10 +55,10 @@ class AbstractController {
     /**
      * Retrieve a single entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function show($request, $response, $args) {
         // Retrieve an individual user
@@ -77,10 +70,10 @@ class AbstractController {
     /**
      * Create a new entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function create($request, $response, $args) {
         // Get data from request
@@ -94,10 +87,10 @@ class AbstractController {
     /**
      * Update an existing entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function update($request, $response, $args) {
         // Get data from request
@@ -112,10 +105,10 @@ class AbstractController {
     /**
      * Delete an existing entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function delete($request, $response, $args) {
         // Get data from request
@@ -130,10 +123,10 @@ class AbstractController {
     /**
      * Retrieve an entity related to the main entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function showRelated($request, $response, $args) {
         // Get data from request
@@ -148,10 +141,10 @@ class AbstractController {
     /**
      * Show details of a relationship for an entity
      *
-     * @param \Slim\Http\Request    $request
-     * @param \Slim\Http\Response   $response
-     * @param array                 $args
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function showRelationship($request, $response, $args) {
         // Get data from request
@@ -173,7 +166,10 @@ class AbstractController {
             return $this->_generateResponse($request, $response, null, HttpStatus::InternalServerError);
         }
 
-        return $response->withJson($relationships[$resourceName], HttpStatus::OK);
+        // Return resource array
+        $json = json_encode($relationships[$resourceName]);
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/vnd.api+json')->withStatus(HttpStatus::OK);
     }
 
     // ************************************ Helper functions ************************************ //
@@ -181,22 +177,25 @@ class AbstractController {
     /**
      * Generates a JSON:API compliant response message for both normal data responses and errors
      *
-     * @param \Slim\Http\Request   $request         HTTP request object
-     * @param \Slim\Http\Response  $response        HTTP response object
-     * @param mixed                $data            Either an entity, array of entities, an error collection, or null value
-     * @param string               $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
-     * @return \Slim\Http\Response
+     * @param \Psr\Http\Message\ServerRequestInterface  $request         HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response        HTTP response object
+     * @param mixed                                     $data            Either an entity, array of entities, an error collection, or null value
+     * @param string                                    $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function _generateResponse($request, $response, $data, $httpStatusCode) {
+        // Get the route from the request
+        $route = $request->getAttribute('route');
+
         // Create resource representation of data
         $resource = null;
         if ($data instanceof ErrorCollection) {
-            $resource = new ErrorResource($data, $this->router);
+            $resource = new ErrorResource($data, $route);
             //$httpStatusCode = $data->getHttpStatusCode();  // @todo Implement this logic in error collection
         } elseif (is_array($data) || is_iterable($data)) {
-            $resource = new ResourceCollection($data, $this->router);
+            $resource = new ResourceCollection($data, $route);
         } elseif (is_null($data) == false) {
-            $resource = new ResourceItem($data, $this->router);
+            $resource = new ResourceItem($data, $route);
         } else {
             throw new \Exception("Resource provided is not an instance of '" . AbstractResource::class . "', an array or null.");
         }
@@ -208,22 +207,27 @@ class AbstractController {
         }
 
         // Return resource array
-        return $response->withJson($payload, $httpStatusCode);
+        $json = json_encode($payload);
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/vnd.api+json')->withStatus($httpStatusCode);
     }
 
     /**
      * Parse the request query string for filtering, sorting and pagination parameters
      *
-     * @param \Slim\Http\Request $request
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      */
     protected function _parseQueryStringParams($request) {
+        // Get array of query string parameters from request
+        $queryStringParams = $request->getQueryParams();
+
         // Get filtering parameters
         $filters = [];
-        $filter = $request->getQueryParam("filter", array());
+        $filter = Utility::extractValue($queryStringParams, 'filter', array());
         foreach ($filter as $field => $value) {
             // Check to see if the value is prefixed with an operator
-            $valueParams = explode(":", $value);
+            $valueParams = explode(':', $value);
             if (count($valueParams) == 1) {
                 // Check to see if the value parameter is a NULL operator, or just a value
                 if ($valueParams[0] == FilterOperatorEnum::IsNull || $valueParams[0] == FilterOperatorEnum::IsNotNull) {
@@ -241,7 +245,7 @@ class AbstractController {
 
         // Get sorting parameters
         $sorting = [];
-        $sort = $request->getQueryParam("sort", "");
+        $sort = Utility::extractValue($queryStringParams, 'sort', '');
         $sortParams = explode(",", $sort);
         foreach($sortParams as $sortItem) {
             // If the item starts with a minus character, it indicates descending sort order for that field
@@ -254,7 +258,7 @@ class AbstractController {
         }
 
         // Get pagination parameters
-        $page = $request->getQueryParam("page", array());
+        $page = Utility::extractValue($queryStringParams, 'page', array());
         $pagination = [
             'pageNumber' => Utility::extractValue($page, "number", 0),
             'pageSize' => Utility::extractValue($page, "size", 0)

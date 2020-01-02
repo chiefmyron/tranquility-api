@@ -1,5 +1,11 @@
 <?php namespace Tranquility\ServiceProviders;
 
+// PSR standards interfaces
+use Psr\Container\ContainerInterface;
+
+// Library classes
+use DI\ContainerBuilder;
+
 // OAuth server class libraries
 use OAuth2\Server;
 
@@ -18,24 +24,20 @@ class ControllerServiceProvider extends AbstractServiceProvider {
      * 
      * @return void
      */
-    public function register(string $name) {
-        // Get the dependency injection container
-        $container = $this->app->getContainer();
-
-        // Register controllers with the container
-        $container[AuthController::class] = function($container) {
-            $server = $container->get(Server::class);
-            return new AuthController($server);
-        };
-        $container[UserController::class] = function($container) {
-            $service = new UserService($container->get('em'));
-            $router = $container->get('router');
-            return new UserController($service, $router);
-        };
-        $container[PersonController::class] = function($container) {
-            $service = new PersonService($container->get('em'));
-            $router = $container->get('router');
-            return new PersonController($service, $router);
-        };
+    public function register(ContainerBuilder $containerBuilder, string $name) {
+        $containerBuilder->addDefinitions([
+            AuthController::class => function(ContainerInterface $c) {
+                $server = $c->get(Server::class);
+                return new AuthController($server);
+            },
+            UserController::class => function(ContainerInterface $c) {
+                $service = new UserService($c->get('em'));
+                return new UserController($service);
+            },
+            PersonController::class => function(ContainerInterface $c) {
+                $service = new PersonService($c->get('em'));
+                return new PersonController($service);
+            },
+        ]);
     }
 }

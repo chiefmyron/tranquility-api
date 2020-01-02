@@ -21,6 +21,11 @@ return [
     // Fallback locale
     'locale_fallback' => 'en',
 
+    // Cache path
+
+    // Dependency injection compliation path
+    'di_compilation_path' => env('APP_DI_COMPLILE_PATH', TRANQUIL_PATH_BASE.'/cache'),
+
     // Logging
     'logging' => [
         'level' => env('APP_LOG_LEVEL', 400),

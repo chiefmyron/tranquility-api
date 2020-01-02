@@ -15,14 +15,6 @@ class AuthController {
         $this->server = $server;
     }
 
-    public function login($request, $response, $args) {
-        // Attempt to login user
-        $data = $this->parseRequestBody($request);
-        $result = $this->resource->login($data);
-
-        return $response->withJson($result, HttpStatus::Created);
-    }
-
     public function token($request, $response, $args) {
         // Check token request against OAuth server
         $serverRequest = Request::createFromGlobals();
@@ -34,6 +26,7 @@ class AuthController {
             $response = $response->withHeader($name, $value);
         }
         $response = $response->withHeader('Content-Type', 'application/json');
-        return $response->write($serverResponse->getResponseBody('json'));
+        $response->getBody()->write($serverResponse->getResponseBody('json'));
+        return $response;
     }
 }

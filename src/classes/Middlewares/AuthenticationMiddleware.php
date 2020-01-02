@@ -1,14 +1,15 @@
 <?php namespace Tranquility\Middlewares;
 
-// Utility libraries
-use Carbon\Carbon;
+// PSR standards interfaces
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
-// OAuth2 server libraries
+// Library classes
+use Slim\Psr7\Response;
 use OAuth2\Request as OAuthRequest;
 
-// Tranquility class libraries
+// Tranquility classes
 use Tranquility\System\Utility as Utility;
-use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
 
 /**
  * Middleware to ensure only authenticated users can access protected routes
@@ -28,13 +29,11 @@ class AuthenticationMiddleware extends AbstractMiddleware {
     /**
      * Validate that the request contains a valid access token
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
-     * @param  \Psr\Http\Message\ResponseInterface      $response PSR7 response
-     * @param  callable                                 $next     Next middleware
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param Request         $request  PSR-7 request
+     * @param RequestHandler  $handler  PSR-15 request handler
+     * @return Response
      */
-    public function __invoke($request, $response, $next) {
+    public function __invoke(Request $request, RequestHandler $handler): Response {
         $req = OAuthRequest::createFromGlobals();
         if ($this->server->verifyResourceRequest($req) != true) {
             $this->server->getResponse()->send();
@@ -53,6 +52,7 @@ class AuthenticationMiddleware extends AbstractMiddleware {
         $request = $request->withParsedBody($body);
 
         // Move on to next middleware
-        return $next($request, $response);
+        $response = $handler->handle($request);
+        return $response;
     }
 }

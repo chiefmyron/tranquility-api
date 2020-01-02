@@ -1,28 +1,46 @@
 <?php namespace Tranquility\Controllers;
 
-use \Tranquility\Resources\AccountResource;
+class AccountController extends AbstractController {
 
-class AccountController {
-
-    private $accountsResource;
-
-    public function __construct(AccountResource $accountsResource) {
-        $this->accountsResource = $accountsResource;
-    }
-
-    public function list($request, $response, $args) {
-        return $this->accountsResource->all();
-    }
-
+    /**
+     * Create a new Account entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function create($request, $response, $args) {
-
+        // Update request with audit trail information in the 'meta' section
+        $request = $this->_setAuditTrailReason($request, 'account_create_new_record');
+        return parent::create($request, $response, $args);
     }
 
+    /**
+     * Update an existing Account entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function update($request, $response, $args) {
-
+        // Update request with audit trail information in the 'meta' section
+        $request = $this->_setAuditTrailReason($request, 'account_update_existing_record');
+        return parent::update($request, $response, $args);
     }
 
+    /**
+     * Delete an existing Account entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface       $response
+     * @param array                                     $args
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function delete($request, $response, $args) {
-
+        // Update request with audit trail information in the 'meta' section
+        $request = $this->_setAuditTrailReason($request, 'account_delete_existing_record');
+        return parent::delete($request, $response, $args);
     }
 }

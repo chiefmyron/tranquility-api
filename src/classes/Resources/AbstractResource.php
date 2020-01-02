@@ -85,7 +85,7 @@ abstract class AbstractResource {
      */
     public function links($request) {
         $links = [
-            'self' => $request->getUri()->getBaseUrl().$request->getRequestTarget()
+            'self' => $this->generateBaseUrl($request).$request->getRequestTarget()
         ];
         return $links;
     }
@@ -151,10 +151,6 @@ abstract class AbstractResource {
     public function toArray($request) {
         // Convert resource into array
         $data = $this->data($request);
-        if ($data instanceof Arrayable) {
-            $data = $data->toArray();
-        }
-
         return $data;
     }
 
@@ -185,7 +181,33 @@ abstract class AbstractResource {
         return $data;
     }
 
-    protected function generateUri($request, $routeName, $params = array()) {
-        return $request->getUri()->getBaseUrl().$this->router->pathFor($routeName, $params);
+    /**
+     * Generate fully qualified URL from a route
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request    PSR7 request
+     * @param string                                    $routeName  Name of the route to be generated
+     * @param array                                     $params     Route parameter values
+     * @return string
+     */
+    protected function generateUrl($request, $routeName, $params = array()) {
+        $uri = $request->getUri();
+        $routeParser = $request->getAttribute('routeParser');
+        return $routeParser->fullUrlFor($uri, $routeName, $params);
+    }
+
+    /**
+     * Generate a fully qualified base URL (including custom base path, if applicable)
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return string
+     */
+    protected function generateBaseUrl($request) {
+        $uri = $request->getUri();
+        $scheme = $uri->getScheme();
+        $authority = $uri->getAuthority();
+        $basePath = $request->getAttribute('basePath', '');
+
+        $urlString = ($scheme !== '' ? $scheme.':' : '') . ($authority ? '//'.$authority : '') . rtrim($basePath, '/');
+        return $urlString;
     }
 }
