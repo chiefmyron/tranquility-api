@@ -2,6 +2,7 @@
 
 use Countable;
 use Tranquility\App\Errors\AbstractError;
+use Tranquility\System\Enums\HttpStatusCodeEnum;
 
 class ErrorCollection implements Countable {
     private $errors;
@@ -23,7 +24,22 @@ class ErrorCollection implements Countable {
     }
 
     public function getHttpStatusCode() {
-        return "";
+        $numErrors = count($this->errors);
+        if ($numErrors <= 0) {
+            return "";
+        } elseif ($numErrors == 1) {
+            $error = $this->errors[0]->toArray();
+            return $error['status'];
+        } else {
+            $statusCode = 0;
+            foreach ($this->errors as $error) {
+                $errorArray = $error->toArray();
+                if ($errorArray['status'] > $statusCode) {
+                    $statusCode = $errorArray['status'];
+                }
+            }
+            return $statusCode;
+        }
     }
 
     public function toArray() {

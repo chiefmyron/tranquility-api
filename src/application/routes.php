@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-
-
 // Framework classes
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;

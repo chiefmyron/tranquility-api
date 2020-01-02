@@ -25,29 +25,4 @@ return static function (ContainerBuilder $containerBuilder, Config $config) {
         $service = new $class();
         $service->register($containerBuilder, $name);
     }
-
-
-    /*$containerBuilder->addDefinitions([
-        // Register configuration
-        'config' => $config,
-
-        // Load dependencies defined in service providers
-
-
-        
-
-        // Register logging library
-        LoggerInterface::class => function(ContainerInterface $c) {
-            $config = $c->get('config')->get('app.logging');
-            $logger = new Logger($config['name']);
-
-            $processor = new UidProcessor();
-            $logger->pushProcessor($processor);
-
-            $handler = new StreamHandler($config['path'], $config['level']);
-            $logger->pushHandler($handler);
-
-            return $logger;
-        }
-    ]);*/
 };

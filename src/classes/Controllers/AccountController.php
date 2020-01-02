@@ -1,16 +1,20 @@
 <?php namespace Tranquility\Controllers;
 
+// PSR standards interfaces
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 class AccountController extends AbstractController {
 
     /**
      * Create a new Account entity
      *
-     * @param \Psr\Http\Message\ServerRequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface       $response
-     * @param array                                     $args
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function create($request, $response, $args) {
+    public function create(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Update request with audit trail information in the 'meta' section
         $request = $this->_setAuditTrailReason($request, 'account_create_new_record');
         return parent::create($request, $response, $args);
@@ -19,12 +23,12 @@ class AccountController extends AbstractController {
     /**
      * Update an existing Account entity
      *
-     * @param \Psr\Http\Message\ServerRequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface       $response
-     * @param array                                     $args
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function update($request, $response, $args) {
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Update request with audit trail information in the 'meta' section
         $request = $this->_setAuditTrailReason($request, 'account_update_existing_record');
         return parent::update($request, $response, $args);
@@ -33,12 +37,12 @@ class AccountController extends AbstractController {
     /**
      * Delete an existing Account entity
      *
-     * @param \Psr\Http\Message\ServerRequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface       $response
-     * @param array                                     $args
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function delete($request, $response, $args) {
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Update request with audit trail information in the 'meta' section
         $request = $this->_setAuditTrailReason($request, 'account_delete_existing_record');
         return parent::delete($request, $response, $args);
