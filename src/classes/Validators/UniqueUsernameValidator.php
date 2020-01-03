@@ -2,32 +2,32 @@
 
 // Tranquility class libraries
 use Tranquility\System\Utility as Utility;
+use Tranquility\System\Enums\EntityTypeEnum;
 
-// Tranquility data entities
-use Tranquility\Services\UserService;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
+// ORM class libraries
+use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 
 class UniqueUsernameValidator extends AbstractValidator {
     /**
-     * User service
+     * Doctrine Entity Manager
      * 
-     * @var Tranquility\Services\UserService
+     * @var \Doctrine\ORM\EntityManagerInterface
      */
-    protected $service;
+    protected $entityManager;
 
     /** 
-     * Creates an instance of a resource that handles business logic for a data entity
+     * Constructor
      * 
-     * @param  Tranquility\Services\UserService  $service  User service
+     * @param  \Doctrine\ORM\EntityManagerInterface  $em  ORM entity manager
      * @return void
      */
-    public function __construct(UserService $service) {
-        // Use User service for validation of usernames
-        $this->service = $service;
+    public function __construct(EntityManagerInterface $em) {
+        // Create entity manager for interface to repositories and entities
+        $this->entityManager = $em;
     }
 
     /**
-     * Actual valididation rule - check to see that specified entity exists
+     * Actual valididation rule - check to see that spcecified username is unique
      *
      * @param string $field
      * @param string $value
@@ -36,14 +36,19 @@ class UniqueUsernameValidator extends AbstractValidator {
      * @return void
      */
     public function validate($field, $value, $params, array $fields) {
+        // Get user repository
+        $userClassname = EntityTypeEnum::getEntityClassname(EntityTypeEnum::User);
+        $repository = $this->entityManager->getRepository($userClassname);
+
         // Check if this is already an existing user
         $existingUser = false;
         if (Utility::extractValue($params, 0, '') == 'existing') {
             $existingUser = true;
         }
 
-        // Try to find specified entity by username
-        $results = $this->service->findBy('username', $value);
+        // Try to find user entity by username
+        $searchOptions = ['username' => $value, 'deleted' => false];
+        $results = $repository->findBy($searchOptions);
         if (count($results) <= 0) {
             // Username does not exist
             return true;

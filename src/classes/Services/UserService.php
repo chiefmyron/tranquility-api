@@ -2,6 +2,7 @@
 
 // Utility libraries
 use Carbon\Carbon as Carbon;
+use Valitron\Validator;
 
 // ORM class libraries
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
@@ -20,11 +21,12 @@ class UserService extends AbstractService {
     /** 
      * Creates an instance of a resource that handles business logic for a data entity
      * 
-     * @param  \Doctrine\ORM\EntityManagerInterface  $prefix  String to use as database table name prefix
+     * @param  \Doctrine\ORM\EntityManagerInterface  $em         ORM entity manager
+     * @param  \Valitron\Validator                   $validator  Validation engine 
      * @return void
      */
-    public function __construct(EntityManagerInterface $em) {
-        parent::__construct($em);
+    public function __construct(EntityManagerInterface $em, Validator $validator) {
+        parent::__construct($em, $validator);
 
         // Set the entity classname for this service
         $this->entityClassname = User::class;

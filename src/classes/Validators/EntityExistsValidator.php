@@ -7,14 +7,14 @@ class EntityExistsValidator extends AbstractValidator {
     /**
      * Doctrine Entity Manager
      * 
-     * @var Doctrine\ORM\EntityManagerInterface
+     * @var \Doctrine\ORM\EntityManagerInterface
      */
     protected $entityManager;
 
     /** 
-     * Creates an instance of a resource that handles business logic for a data entity
+     * Constructor
      * 
-     * @param  \Doctrine\ORM\EntityManagerInterface  $prefix  String to use as database table name prefix
+     * @param  \Doctrine\ORM\EntityManagerInterface  $em  ORM entity manager
      * @return void
      */
     public function __construct(EntityManagerInterface $em) {

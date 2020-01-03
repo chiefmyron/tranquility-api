@@ -30,14 +30,21 @@ abstract class AbstractService {
     /**
      * Doctrine Entity Manager
      * 
-     * @var Doctrine\ORM\EntityManagerInterface
+     * @var \Doctrine\ORM\EntityManagerInterface
      */
     protected $entityManager;
 
     /**
+     * Validation engine
+     * 
+     * @var \Valitron\Validator
+     */
+    protected $validator;
+
+    /**
      * Class name of the data entity primarily related to the service
      *
-     * @var Tranquility\Data\Entities\AbstractEntity
+     * @var \Tranquility\Data\Entities\AbstractEntity
      */
     protected $entityClassname;
 
@@ -51,19 +58,21 @@ abstract class AbstractService {
     /**
      * A collection of validation or business logic errors generated during service call execution
      *
-     * @var Tranquility\Services\ErrorCollection
+     * @var \Tranquility\App\Errors\Helpers\ErrorCollection
      */
     protected $errors;
 
     /** 
      * Creates an instance of a resource that handles business logic for a data entity
      * 
-     * @param  \Doctrine\ORM\EntityManagerInterface  $prefix  String to use as database table name prefix
+     * @param  \Doctrine\ORM\EntityManagerInterface  $em         ORM entity manager
+     * @param  \Valitron\Validator                   $validator  Validation engine 
      * @return void
      */
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em, Validator $validator) {
         // Create entity manager for interface to repositories and entities
         $this->entityManager = $em;
+        $this->validator = $validator;
         $this->errors = new ErrorCollection();
 
         // Register validation rules for the service
@@ -119,8 +128,8 @@ abstract class AbstractService {
         if ($data instanceof Entity) {
             $data = $data->toArray();
         }
-        $validator = new Validator($data);
-        
+        $validator = $this->validator->withData($data);
+
         // Get rules from the specified validation groups
         $rules = array();
         foreach ($groups as $group) {

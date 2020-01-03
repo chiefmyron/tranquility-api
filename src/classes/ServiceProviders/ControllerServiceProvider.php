@@ -31,11 +31,11 @@ class ControllerServiceProvider extends AbstractServiceProvider {
                 return new AuthController($server);
             },
             UserController::class => function(ContainerInterface $c) {
-                $service = new UserService($c->get('em'));
+                $service = new UserService($c->get('em'), $c->get('validator'));
                 return new UserController($service);
             },
             PersonController::class => function(ContainerInterface $c) {
-                $service = new PersonService($c->get('em'));
+                $service = new PersonService($c->get('em'), $c->get('validator'));
                 return new PersonController($service);
             },
         ]);

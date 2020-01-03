@@ -26,12 +26,11 @@ class ValidationServiceProvider extends AbstractServiceProvider {
             $name => function(ContainerInterface $c) {
                 // ORM entity manager
                 $em = $c->get('em');
-                $userService = new UserService($em);
 
                 // Register custom validation rules with the main validation class
                 Validator::addRule('entityExists', [new EntityExistsValidator($em), 'validate'], "Error occurred in EntityExistsValidator class.");
                 Validator::addRule('referenceDataCode', [new ReferenceDataValidator($em), 'validate'], "Error occurred in ReferenceDataValidator class.");
-                Validator::addRule('uniqueUsername', [new UniqueUsernameValidator($userService), 'validate'], "Error occurred in UniqueUsernameValidator class.");
+                Validator::addRule('uniqueUsername', [new UniqueUsernameValidator($em), 'validate'], "Error occurred in UniqueUsernameValidator class.");
 
                 // Return instance of validator with no data (calling classes should use the 'withData()' method on the validator object)
                 return new Validator([]);
