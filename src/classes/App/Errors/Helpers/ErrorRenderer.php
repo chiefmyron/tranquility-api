@@ -45,11 +45,12 @@ class ErrorRenderer implements ErrorRendererInterface {
     private function formatExceptionFragment(Throwable $exception): array
     {
         return [
-            'type' => get_class($exception),
-            'code' => $exception->getCode(),
+            'type'    => get_class($exception),
+            'code'    => $exception->getCode(),
             'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
+            'file'    => $exception->getFile(),
+            'line'    => $exception->getLine(),
+            'trace'   => $exception->getTrace()
         ];
     }
 }

@@ -37,8 +37,8 @@ abstract class AbstractBusinessObject extends AbstractEntity {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $entityPublicRelationships = array(
-        'transaction' => ['entityType' => EntityTypeEnum::Transaction, 'relationshipType' => EntityRelationshipTypeEnum::Single],
-        'tags' => ['entityType' => EntityTypeEnum::Tag, 'relationshipType' => EntityRelationshipTypeEnum::Collection]
+        'transaction' => ['entityType' => EntityTypeEnum::Transaction, 'relationshipType' => EntityRelationshipTypeEnum::Single, 'readOnly' => true],
+        'tags' => ['entityType' => EntityTypeEnum::Tag, 'relationshipType' => EntityRelationshipTypeEnum::Collection, 'readOnly' => false]
     );
 
     /**

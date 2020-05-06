@@ -212,7 +212,7 @@ abstract class AbstractService {
 	 * @param  int    $resultsPerPage         If zero or less, or null, the full result set will be returned
 	 * @param  int    $startRecordIndex       Index of the record to start the result set from. Defaults to zero.
      * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
-	 * @return array|Tranquility\App\Errors\Helpers\ErrorCollection  Array of entities if successful, or an error collection if validation failed
+	 * @return array|\Tranquility\App\Errors\Helpers\ErrorCollection  Array of entities if successful, or an error collection if validation failed
 	 */
 	public function all($filterConditions = array(), $sortingConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0, $includeDeletedRecords = false) {
         // Get the list of public fields
@@ -328,7 +328,7 @@ abstract class AbstractService {
      * Create a new record for an entity
      * 
      * @var  array  $payload  Data used to create the new entity record
-     * @return Tranquility\Data\Entities\AbstractEntity
+     * @return \Tranquility\Data\Entities\AbstractEntity
      */
     public function create(array $payload) {
         // Get input attributes from data
@@ -404,7 +404,7 @@ abstract class AbstractService {
      * 
      * @var  int    $id       Record ID for the entity to delete
      * @var  array  $payload  Audit trail details to be attached to the deleted record
-     * @return boolean
+     * @return \Tranquility\Data\Entities\AbstractEntity
      */
     public function delete(int $id, array $payload) {
         // Force set the deleted flag for the entity
@@ -419,12 +419,12 @@ abstract class AbstractService {
      * 
      * @var  int     $id                 ID for the parent entity
      * @var  string  $relatedEntityName  Name of the attribute that refers to the related entity
-     * @return boolean
+     * @return \Tranquility\Data\Entities\AbstractEntity
      */
     public function getRelatedEntity(int $id, string $relatedEntityName) {
         // Check that the relationship is a public field
         if (!array_key_exists($relatedEntityName, $this->getEntityPublicRelationships())) {
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalid);
+            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotFound, "'".$relatedEntityName."' is not a valid relationship for this entity.");
             $this->addError($error);
             return $this->getErrors();
         }
@@ -433,13 +433,64 @@ abstract class AbstractService {
         $entity = $this->find($id);
         if ($entity === false || is_null($entity->$relatedEntityName)) {
             // Invalid entity type supplied for the relationship
-            $error = $this->createError(ApplicationErrorCodeEnum::RecordNotFound, "Related resource named '".$relatedEntityName."' was found for this entity.");
+            $error = $this->createError(ApplicationErrorCodeEnum::RecordNotFound, "Related resource named '".$relatedEntityName."' was not found for this entity.");
             $this->addError($error);
             return $this->getErrors();
         }
 
         // Return related entity
         return $entity->$relatedEntityName;
+    }
+
+
+    public function addRelationshipMembers(int $id, string $relatedEntityName, array $payload) {
+        // Get input attributes from data
+        $meta = Utility::extractValue($payload, 'meta', array());
+        $data = Utility::extractValue($payload, 'data', array());
+        $relationships = [$relatedEntityName => $data];
+
+        // Get allowed relationships for the entity
+        $relationshipDetail = $this->getEntityPublicRelationships();
+        $relationshipType = $relationshipDetail[$relatedEntityName]['relationshipType'];
+        $relationshipEntityType = $relationshipDetail[$relatedEntityName]['entityType'];
+
+        // Validate relationship details
+        if (array_key_exists($relatedEntityName, $relationshipDetail) == false) {
+            // Invalid relationship error
+            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotAllowed, "Cannot create or update a relationship named '".$relatedEntityName."' for this entity.");
+            $this->addError($error);
+            return $this->getErrors();
+        }
+        if ($relationshipType == EntityRelationshipTypeEnum::Single) {
+            // Invalid relationship error
+            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidType, "The relationship named '".$relatedEntityName."' is for a single entity - cannot accept a collection of entities.");
+            $this->addError($error);
+            return $this->getErrors();
+        }
+
+        // Load the existing entity
+        $entity = $this->find($id);
+        if ($this->hasErrors() == true) {
+            return $this->getErrors();  // Errors encountered while retrieving the entity record
+        }
+
+        // Load related entities
+        $relatedEntities = $this->hydrateResourceLinkage($relationships);
+        if ($this->hasErrors() == true) {
+            return $this->getErrors();  // Errors encountered while loading related entities
+        }
+
+        // If related entity does not already exist in the collection, add it now
+        foreach ($relatedEntities[$relatedEntityName] as $relatedEntity) {
+            if ($entity->$relatedEntityName->contains($relatedEntity) == false) {
+                $entity->$relatedEntityName[] = $relatedEntity;
+            }
+        }
+
+        // Data is valid - create the entity
+        $transaction = $this->createTransaction($meta);
+        $entity = $this->getRepository()->update($entity, $transaction);
+        return $entity;
     }
 
     /**
@@ -449,7 +500,7 @@ abstract class AbstractService {
      * @param boolean $includeDeletedRecords
      * @return array
      */
-    public function hydrateResourceLinkage(array $relationships, bool $includeDeletedRecords = false) {
+    protected function hydrateResourceLinkage(array $relationships, bool $includeDeletedRecords = false) {
         // Get allowed relationships for the entity
         $entityRelationshipDetails = $this->getEntityPublicRelationships();
         
@@ -526,6 +577,20 @@ abstract class AbstractService {
     }
 
     /**
+     * Check if the entity associated with this service requires an audit trail transaction
+     *
+     * @return bool
+     */
+    protected function requiresTransaction() {
+        $relationships = $this->getEntityPublicRelationships();
+        if (array_key_exists('transaction', $relationships)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the Repository associated with the Entity for this resource
      * 
      * @return Tranquility\Data\Repositories\Repository
@@ -541,6 +606,11 @@ abstract class AbstractService {
      * @return Tranquility\Data\Entities\System\Transaction
      */
     protected function createTransaction(array $meta) {
+        // If this entity does not require an audit trail transaction, return null object
+        if ($this->requiresTransaction() == false) {
+            return null;
+        }
+
         // Get audit trail details from authentication token
         $userId = Utility::extractValue($meta, 'user', 0);
         $clientId = Utility::extractValue($meta, 'client', 'invalid_client_id');

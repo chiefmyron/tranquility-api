@@ -30,7 +30,7 @@ return function (App $app) {
         $group->get('/transactions/{id}', UserController::class.':show')->setName('transaction-detail');
         $group->patch('/transactions/{id}', UserController::class.':update');
         $group->delete('/transactions/{id}', UserController::class.':delete');
-        $group->get('/transactions/{id}/related/{resource}', UserController::class.':showRelated')->setName('transaction-related');
+        $group->get('/transactions/{id}/{resource}', UserController::class.':showRelated')->setName('transaction-related');
         $group->get('/transactions/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('transaction-relationships');
         
         // User resource
@@ -39,8 +39,11 @@ return function (App $app) {
         $group->get('/users/{id}', UserController::class.':show')->setName('user-detail');
         $group->patch('/users/{id}', UserController::class.':update');
         $group->delete('/users/{id}', UserController::class.':delete');
-        $group->get('/users/{id}/related/{resource}', UserController::class.':showRelated')->setName('user-related');
+        $group->get('/users/{id}/{resource}', UserController::class.':showRelated')->setName('user-related');
         $group->get('/users/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('user-relationships');
+        $group->post('/users/{id}/relationships/{resource}', UserController::class.':addRelationship');
+        $group->patch('/users/{id}/relationships/{resource}', UserController::class.':updateRelationship');
+        $group->delete('/users/{id}/relationships/{resource}', UserController::class.':deleteRelationship');
         
         // People resource
         $group->get('/people', PersonController::class.':list')->setName('person-list');
@@ -48,7 +51,7 @@ return function (App $app) {
         $group->get('/people/{id}', PersonController::class.':show')->setName('person-detail');
         $group->patch('/people/{id}', PersonController::class.':update');
         $group->delete('/people/{id}', PersonController::class.':delete');
-        $group->get('/people/{id}/related/{resource}', PersonController::class.':showRelated')->setName('person-related');
+        $group->get('/people/{id}/{resource}', PersonController::class.':showRelated')->setName('person-related');
         $group->get('/people/{id}/relationships/{resource}', PersonController::class.':showRelationship')->setName('person-relationships');
 
         // Accounts resource

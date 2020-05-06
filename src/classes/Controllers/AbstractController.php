@@ -16,21 +16,27 @@ use Tranquility\Resources\ErrorResource;
 use Tranquility\Resources\ResourceCollection;
 use Tranquility\Resources\ResourceItem;
 
+use Tranquility\Documents\ResourceDocument;
+use Tranquility\Documents\ResourceCollectionDocument;
+
 // Tranquility error messaging
 use Tranquility\App\Errors\Helpers\ErrorCollection;
+use Tranquility\Documents\AbstractDocument;
+use Tranquility\System\Enums\DocumentTypeEnum;
+use Tranquility\System\Exceptions\NotFoundException;
 
 class AbstractController {
     /**
      * Entity service
      * 
-     * @var Tranquility\Services\AbstractService
+     * @var \Tranquility\Services\AbstractService
      */
     protected $service;
     
     /**
      * Constructor
      *
-     * @param AbstractService  $service  Service used to interact with the primary entity data
+     * @param \Tranquility\Services\AbstractService  $service  Service used to interact with the primary entity data
      * @return void
      */
     public function __construct(AbstractService $service) {
@@ -151,25 +157,83 @@ class AbstractController {
         $id = Utility::extractValue($args, 'id', 0, 'int');
         $resourceName = Utility::extractValue($args, 'resource', '', 'string');
 
-        // Retrieve entity data
-        $data = $this->service->find($id);
+        // Retrieve relationship data
+        $data = $this->service->getRelatedEntity($id, $resourceName);
         if ($data instanceof ErrorCollection) {
-            return $this->_generateResponse($request, $response, $data, HttpStatus::InternalServerError);
+            // Specified relationship does not exist for the entity - return error
+            return $this->_generateResponse($request, $response, $data, HttpStatus::NotFound);
         }
 
-        // Generate response document for entity
-        $resource = new ResourceItem($data, $this->router);
-        $relationships = $resource->getRelationships($request);
+        // Load the main entity, so that the relationship links can be generated relative to it
+        $data = $this->service->find($id);
+        return $this->_generateRelationshipResponse($request, $response, $data, $resourceName, HttpStatus::OK);
+    }
 
-        // Extract only the relationship for the specified resource, and return as the response
-        if (array_key_exists($resourceName, $relationships) === false) {
-            return $this->_generateResponse($request, $response, null, HttpStatus::InternalServerError);
-        }
+    /**
+     * Add one or more members to a relationship for an entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function addRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
+        $payload = $request->getParsedBody();
 
-        // Return resource array
-        $json = json_encode($relationships[$resourceName]);
-        $response->getBody()->write($json);
-        return $response->withHeader('Content-Type', 'application/vnd.api+json')->withStatus(HttpStatus::OK);
+        // Add relationship to the specified entity
+        $data = $this->service->addRelationshipMembers($id, $resourceName, $payload);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
+        
+        
+        // Only allowed for 'to-many' relationships
+        // If a client makes a POST request to a URL from a relationship link, the server MUST add the specified 
+        // members to the relationship unless they are already present. If a given type and id is already in the 
+        // relationship, the server MUST NOT add it again.
+
+        // Note: This matches the semantics of databases that use foreign keys for has-many relationships. Document-based 
+        // storage should check the has-many relationship before appending to avoid duplicates.
+
+        // If all of the specified resources can be added to, or are already present in, the relationship then the server 
+        // MUST return a successful response.
+        // Note: This approach ensures that a request is successful if the server’s state matches the requested state, and 
+        // helps avoid pointless race conditions caused by multiple clients making the same changes to a relationship.
+    }
+
+    /**
+     * Update / replace all members in a relationship for an entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function updateRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        // A server MUST respond to PATCH requests to a URL from a to-one relationship link as described below.
+        // The PATCH request MUST include a top-level member named data containing one of:
+        //     * a resource identifier object corresponding to the new related resource.
+        //     * null, to remove the relationship.
+
+        // If a client makes a PATCH request to a URL from a to-many relationship link, the server MUST either completely 
+        // replace every member of the relationship, return an appropriate error response if some resources can not be 
+        // found or accessed, or return a 403 Forbidden response if complete replacement is not allowed by the server.
+    }
+
+    /**
+     * Delete the specified members in a relationship for an entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response  PSR-7 HTTP response object
+     * @param array                                     $args      Route arguments array
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function deleteRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        // If the client makes a DELETE request to a URL from a relationship link the server MUST delete the specified 
+        // members from the relationship or return a 403 Forbidden response. If all of the specified resources are able 
+        // to be removed from, or are already missing from, the relationship then the server MUST return a successful response.
+        // Relationship members are specified in the same way as in the POST request.
     }
 
     // ************************************ Helper functions ************************************ //
@@ -180,36 +244,61 @@ class AbstractController {
      * @param \Psr\Http\Message\ServerRequestInterface  $request         PSR-7 HTTP request object
      * @param \Psr\Http\Message\ResponseInterface       $response        PSR-7 HTTP response object
      * @param mixed                                     $data            Either an entity, array of entities, an error collection, or null value
-     * @param string                                    $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
+     * @param int                                       $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
+     * @param string                                    $documentType    [Optional] Force the document to generate for the supplied entity
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function _generateResponse(ServerRequestInterface $request, ResponseInterface $response, $data, int $httpStatusCode) {
-        // Get the route from the request
-        $route = $request->getAttribute('route');
-
-        // Create resource representation of data
-        $resource = null;
+    protected function _generateResponse(ServerRequestInterface $request, ResponseInterface $response, $data, int $httpStatusCode, string $documentType = '') {
+        // If we have received a null data object, return an empty document with the specified HTTP status code
+        if (is_null($data)) {
+            return $response->withStatus($httpStatusCode);
+        }
+        
+        // Create a response document from the data supplied
+        $document = AbstractDocument::createDocument($data, $request, $documentType);
         if ($data instanceof ErrorCollection) {
-            $resource = new ErrorResource($data, $route);
             $httpStatusCode = $data->getHttpStatusCode();
-        } elseif (is_array($data) || is_iterable($data)) {
-            $resource = new ResourceCollection($data, $route);
-        } elseif (is_null($data) == false) {
-            $resource = new ResourceItem($data, $route);
-        } else {
-            throw new \Exception("Resource provided is not an instance of '" . AbstractResource::class . "', an array or null.");
         }
 
-        // Cast resource to array
-        $payload = null;
-        if (is_null($resource) == false) {
-            $payload = $resource->toResponseArray($request);
-        }
-
-        // Return resource array
-        $json = json_encode($payload);
+        // Return encoded document in the response
+        $json = json_encode($document->toArray());
         $response->getBody()->write($json);
         return $response->withHeader('Content-Type', 'application/vnd.api+json')->withStatus($httpStatusCode);
+    }
+
+    /**
+     * Generates a JSON:API compliant response message for a relationship request on an entity
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request         PSR-7 HTTP request object
+     * @param \Psr\Http\Message\ResponseInterface       $response        PSR-7 HTTP response object
+     * @param mixed                                     $data            Either an entity, array of entities, an error collection, or null value
+     * @param string                                    $resourceName    Name of the related resource to show
+     * @param int                                       $httpStatusCode  HTTP status code to return for normal data response. If an error collection is provided as $data, the status code will be automatically determined.
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    protected function _generateRelationshipResponse(ServerRequestInterface $request, ResponseInterface $response, $data, string $resourceName, int $httpStatusCode) {
+        // If we have been given an error collection, then generate a regular error response (there can be no relationships in an error collection)
+        if ($data instanceof ErrorCollection) {
+            return $this->_generateResponse($request, $response, $data, $httpStatusCode);
+        }
+
+        // Create a response document from the supplied data
+        $document = AbstractDocument::createDocument($data, $request);
+        $documentData = $document->getMember('data');
+        $relationships = $documentData->getMember('relationships');
+        if (is_null($relationships) == true || $relationships->hasMember($resourceName) == false) {
+            // TODO: Error messaging
+        }
+
+        // Return relationship object as the response
+        $json = json_encode($relationships->getMember($resourceName, true));
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/vnd.api+json')->withStatus(HttpStatus::OK);
+
+    }
+
+    protected function _generateErrorResponse(ServerRequestInterface $request, ResponseInterface $response, int $applicationErrorCode, string $description = '') {
+        
     }
 
     /**

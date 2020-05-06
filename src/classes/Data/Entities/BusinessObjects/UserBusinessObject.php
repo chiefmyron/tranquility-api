@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity classes
 use Tranquility\Data\Repositories\BusinessObjects\UserBusinessObjectRepository;
-use Tranquility\Data\Entities\HistoricalBusinessObjects\UserHistoricalBusinessObject as HistoricalUser;
+use Tranquility\Data\Entities\BusinessObjects\PersonBusinessObject as Person;
 
 // Tranquility class libraries
 use Tranquility\System\Enums\EntityTypeEnum as EntityTypeEnum;
@@ -38,7 +38,7 @@ class UserBusinessObject extends AbstractBusinessObject {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
-        //'person' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Single]
+        'person' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Single, 'readOnly' => true]
     );
 
     /**
@@ -109,7 +109,7 @@ class UserBusinessObject extends AbstractBusinessObject {
         $builder->addField('registeredDateTime', 'datetime');
         
         // Add relationships
-        //$builder->createOneToOne('person', Person::class)->mappedBy('user')->build();
+        $builder->createOneToOne('person', Person::class)->mappedBy('user')->build();
     }
 
     /**

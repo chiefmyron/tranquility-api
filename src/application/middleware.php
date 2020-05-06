@@ -22,4 +22,5 @@ return static function (App $app) {
     // Add custom error renderer
     $errorHandler = $errorMiddleware->getDefaultErrorHandler();
     $errorHandler->registerErrorRenderer('application/vnd.api+json', ErrorRenderer::class);
+    $errorHandler->forceContentType('application/vnd.api+json');
 };

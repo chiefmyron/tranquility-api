@@ -3,10 +3,10 @@
 // Tranquility class libraries
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatusCodes;
 
-class ValidationInvalidRelationshipObject extends AbstractError {
+class ValidationRelationshipInvalidTypeError extends AbstractError {
 
     /**
-     * Exception thrown if the specified data entity cannot be gound
+     * Exception thrown if the relationship (single or collection) specified does not match the data provided
      *
      * @param integer     $errorCode    Application error code
      * @param string      $description  [Optional] Publicly visible error message
@@ -17,7 +17,7 @@ class ValidationInvalidRelationshipObject extends AbstractError {
         parent::__construct($errorCode, $description, $id);
 
         // Set error-specific values
-        $this->title = "Invalid relationship object";
+        $this->title = "Invalid data provided for type of relationship";
         $this->codeHttpStatus = HttpStatusCodes::UnprocessableEntity;
         return $this;
     }

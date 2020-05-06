@@ -27,7 +27,7 @@ class AccountBusinessObject extends AbstractBusinessObject {
 
     // Define the set of related entities or entity collections that are publicly available
     protected static $publicRelationships = array(
-        //'people' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Collection]
+        //'people' => ['entityType' => EntityTypeEnum::Person, 'relationshipType' => EntityRelationshipTypeEnum::Collection, 'readOnly' => false]
     );
 
     /**

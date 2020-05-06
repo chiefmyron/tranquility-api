@@ -1,5 +1,9 @@
 <?php namespace Tranquility\System;
 
+// PSR standards interfaces
+use Psr\Http\Message\ServerRequestInterface;
+
+// Utility library classes
 use Ramsey\Uuid\Uuid as UuidGenerator;
 
 /**
@@ -82,4 +86,35 @@ class Utility {
 	public static function generateUuidV4() {
 		return UuidGenerator::uuid4()->toString();
 	}
+
+	/**
+     * Generate a fully qualified base URL (including custom base path, if applicable)
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
+     * @return string
+     */
+    public static function getBaseUrl(ServerRequestInterface $request) {
+        $uri = $request->getUri();
+        $scheme = $uri->getScheme();
+        $authority = $uri->getAuthority();
+        $basePath = $request->getAttribute('basePath', '');
+
+        $urlString = ($scheme !== '' ? $scheme.':' : '') . ($authority ? '//'.$authority : '') . rtrim($basePath, '/');
+        return $urlString;
+    }
+
+	/**
+     * Generate fully qualified URL from a route
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface  $request            PSR7 request
+     * @param string                                    $routeName          Name of the route to be generated
+     * @param array                                     $routeParams        Route parameter values
+	 * @param array                                     $queryStringParams  Query string parameter values
+     * @return string
+     */
+    public static function getRouteUrl(ServerRequestInterface $request, string $routeName, array $routeParams = [], array $queryStringParams = []) {
+        $uri = $request->getUri();
+        $routeParser = $request->getAttribute('routeParser');
+        return $routeParser->fullUrlFor($uri, $routeName, $routeParams, $queryStringParams);
+    }
 }
