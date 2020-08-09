@@ -32,7 +32,7 @@ class InitialSchema extends AbstractMigration {
          *************************************************************************/
         
         // Locale reference data
-        $table = $this->table('cd_locales', ['id' => false, 'primary_key' => 'code']);
+        $table = $this->table('ref_locales', ['id' => false, 'primary_key' => 'code']);
         $table->addColumn('code', 'string', ['length' => 30]);
         $table->addColumn('description', 'string', ['length' => 100]);
         $table->addColumn('ordering', 'integer');
@@ -41,7 +41,7 @@ class InitialSchema extends AbstractMigration {
         $table->create();
 
         // Timezone reference data
-        $table = $this->table('cd_timezones', ['id' => false, 'primary_key' => 'code']);
+        $table = $this->table('ref_timezones', ['id' => false, 'primary_key' => 'code']);
         $table->addColumn('code', 'string', ['length' => 30]);
         $table->addColumn('description', 'string', ['length' => 100]);
         $table->addColumn('daylightSavings', 'boolean');
@@ -51,7 +51,7 @@ class InitialSchema extends AbstractMigration {
         $table->create();
 
         // Countries reference data
-        $table = $this->table('cd_countries', ['id' => false, 'primary_key' => 'code']);
+        $table = $this->table('ref_countries', ['id' => false, 'primary_key' => 'code']);
         $table->addColumn('code', 'string', ['length' => 30]);
         $table->addColumn('description', 'string', ['length' => 100]);
         $table->addColumn('ordering', 'integer');
@@ -66,19 +66,19 @@ class InitialSchema extends AbstractMigration {
          *************************************************************************/
 
         // Base business object entity
-        $table = $this->table('entity', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
+        $table = $this->table('bus_entity', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('version', 'integer');
         $table->addColumn('type', 'string', ['length' => 25]);
         $table->addColumn('subType', 'string', ['null' => true]);
         $table->addColumn('deleted', 'boolean');
-        $table->addColumn('transactionId', 'biginteger');
+        $table->addColumn('transactionId', 'binary', ['length' => 16]);
         $table->create();
 
         // Address details - electronic, social, phone
-        $table = $this->table('entity_addresses', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('parentId', 'biginteger');
+        /*$table = $this->table('bus_addresses', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('category', 'string', ['length' => 25]);
         $table->addColumn('addressType', 'string', ['length' => 25]);
         $table->addColumn('addressText', 'string', ['length' => 25]);
@@ -87,8 +87,8 @@ class InitialSchema extends AbstractMigration {
 
         // Address details - physical
         $table = $this->table('entity_addresses_physical', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('parentId', 'biginteger');
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('addressType', 'string', ['length' => 25]);
         $table->addColumn('addressLine1', 'string', ['length' => 255]);
         $table->addColumn('addressLine2', 'string', ['length' => 255, 'null' => true]);
@@ -100,21 +100,21 @@ class InitialSchema extends AbstractMigration {
         $table->addColumn('country', 'string', ['length' => 255, 'null' => true]);
         $table->addColumn('latitude', 'float', ['default' => 0.0]);
         $table->addColumn('longitude', 'float', ['default' => 0.0]);
-        $table->create();
+        $table->create();*/
 
         // Person
-        $table = $this->table('entity_people', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger');
+        $table = $this->table('bus_people', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('title', 'string', ['length' => 50, 'null' => true]);
         $table->addColumn('firstName', 'string', ['length' => 255]);
         $table->addColumn('lastName', 'string', ['length' => 255]);
         $table->addColumn('position', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('userId', 'biginteger', ['null' => true]);
+        $table->addColumn('userId', 'binary', ['length' => 16, 'null' => true]);
         $table->create();
 
         // User
-        $table = $this->table('entity_users', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger');
+        $table = $this->table('bus_users', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('username', 'string', ['length' => 255]);
         $table->addColumn('password', 'string', ['length' => 255]);
         $table->addColumn('timezoneCode', 'string', ['length' => 30]);
@@ -125,120 +125,97 @@ class InitialSchema extends AbstractMigration {
         $table->create();
 
         // Account
-        $table = $this->table('entity_accounts', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger');
+        $table = $this->table('bus_accounts', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
         $table->addColumn('name', 'string', ['length' => 255]);
         $table->create();
 
-        // Contact (linkage of Person to Account)
-        $table = $this->table('entity_contacts', ['id' => false, 'primary_key' => ['personId', 'accountId']]);
-        $table->addColumn('personId', 'biginteger');
-        $table->addColumn('accountId', 'biginteger');
-        $table->addColumn('primaryContact', 'boolean');
-        $table->create();
-
-        // Entity cross-referencing for tags
-        $table = $this->table('entity_tags_xref', ['id' => false, 'primary_key' => ['entityId', 'tagId']]);
-        $table->addColumn('entityId', 'biginteger');
-        $table->addColumn('tagId', 'biginteger');
-        $table->create();
-
         /*************************************************************************
-         * Historical business object tables                                     *
-         *                                                                       *
-         * Used to store previous versions of business objects for audit         *
-         * purposes                                                              *
-         *************************************************************************/
-
-        // Base business object entity
-        $table = $this->table('history_entity', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('type', 'string', ['length' => 25]);
-        $table->addColumn('subType', 'string', ['null' => true]);
-        $table->addColumn('deleted', 'boolean');
-        $table->addColumn('transactionId', 'biginteger');
-        $table->create();
-
-        // Address details - electronic, social, phone
-        $table = $this->table('history_entity_addresses', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('parentId', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('category', 'string', ['length' => 25]);
-        $table->addColumn('addressType', 'string', ['length' => 25]);
-        $table->addColumn('addressText', 'string', ['length' => 25]);
-        $table->addColumn('primaryContact', 'boolean');
-        $table->create();
-
-        // Address details - physical
-        $table = $this->table('history_entity_addresses_physical', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('parentId', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('addressType', 'string', ['length' => 25]);
-        $table->addColumn('addressLine1', 'string', ['length' => 255]);
-        $table->addColumn('addressLine2', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('addressLine3', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('addressLine4', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('city', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('state', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('postcode', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('country', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('latitude', 'float', ['default' => 0.0]);
-        $table->addColumn('longitude', 'float', ['default' => 0.0]);
-        $table->create();
-
-        // Person
-        $table = $this->table('history_entity_people', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('title', 'string', ['length' => 50, 'null' => true]);
-        $table->addColumn('firstName', 'string', ['length' => 255]);
-        $table->addColumn('lastName', 'string', ['length' => 255]);
-        $table->addColumn('position', 'string', ['length' => 255, 'null' => true]);
-        $table->addColumn('userId', 'biginteger', ['null' => true]);
-        $table->create();
-
-        // User
-        $table = $this->table('history_entity_users', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('username', 'string', ['length' => 255]);
-        $table->addColumn('password', 'string', ['length' => 255]);
-        $table->addColumn('timezoneCode', 'string', ['length' => 30]);
-        $table->addColumn('localeCode', 'string', ['length' => 30]);
-        $table->addColumn('active', 'boolean');
-        $table->addColumn('securityGroupId', 'biginteger');
-        $table->addColumn('registeredDateTime', 'datetime');
-        $table->create();
-
-        // Account
-        $table = $this->table('history_entity_accounts', ['id' => false, 'primary_key' => ['id', 'version']]);
-        $table->addColumn('id', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('name', 'string', ['length' => 255]);
-        $table->create();
-
-        // Contact (linkage of Person to Account)
-        $table = $this->table('history_entity_contacts', ['id' => false, 'primary_key' => ['personId', 'accountId', 'version']]);
-        $table->addColumn('personId', 'biginteger');
-        $table->addColumn('accountId', 'biginteger');
-        $table->addColumn('version', 'integer');
-        $table->addColumn('primaryContact', 'boolean');
-        $table->create();
-
-        /*************************************************************************
-         * Entity data extension tables                                          *
+         * System entity tables                                                  *
          *                                                                       *
          * Used to extend entity objects, but are not actual entities themselves *
          * e.g. Tags, etc...                                                     *
          *************************************************************************/
 
         // Tags
-        $table = $this->table('ext_tags', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('text', 'string', ['length' => 255]);
+        $table = $this->table('sys_tags', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('label', 'string', ['length' => 255]);
+        $table->create();
+
+        /*************************************************************************
+         * Cross-reference tables                                                *
+         *                                                                       *
+         * Used to record details of many-to-many relationships between other    *
+         * entites.                                                              *
+         *************************************************************************/
+
+        // Entity cross-referencing for tags
+        $table = $this->table('xref_entity_tags', ['id' => false, 'primary_key' => ['entityId', 'tagId']]);
+        $table->addColumn('entityId', 'binary', ['length' => 16]);
+        $table->addColumn('tagId', 'binary', ['length' => 16]);
+        $table->create();
+
+        // Contacts (linkage of multiple Person entities to an Account)
+        $table = $this->table('xref_account_people', ['id' => false, 'primary_key' => ['accountId', 'personId']]);
+        $table->addColumn('accountId', 'binary', ['length' => 16]);
+        $table->addColumn('personId', 'binary', ['length' => 16]);
+        $table->addColumn('primaryContact', 'boolean');
+        $table->create();
+
+        /*************************************************************************
+         * OAuth tables                                                          *
+         *                                                                       *
+         * Used for storing OAuth clients, toekens and codes                     *
+         *************************************************************************/
+
+        // Authentication clients
+        $table = $this->table('auth_clients', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('clientName', 'string', ['length' => 80]);
+        $table->addColumn('clientSecret', 'string', ['length' => 80, 'null' => 'true']);
+        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
+        $table->addColumn('grantTypes', 'string', ['length' => 80, 'null' => 'true']);
+        $table->addColumn('scope', 'text', ['length' => 4000, 'null' => 'true']);
+        $table->addColumn('userId', 'binary', ['length' => 16, 'null' => 'true']);
+        $table->create();
+
+        // Authentication access tokens
+        $table = $this->table('auth_tokens_access', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('token', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'binary', ['length' => 16]);
+        $table->addColumn('userId', 'binary', ['length' => 16, 'null' => 'true']);
+        $table->addColumn('expires', 'timestamp');
+        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
+        $table->create();
+
+        // Authentication refresh tokens
+        $table = $this->table('auth_tokens_refresh', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('token', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'binary', ['length' => 16]);
+        $table->addColumn('userId', 'binary', ['length' => 16, 'null' => 'true']);
+        $table->addColumn('expires', 'timestamp');
+        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
+        $table->create();
+
+        // Authentication authorisation codes
+        $table = $this->table('auth_authorisation_codes', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('code', 'string', ['length' => 40]);
+        $table->addColumn('clientId', 'binary', ['length' => 16]);
+        $table->addColumn('userId', 'binary', ['length' => 16, 'null' => 'true']);
+        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
+        $table->addColumn('expires', 'timestamp');
+        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
+        $table->create();
+
+        // Authentication scopes
+        $table = $this->table('auth_scopes', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('scope', 'string', ['length' => 80]);
+        $table->addColumn('isDefault', 'boolean');
         $table->create();
 
         /*************************************************************************
@@ -247,76 +224,30 @@ class InitialSchema extends AbstractMigration {
          * Used for audit trail details, system configuration and security roles *
          *************************************************************************/
 
-        // Audit trail
-        $table = $this->table('sys_trans_audit', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('client', 'string', ['length' => 100]);
-        $table->addColumn('user', 'biginteger');
+        // Audit transaction
+        $table = $this->table('sys_audit_txn', ['id' => false, 'primary_key' => 'id']);
+        $table->addColumn('id', 'binary', ['length' => 16]);
+        $table->addColumn('clientId', 'binary', ['length' => 16]);
+        $table->addColumn('userId', 'binary', ['length' => 16]);
         $table->addColumn('timestamp', 'datetime');
         $table->addColumn('updateReason', 'string', ['length' => 100]);
         $table->create();
 
+        // Audit transaction field changes
+        $table = $this->table('sys_audit_txn_fields', ['id' => false, 'primary_key' => ['transactionId', 'entityId', 'fieldName']]);
+        $table->addColumn('transactionId', 'binary', ['length' => 16]);
+        $table->addColumn('entityId', 'binary', ['length' => 16]);
+        $table->addColumn('fieldName', 'string', ['length' => 45]);
+        $table->addColumn('dataType', 'string', ['length' => 45]);
+        $table->addColumn('oldValue', 'string', ['length' => 255]);
+        $table->addColumn('newValue', 'string', ['length' => 255]);
+        $table->create();
+
         // Entity locking
-        $table = $this->table('sys_entity_locks', ['id' => false, 'primary_key' => 'entityId']);
-        $table->addColumn('entityId', 'biginteger');
-        $table->addColumn('lockedByUserId', 'biginteger');
+        $table = $this->table('sys_locks_entity', ['id' => false, 'primary_key' => 'entityId']);
+        $table->addColumn('entityId', 'binary', ['length' => 16]);
+        $table->addColumn('lockedByUserId', 'binary', ['length' => 16]);
         $table->addColumn('lockedDateTime', 'datetime');
-        $table->create();
-
-        // Authentication clients
-        $table = $this->table('sys_auth_clients', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('clientId', 'string', ['length' => 80]);
-        $table->addColumn('clientSecret', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
-        $table->addColumn('grantTypes', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('scope', 'text', ['length' => 4000, 'null' => 'true']);
-        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
-        $table->create();
-
-        // Authentication access tokens
-        $table = $this->table('sys_auth_access_tokens', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('token', 'string', ['length' => 40]);
-        $table->addColumn('clientId', 'string', ['length' => 80]);
-        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('expires', 'timestamp');
-        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
-        $table->create();
-
-        // Authentication refresh tokens
-        $table = $this->table('sys_auth_refresh_tokens', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('token', 'string', ['length' => 40]);
-        $table->addColumn('clientId', 'string', ['length' => 80]);
-        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('expires', 'timestamp');
-        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
-        $table->create();
-
-        // Authentication authorisation codes
-        $table = $this->table('sys_auth_authorisation_codes', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('code', 'string', ['length' => 40]);
-        $table->addColumn('clientId', 'string', ['length' => 80]);
-        $table->addColumn('userId', 'string', ['length' => 80, 'null' => 'true']);
-        $table->addColumn('redirectUri', 'text', ['length' => 2000, 'null' => 'true']);
-        $table->addColumn('expires', 'timestamp');
-        $table->addColumn('scope', 'string', ['length' => 4000, 'null' => 'true']);
-        $table->create();
-
-        // Authentication scopes
-        $table = $this->table('sys_auth_scopes', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger', ['identity' => true]);
-        $table->addColumn('scope', 'string', ['length' => 80]);
-        $table->addColumn('isDefault', 'boolean');
-        $table->create();
-
-        // Authentication JSON Web Tokens (JWT)
-        $table = $this->table('sys_auth_jwt', ['id' => false]);
-        $table->addColumn('clientId', 'string', ['length' => 80]);
-        $table->addColumn('subject', 'string', ['length' => 80, 'null' =>'true']);
-        $table->addColumn('publicKey', 'text', ['length' => 2000]);
         $table->create();
     }
 }

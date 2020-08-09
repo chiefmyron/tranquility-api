@@ -42,13 +42,13 @@ class RelationshipsDocumentComponent extends AbstractDocumentComponent {
         $relations = $entity->getPublicRelationships();
 
         $relationships = array();
-        foreach ($relations as $name => $relation) {
+        foreach ($relations as $name => $definition) {
             $relationships[$name] = [
                 'links' => [
                     'self' => Utility::getRouteUrl($request, $entity->type.'-relationships', ['id' => $entity->id, 'resource' => $name]),
                     'related' => Utility::getRouteUrl($request, $entity->type.'-related', ['id' => $entity->id, 'resource' => $name])
                 ],
-                'data' => $this->_getResourceLinkageObject($entity->$name, $relation['relationshipType'], $request)
+                'data' => $this->_getResourceLinkageObject($entity->$name, $definition['collection'], $request)
             ];
         }
         return $relationships;
@@ -57,26 +57,26 @@ class RelationshipsDocumentComponent extends AbstractDocumentComponent {
     /**
      * Generates a resource linkage compound document from the supplied entity. If no entity is provided, null is returned.
      *
-     * @param mixed                                     $entity            The data entity (or entity collection) to build a resource linkage object for
-     * @param \Psr\Http\Message\ServerRequestInterface  $request           PSR7 request
-     * @param string                                    $relationshipType
-     * @return mixed Array or null
+     * @param mixed                  $entity      The data entity (or entity collection) to build a resource linkage object for
+     * @param boolean                $collection  True if the linked resource is a collection, otherwise false
+     * @param ServerRequestInterface $request     PSR7 request
+     * @return void
      */
-    private function _getResourceLinkageObject($entity, string $relationshipType, ServerRequestInterface $request) {
+    private function _getResourceLinkageObject($entity, bool $collection, ServerRequestInterface $request) {
         $resourceLinkage = null;
 
         // Linkage document format will depend on the relationship type
-        if ($relationshipType == EntityRelationshipTypeEnum::Single) {
-            // Single re
-            if (!is_null($entity)) {
-                $resourceLinkage = new ResourceIdentifierDocumentComponent($entity, $request);
-            }
-        } elseif ($relationshipType == EntityRelationshipTypeEnum::Collection) {
+        if ($collection == true) {
             $resourceLinkage = [];
             if (is_iterable($entity) && count($entity) > 0) {
                 foreach($entity as $item) {
                     $resourceLinkage[] = new ResourceIdentifierDocumentComponent($item, $request);
                 }
+            }
+        } else {
+            // Single re
+            if (!is_null($entity)) {
+                $resourceLinkage = new ResourceIdentifierDocumentComponent($entity, $request);
             }
         }
 

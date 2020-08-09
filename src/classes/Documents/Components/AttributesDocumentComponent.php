@@ -36,17 +36,17 @@ class AttributesDocumentComponent extends AbstractDocumentComponent {
 
         // Get the set of publicly available fields for the entity
         $attributes = [];
-        foreach ($fields as $field) {
-            if (in_array($field, $excludes) == true) {
+        foreach ($fields as $fieldName => $fieldDefinition) {
+            if (in_array($fieldName, $excludes) == true) {
                 continue; // Do not add this field to the attribute set
             }
 
             // Handle date values
-            $value = $entity->$field;
+            $value = $entity->$fieldName;
             if ($value instanceof \DateTime) {
                 $value = Carbon::instance($value)->toIso8601String();
             }
-            $attributes[$field] = $value;
+            $attributes[$fieldName] = $value;
         }
 
         return $attributes;

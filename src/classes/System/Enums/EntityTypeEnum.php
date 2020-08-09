@@ -32,21 +32,18 @@ class EntityTypeEnum extends AbstractEnum {
     const Person            = 'person';
     const User              = 'user';
     const Account           = 'account';
+    const Address           = 'address';
 
     // System objects
-    const Tag               = 'tag';
-    const Transaction       = 'transaction';
+    const Tag                   = 'tag';
+    const AuditTransaction      = 'auditTransaction';
+    const AuditTransactionField = 'auditTransactionField';
+
+    // OAuth objects
     const OAuthClient       = 'oauthClient';
     const OAuthTokenAccess  = 'oauthTokenAccess';
     const OAuthTokenRefresh = 'oauthTokenRefresh';
     const OAuthCode         = 'oauthCode';
-    
-    // Not defined?
-    /*const Content         = 'content';
-    const Contact         = 'contact';
-    const Address         = 'address';
-    const AddressPhysical = 'addressPhysical';
-    const Audit           = 'audit';*/
 
     private static $_entityTypeDetails = array(
         // Business objects
@@ -57,7 +54,7 @@ class EntityTypeEnum extends AbstractEnum {
 
         // System objects
         self::Tag         		=> array('classname' => TagSystemObject::class,                    'historicalClassname' => null),
-        self::Transaction 		=> array('classname' => TransactionSystemObject::class,            'historicalClassname' => null),
+        self::AuditTransaction  => array('classname' => TransactionSystemObject::class,            'historicalClassname' => null),
         self::OAuthClient       => array('classname' => OAuthClientSystemObject::class,            'historicalClassname' => null),
         self::OAuthTokenAccess  => array('classname' => OAuthAccessTokenSystemObject::class,       'historicalClassname' => null),
         self::OAuthTokenRefresh => array('classname' => OAuthRefreshTokenSystemObject::class,      'historicalClassname' => null),

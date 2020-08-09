@@ -7,23 +7,12 @@ use Psr\Http\Message\ResponseInterface;
 // Tranquility class libraries
 use Tranquility\System\Utility;
 use Tranquility\Services\AbstractService;
-use Tranquility\Resources\AbstractResource;
 use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatus;
-
-// Tranquility resources
-use Tranquility\Resources\ErrorResource;
-use Tranquility\Resources\ResourceCollection;
-use Tranquility\Resources\ResourceItem;
-
-use Tranquility\Documents\ResourceDocument;
-use Tranquility\Documents\ResourceCollectionDocument;
 
 // Tranquility error messaging
 use Tranquility\App\Errors\Helpers\ErrorCollection;
 use Tranquility\Documents\AbstractDocument;
-use Tranquility\System\Enums\DocumentTypeEnum;
-use Tranquility\System\Exceptions\NotFoundException;
 
 class AbstractController {
     /**
@@ -68,7 +57,7 @@ class AbstractController {
      */
     public function show(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Retrieve an individual user
-        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $id = Utility::extractValue($args, 'id', null, 'string');
         $data = $this->service->find($id);
         return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
     }
@@ -100,7 +89,7 @@ class AbstractController {
      */
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Get data from request
-        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $id = Utility::extractValue($args, 'id', null, 'string');
         $payload = $request->getParsedBody();
 
         // Attempt to update the user entity
@@ -118,7 +107,7 @@ class AbstractController {
      */
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Get data from request
-        $id = Utility::extractValue($args, 'id', 0, 'int');
+        $id = Utility::extractValue($args, 'id', null, 'string');
         $payload = $request->getParsedBody();
 
         // Attempt to update the user entity
@@ -136,8 +125,8 @@ class AbstractController {
      */
     public function showRelated(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Get data from request
-        $id = Utility::extractValue($args, 'id', 0, 'int');
-        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
+        $id = Utility::extractValue($args, 'id', null, 'string');
+        $resourceName = Utility::extractValue($args, 'resource', null, 'string');
 
         // Retrieve the related entity
         $data = $this->service->getRelatedEntity($id, $resourceName);
@@ -154,8 +143,8 @@ class AbstractController {
      */
     public function showRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Get data from request
-        $id = Utility::extractValue($args, 'id', 0, 'int');
-        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
+        $id = Utility::extractValue($args, 'id', null, 'string');
+        $resourceName = Utility::extractValue($args, 'resource', null, 'string');
 
         // Retrieve relationship data
         $data = $this->service->getRelatedEntity($id, $resourceName);
@@ -179,27 +168,13 @@ class AbstractController {
      */
     public function addRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Get data from request
-        $id = Utility::extractValue($args, 'id', 0, 'int');
-        $resourceName = Utility::extractValue($args, 'resource', '', 'string');
+        $id = Utility::extractValue($args, 'id', null, 'string');
+        $resourceName = Utility::extractValue($args, 'resource', null, 'string');
         $payload = $request->getParsedBody();
 
         // Add relationship to the specified entity
         $data = $this->service->addRelationshipMembers($id, $resourceName, $payload);
-        return $this->_generateResponse($request, $response, $data, HttpStatus::OK);
-        
-        
-        // Only allowed for 'to-many' relationships
-        // If a client makes a POST request to a URL from a relationship link, the server MUST add the specified 
-        // members to the relationship unless they are already present. If a given type and id is already in the 
-        // relationship, the server MUST NOT add it again.
-
-        // Note: This matches the semantics of databases that use foreign keys for has-many relationships. Document-based 
-        // storage should check the has-many relationship before appending to avoid duplicates.
-
-        // If all of the specified resources can be added to, or are already present in, the relationship then the server 
-        // MUST return a successful response.
-        // Note: This approach ensures that a request is successful if the server’s state matches the requested state, and 
-        // helps avoid pointless race conditions caused by multiple clients making the same changes to a relationship.
+        return $this->_generateResponse($request, $response, $data, HttpStatus::NoContent);
     }
 
     /**
@@ -211,14 +186,14 @@ class AbstractController {
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function updateRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        // A server MUST respond to PATCH requests to a URL from a to-one relationship link as described below.
-        // The PATCH request MUST include a top-level member named data containing one of:
-        //     * a resource identifier object corresponding to the new related resource.
-        //     * null, to remove the relationship.
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', null, 'string');
+        $resourceName = Utility::extractValue($args, 'resource', null, 'string');
+        $payload = $request->getParsedBody();
 
-        // If a client makes a PATCH request to a URL from a to-many relationship link, the server MUST either completely 
-        // replace every member of the relationship, return an appropriate error response if some resources can not be 
-        // found or accessed, or return a 403 Forbidden response if complete replacement is not allowed by the server.
+        // Add relationship to the specified entity
+        $data = $this->service->updateRelationshipMembers($id, $resourceName, $payload);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::NoContent);
     }
 
     /**
@@ -230,10 +205,14 @@ class AbstractController {
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function deleteRelationship(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        // If the client makes a DELETE request to a URL from a relationship link the server MUST delete the specified 
-        // members from the relationship or return a 403 Forbidden response. If all of the specified resources are able 
-        // to be removed from, or are already missing from, the relationship then the server MUST return a successful response.
-        // Relationship members are specified in the same way as in the POST request.
+        // Get data from request
+        $id = Utility::extractValue($args, 'id', null, 'string');
+        $resourceName = Utility::extractValue($args, 'resource', null, 'string');
+        $payload = $request->getParsedBody();
+
+        // Add relationship to the specified entity
+        $data = $this->service->deleteRelationshipMembers($id, $resourceName, $payload);
+        return $this->_generateResponse($request, $response, $data, HttpStatus::NoContent);
     }
 
     // ************************************ Helper functions ************************************ //

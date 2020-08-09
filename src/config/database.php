@@ -14,6 +14,15 @@ return [
         'host' => env('DB_HOSTNAME', 'localhost'),
         'dbname' => env('DB_DATABASE', 'tranquility'),
         'user' => env('DB_USERNAME', 'tranquility'),
-        'password' => env('DB_PASSWORD', 'secret')
+        'password' => env('DB_PASSWORD', 'secret'),
+        'port' => env('DB_PORT', 3306)
+    ],
+    'migration' => [
+        'paths' => [
+            'migrations' => TRANQUIL_PATH_BASE.DIRECTORY_SEPARATOR.'resources/database/migrations',
+            'seeds' => TRANQUIL_PATH_BASE.DIRECTORY_SEPARATOR.'resources/database/seeds'
+        ],
+        'default_migration_table' => 'db_migrations',
+        'version_order' => 'creation'
     ]
 ];

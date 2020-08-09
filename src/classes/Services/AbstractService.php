@@ -1,30 +1,18 @@
 <?php namespace Tranquility\Services;
 
-// Utility libraries
-use Carbon\Carbon;
+// Vendor class libraries
 use Valitron\Validator as Validator;
-
-// ORM class libraries
 use Doctrine\ORM\EntityManagerInterface as EntityManagerInterface;
 use Tranquility\App\Errors\AbstractError;
-use Tranquility\App\Errors\EntityNotFoundError;
 
-// Tranquility data entities
+// Framework class libraries
 use Tranquility\Data\Entities\AbstractEntity as Entity;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject as User;
-use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject as Client;
-use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
-
-// Tranquility class libraries
-use Tranquility\System\Utility as Utility;
-use Tranquility\System\Enums\MessageCodeEnum as MessageCodes;
 use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\System\Enums\ApplicationErrorCodeEnum;
 use Tranquility\System\Enums\EntityRelationshipTypeEnum;
-
-// Tranquility service error handling
-use Tranquility\App\Errors\Helpers\ErrorCollection;
 use Tranquility\System\Enums\EntityTypeEnum;
+use Tranquility\System\Utility as Utility;
+use Tranquility\App\Errors\Helpers\ErrorCollection;
 
 abstract class AbstractService {
     /**
@@ -119,11 +107,11 @@ abstract class AbstractService {
     /**
      * Validate a data array against the defined rules for the resource
      * 
-     * @param  array  $data
-     * @param  array  $groups  The set of validation groups to use when validating. Runs rules in the 'default' group unless otherwise specified.
+     * @param  array|Entity  $data
+     * @param  array         $groups  The set of validation groups to use when validating. Runs rules in the 'default' group unless otherwise specified.
      * @return mixed  True if valid, an array of messages if invalid
      */
-    public function validateAttributes($data, $groups = array('default')) {
+    public function validateAttributes($data, array $groups = array('default')) {
         // Create validator instance for the input data
         if ($data instanceof Entity) {
             $data = $data->toArray();
@@ -187,7 +175,7 @@ abstract class AbstractService {
      * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
 	 * @return array
 	 */
-	public function search($searchTerms, $orderConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0, $includeDeletedRecords = false) {
+	public function search($searchTerms, array $orderConditions = array(), int $resultsPerPage = 0, int $startRecordIndex = 0, bool $includeDeletedRecords = false) {
 		// Handle multiple search terms
 		if (is_string($searchTerms)) {
 			$searchTerms = array($searchTerms);
@@ -214,7 +202,7 @@ abstract class AbstractService {
      * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
 	 * @return array|\Tranquility\App\Errors\Helpers\ErrorCollection  Array of entities if successful, or an error collection if validation failed
 	 */
-	public function all($filterConditions = array(), $sortingConditions = array(), $resultsPerPage = 0, $startRecordIndex = 0, $includeDeletedRecords = false) {
+	public function all(array $filterConditions = array(), array $sortingConditions = array(), int $resultsPerPage = 0, int $startRecordIndex = 0, bool $includeDeletedRecords = false) {
         // Get the list of public fields
         $publicFields = $this->getEntityPublicFields();
         $deletedFilterIncluded = false;
@@ -260,11 +248,11 @@ abstract class AbstractService {
     /**
 	 * Find a single entity by ID
 	 *
-	 * @param  int  $id  Entity ID of the object to retrieve
-     * @param  bool $includeDeletedRecords  Includes soft-deleted records if true
+	 * @param  string  $id  Entity ID of the object to retrieve
+     * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
 	 * @return mixed Returns Tranquility\Data\Entities\AbstractEntity if found, otherwise false
 	 */
-	public function find($id, $includeDeletedRecords = false) {
+	public function find(string $id, bool $includeDeletedRecords = false) {
         return $this->findOneBy('id', $id, $includeDeletedRecords);
     }
     
@@ -276,7 +264,7 @@ abstract class AbstractService {
      * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
      * @return mixed Returns Tranquility\Data\Entities\AbstractEntity if found, otherwise false
      */
-	public function findOneBy($fieldName, $fieldValue, $includeDeletedRecords = false) {
+	public function findOneBy(string $fieldName, string $fieldValue, bool $includeDeletedRecords = false) {
         // Set search filters. Unless explicitly requested, filter out deleted records.
         $searchOptions = [$fieldName => $fieldValue];
         if ($includeDeletedRecords == false) {
@@ -306,7 +294,7 @@ abstract class AbstractService {
      * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
      * @return array Returns array of Tranquility\Data\Entities\AbstractEntity objects
      */
-	public function findBy($fieldName, $fieldValue, $includeDeletedRecords = false) {
+	public function findBy(string $fieldName, string $fieldValue, bool $includeDeletedRecords = false) {
         // Set search filters. Unless explicitly requested, filter out deleted records.
         $searchOptions = [$fieldName => $fieldValue];
         if ($includeDeletedRecords == false) {
@@ -329,99 +317,74 @@ abstract class AbstractService {
      * 
      * @var  array  $payload  Data used to create the new entity record
      * @return \Tranquility\Data\Entities\AbstractEntity
+     * @abstract
      */
-    public function create(array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data', array());
-        $attributes = Utility::extractValue($data, 'attributes', array());
-        $relationships = Utility::extractValue($data, 'relationships', array());
-
-        // Validate input attributes and related entities
-        $validationRuleGroups = array('default', 'create');
-        $this->validateAttributes($attributes, $validationRuleGroups);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while validating attributes and relationships
-        }
-
-        // Load related entities
-        $relatedEntities = $this->hydrateResourceLinkage($relationships);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while loading related entities
-        }
-
-        // Data is valid - create the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->create($attributes, $relatedEntities, $transaction);
-        return $entity;
-    }
+    public abstract function create(array $payload);
 
     /**
      * Update an existing record for the specified entity
      * 
-     * @var  int         $id       Record ID for the entity to update
-     * @var  array       $payload  New data to update against the existing record
+     * @var  string  $id       Record ID for the entity to update
+     * @var  array   $payload  New data to update against the existing record
      * @return  Tranquility\Data\Entities\AbstractEntity
+     * @abstract
      */
-    public function update(int $id, array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data', array());
-        $attributes = Utility::extractValue($data, 'attributes', array());
-        $relationships = Utility::extractValue($data, 'relationships', array());
-
-        // Load the existing entity and update the appropriate fields
-        $entity = $this->find($id);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while retrieving the entity record
-        }
-
-        // Validate updated entity attributes and related entities
-        $entity->populate($attributes);
-        $validationRuleGroups = array('default', 'update');
-        $this->validateAttributes($entity, $validationRuleGroups);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while validating attributes and relationships
-        }
-
-        // Load related entities
-        $relatedEntities = $this->hydrateResourceLinkage($relationships);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while loading related entities
-        }
-
-        // Update entity with new attribute and relationship values
-        $entity->populate($relatedEntities);
-
-        // Data is valid - update the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->update($entity, $transaction);
-        return $entity;
-    }
-
+    public abstract function update(string $id, array $payload);
+        
     /**
      * Mark an existing entity record as deleted
      * 
-     * @var  int    $id       Record ID for the entity to delete
-     * @var  array  $payload  Audit trail details to be attached to the deleted record
+     * @var  string  $id       Record ID for the entity to delete
+     * @var  array   $payload  Audit trail details to be attached to the deleted record
      * @return \Tranquility\Data\Entities\AbstractEntity
+     * @abstract
      */
-    public function delete(int $id, array $payload) {
-        // Force set the deleted flag for the entity
-        $payload['data']['attributes']['deleted'] = true;
+    public abstract function delete(string $id, array $payload);
 
-        // Reuse the update function to process a logical delete
-        return $this->update($id, $payload);
-    }
+    /**
+     * Add one or more members to a relationship for an entity
+     *
+     * @param string  $id
+     * @param string  $relatedEntityName
+     * @param array   $payload
+     * @return \Tranquility\Data\Entities\AbstractEntity
+     * @abstract
+     */
+    public abstract function addRelationshipMembers(string $id, string $relatedEntityName, array $payload);
+
+    /**
+     * Update members in the relationship for an entity. This is a REPLACEMENT of any existing members
+     * in the relationship. Can also be used to clear the relationship when data is 'null' (for one-to-one relationships)
+     * or an empty array (for collection relationships).
+     *
+     * @param string  $id
+     * @param string  $relatedEntityName
+     * @param array   $payload
+     * @return \Tranquility\Data\Entities\AbstractEntity
+     * @abstract
+     */
+    public abstract function updateRelationshipMembers(string $id, string $relatedEntityName, array $payload);
+
+    /**
+     * Delete specified members in the relationship for an entity. Can only be used for deleting members of a 
+     * collection relationship.
+     *
+     * @param string  $id
+     * @param string  $relatedEntityName
+     * @param array   $payload
+     * @return \Tranquility\Data\Entities\AbstractEntity
+     * @abstract
+     */
+    public abstract function deleteRelationshipMembers(string $id, string $relatedEntityName, array $payload);
 
     /**
      * Get related entity
      * 
-     * @var  int     $id                 ID for the parent entity
+     * @var  string  $id                 ID for the parent entity
      * @var  string  $relatedEntityName  Name of the attribute that refers to the related entity
      * @return \Tranquility\Data\Entities\AbstractEntity
      */
-    public function getRelatedEntity(int $id, string $relatedEntityName) {
+    public function getRelatedEntity(string $id, string $relatedEntityName) {
         // Check that the relationship is a public field
         if (!array_key_exists($relatedEntityName, $this->getEntityPublicRelationships())) {
             $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotFound, "'".$relatedEntityName."' is not a valid relationship for this entity.");
@@ -442,57 +405,6 @@ abstract class AbstractService {
         return $entity->$relatedEntityName;
     }
 
-
-    public function addRelationshipMembers(int $id, string $relatedEntityName, array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data', array());
-        $relationships = [$relatedEntityName => $data];
-
-        // Get allowed relationships for the entity
-        $relationshipDetail = $this->getEntityPublicRelationships();
-        $relationshipType = $relationshipDetail[$relatedEntityName]['relationshipType'];
-        $relationshipEntityType = $relationshipDetail[$relatedEntityName]['entityType'];
-
-        // Validate relationship details
-        if (array_key_exists($relatedEntityName, $relationshipDetail) == false) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotAllowed, "Cannot create or update a relationship named '".$relatedEntityName."' for this entity.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if ($relationshipType == EntityRelationshipTypeEnum::Single) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidType, "The relationship named '".$relatedEntityName."' is for a single entity - cannot accept a collection of entities.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-
-        // Load the existing entity
-        $entity = $this->find($id);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while retrieving the entity record
-        }
-
-        // Load related entities
-        $relatedEntities = $this->hydrateResourceLinkage($relationships);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while loading related entities
-        }
-
-        // If related entity does not already exist in the collection, add it now
-        foreach ($relatedEntities[$relatedEntityName] as $relatedEntity) {
-            if ($entity->$relatedEntityName->contains($relatedEntity) == false) {
-                $entity->$relatedEntityName[] = $relatedEntity;
-            }
-        }
-
-        // Data is valid - create the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->update($entity, $transaction);
-        return $entity;
-    }
-
     /**
      * Hydrate a resource linkage document with related entity records
      *
@@ -507,9 +419,14 @@ abstract class AbstractService {
         // Check each relationship name and data
         $hydratedLinkage = array();
         foreach ($relationships as $name => $values) {
-            $validationData = $values['data'];
+            // If linkage is null or empty array, no further processing is required
+            if (is_null($values) == true || count($values) <= 0) {
+                $hydratedLinkage[$name] = $values;
+                continue;
+            }
 
             // Check relationship name is valid
+            $validationData = $values['data'];
             if (array_key_exists($name, $entityRelationshipDetails) == false) {
                 // Invalid relationship error
                 $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotAllowed, "Cannot create or update a relationship named '".$name."' for this entity.");
@@ -519,19 +436,20 @@ abstract class AbstractService {
             }
 
             // If this is a 'to-one' relationship, check that data is only a single relationship object
-            $relationshipType = $entityRelationshipDetails[$name]['relationshipType'];
-            $relationshipEntityType = $entityRelationshipDetails[$name]['entityType'];
-            if ($relationshipType == EntityRelationshipTypeEnum::Single) {
+            $relationshipCollection = $entityRelationshipDetails[$name]['collection'];
+            $relationshipEntityType = $entityRelationshipDetails[$name]['type'];
+            $relationshipEntityClass = $entityRelationshipDetails[$name]['class'];
+            if ($relationshipCollection == false) {
                 // Put this into a collection to simplify the remaining validation logic
                 $validationData = array($validationData);
             } 
 
             // Get the repository for this relationship
-            $repository = $this->entityManager->getRepository(EntityTypeEnum::getEntityClassname($relationshipEntityType));
+            $repository = $this->entityManager->getRepository($relationshipEntityClass);
 
             // Validate each relationship object
             foreach ($validationData as $data) {
-                if (is_array($data) == false || in_array('id', $data) == false || in_array('type', $data) == false) {
+                if (is_array($data) == false || array_key_exists('id', $data) == false || array_key_exists('type', $data) == false) {
                     // Relationship object does not contain required details
                     $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidData);
                     $error->addErrorSource('pointer', '/data/relationships/'.$name);
@@ -562,32 +480,20 @@ abstract class AbstractService {
                 }
 
                 // Add to hydrated resource linkage
-                if ($relationshipType == EntityRelationshipTypeEnum::Single) {
-                    $hydratedLinkage[$name] = $entity;
-                } elseif ($relationshipType == EntityRelationshipTypeEnum::Collection) {
+                if ($relationshipCollection == true) {
+                    // Collection relationship
                     if (array_key_exists($name, $hydratedLinkage) == false) {
                         $hydratedLinkage[$name] = [];
                     }
                     $hydratedLinkage[$name][] = $entity;
+                } else {
+                    // One-to-one relationship
+                    $hydratedLinkage[$name] = $entity;
                 }
             }
         }
 
         return $hydratedLinkage;
-    }
-
-    /**
-     * Check if the entity associated with this service requires an audit trail transaction
-     *
-     * @return bool
-     */
-    protected function requiresTransaction() {
-        $relationships = $this->getEntityPublicRelationships();
-        if (array_key_exists('transaction', $relationships)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -597,60 +503,6 @@ abstract class AbstractService {
      */
     protected function getRepository() {
         return $this->entityManager->getRepository($this->getEntityClassname());
-    }
-
-    /**
-     * Generate an Transaction audit trail entity based on metadata in request payload
-     *
-     * @param array $meta
-     * @return Tranquility\Data\Entities\System\Transaction
-     */
-    protected function createTransaction(array $meta) {
-        // If this entity does not require an audit trail transaction, return null object
-        if ($this->requiresTransaction() == false) {
-            return null;
-        }
-
-        // Get audit trail details from authentication token
-        $userId = Utility::extractValue($meta, 'user', 0);
-        $clientId = Utility::extractValue($meta, 'client', 'invalid_client_id');
-        $updateReason = Utility::extractValue($meta, 'updateReason', 'invalid_update_reason');
-
-        // Build audit trail object
-        $transactionData = [
-            'user' => $this->findUser($userId),
-            'client' => $this->findClient($clientId),
-            'timestamp' => Carbon::now(),
-            'updateReason' => $updateReason
-        ];
-        $transaction = new Transaction($transactionData);
-        return $transaction;
-    }
-
-    /**
-     * Get the User entity for the specified ID
-     * Used when creating an AuditTrail entity
-     *
-     * @param int $userId
-     * @return Tranquility\Data\Entities\BusinessObjects\UserBusinessObject
-     */
-    protected function findUser($userId) {
-        $repository = $this->entityManager->getRepository(User::class);
-        $searchOptions = array('id' => $userId);
-        return $repository->findOneBy($searchOptions);
-    }
-
-    /**
-     * Get the OAuth Client entity for the specified ID
-     * Used when creating an AuditTrail entity
-     *
-     * @param int $clientId
-     * @return Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject
-     */
-    protected function findClient($clientId) {
-        $repository = $this->entityManager->getRepository(Client::class);
-        $searchOptions = array('clientId' => $clientId);
-        return $repository->findOneBy($searchOptions);
     }
 
     /**

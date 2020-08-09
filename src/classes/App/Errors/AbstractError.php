@@ -70,7 +70,7 @@ abstract class AbstractError {
      */
     public function __construct(string $errorCode, string $description = null, string $id = null) {
         if (is_null($id)) {
-            $id = Utility::generateUuidV4();
+            $id = Utility::generateUuid(1);
         }
 
         $this->id = $id;

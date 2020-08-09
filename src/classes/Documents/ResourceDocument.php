@@ -114,16 +114,25 @@ class ResourceDocument extends AbstractDocument {
     private function _getIncludedObjectDetail(array $included, string $entityPath, AbstractEntity $entity, ServerRequestInterface $request) {
         // Explode out the entity name, in case it has been specified as a multi-part path
         $entityPathParts = explode('.', $entityPath, 2);
+        $entityRelationships = $entity->getPublicRelationships();
 
         // Check that the first 'include' entity specified in the path is valid for the current parent entity
         $entityName = $entityPathParts[0];
-        if (array_key_exists($entityName, $entity->getPublicRelationships()) == false) {
+        if (array_key_exists($entityName, $entityRelationships) == false) {
             throw new InvalidQueryParameterException((int)MessageCodeEnum::ValidationInvalidIncludedResourceType, sprintf("Resource type '%s' is not a related resource for this entity.", $entityName), 'include');
         }
 
         // Build a resource document for the first entity specified in the path
         $childEntity = $entity->$entityName;
-        $included[] = new ResourceDocumentComponent($childEntity, $request);
+        if (is_iterable($childEntity)) {
+            // Child entity is a collection - add each element in the collection
+            foreach ($childEntity as $child) {
+                $included[] = new ResourceDocumentComponent($child, $request);
+            }
+        } else {
+            // Child entity is a single resource - add directly
+            $included[] = new ResourceDocumentComponent($childEntity, $request);
+        }
 
         // If there are other entities specified in the remaineder of the multi-part path, continue adding them
         if (isset($entityPathParts[1]) && trim($entityPathParts[1] != '')) {

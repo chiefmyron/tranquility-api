@@ -5,6 +5,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 // Utility library classes
 use Ramsey\Uuid\Uuid as UuidGenerator;
+use Slim\Routing\RouteContext;
 
 /**
  * Utility class containing useful shortcut methods
@@ -83,8 +84,20 @@ class Utility {
 	 *
 	 * @return string
 	 */
-	public static function generateUuidV4() {
-		return UuidGenerator::uuid4()->toString();
+	public static function generateUuid($version = 1) {
+		switch ($version) {
+			case 1:
+				return UuidGenerator::uuid1()->toString();
+				break;
+			case 4:
+				return UuidGenerator::uuid4()->toString();
+				break;
+			case 6:
+				return UuidGenerator::uuid6()->toString();
+				break;
+		}
+		
+		throw new \Exception('Cannot produce UUID for unsupported version "' . $version . '"');
 	}
 
 	/**
@@ -113,8 +126,8 @@ class Utility {
      * @return string
      */
     public static function getRouteUrl(ServerRequestInterface $request, string $routeName, array $routeParams = [], array $queryStringParams = []) {
-        $uri = $request->getUri();
-        $routeParser = $request->getAttribute('routeParser');
+		$uri = $request->getUri();
+		$routeParser = RouteContext::fromRequest($request)->getRouteParser();
         return $routeParser->fullUrlFor($uri, $routeName, $routeParams, $queryStringParams);
     }
 }

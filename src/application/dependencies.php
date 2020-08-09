@@ -20,9 +20,25 @@ return static function (ContainerBuilder $containerBuilder, Config $config) {
     $containerBuilder->addDefinitions(['config' => $config]);
 
     // Register service providers
-    $services = $config->get('app.service_providers', array());
+    $services = $config->get('app.service_providers', []);
     foreach ($services as $name => $class) {
         $service = new $class();
         $service->register($containerBuilder, $name);
     }
+
+    // Load entity services
+    $defs = [];
+    $entities = $config->get('entity', []);
+    foreach ($entities as $entity) {
+        // Add data service if defined
+        if (is_null($entity['service']) == false) {
+            $defs[$entity['service']] = DI\create()->constructor(DI\get('em'), DI\get('validator'));
+        }
+
+        // Add controller, if defined
+        if (is_null($entity['controller']) == false && is_null($entity['service']) == false) {
+            $defs[$entity['controller']] = DI\create()->constructor(DI\get($entity['service']));
+        }
+    }
+    $containerBuilder->addDefinitions($defs);
 };

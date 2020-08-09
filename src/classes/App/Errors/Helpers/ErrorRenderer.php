@@ -20,7 +20,7 @@ class ErrorRenderer implements ErrorRendererInterface {
 
         // Generate 'error object' from exception
         $result = [
-            'id' => Utility::generateUuidV4(),
+            'id' => Utility::generateUuid(1),
             'status' => $code,
             'code' => $code,
             'title' => $exception->getMessage()
