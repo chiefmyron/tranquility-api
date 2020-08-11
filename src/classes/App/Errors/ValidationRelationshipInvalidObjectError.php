@@ -3,7 +3,7 @@
 // Tranquility class libraries
 use Tranquility\System\Enums\HttpStatusCodeEnum as HttpStatusCodes;
 
-class ValidationRelationshipInvalidObject extends AbstractError {
+class ValidationRelationshipInvalidObjectError extends AbstractError {
 
     /**
      * Exception thrown if the specified data entity cannot be gound

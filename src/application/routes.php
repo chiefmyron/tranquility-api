@@ -16,6 +16,11 @@ use Tranquility\Controllers\AuthController;
 use Tranquility\Controllers\UserController;
 use Tranquility\Controllers\PersonController;
 use Tranquility\Controllers\AccountController;
+use Tranquility\Controllers\TagController;
+
+// Note to future self - DON'T TRY TO GET CLEVER WITH AUTO-GENERATING ROUTES
+// See: https://phil.tech/php/2013/07/23/beware-the-route-to-evil/
+// "routes.php is documentation"
 
 return function (App $app) {
     // Version 1 API routes (unauthenticated)
@@ -25,13 +30,25 @@ return function (App $app) {
     // Version 1 API route group (authenticated)
     $routeGroup = $app->group('/v1', function(RouteCollectorProxy $group) {
         // Audit trail resource
-        $group->get('/transactions', UserController::class.':list')->setName('transaction-list');
-        $group->post('/transactions', UserController::class.':create');
-        $group->get('/transactions/{id}', UserController::class.':show')->setName('transaction-detail');
-        $group->patch('/transactions/{id}', UserController::class.':update');
-        $group->delete('/transactions/{id}', UserController::class.':delete');
-        $group->get('/transactions/{id}/{resource}', UserController::class.':showRelated')->setName('transaction-related');
-        $group->get('/transactions/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('transaction-relationships');
+        $group->get('/auditTransactions', UserController::class.':list')->setName('auditTransaction-list');
+        $group->post('/auditTransactions', UserController::class.':create');
+        $group->get('/auditTransactions/{id}', UserController::class.':show')->setName('auditTransaction-detail');
+        $group->patch('/auditTransactions/{id}', UserController::class.':update');
+        $group->delete('/auditTransactions/{id}', UserController::class.':delete');
+        $group->get('/auditTransactions/{id}/{resource}', UserController::class.':showRelated')->setName('auditTransaction-related');
+        $group->get('/auditTransactions/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('auditTransaction-relationships');
+
+        // Tag resource
+        $group->get('/tags', TagController::class.':list')->setName('tag-list');
+        $group->post('/tags', TagController::class.':create');
+        $group->get('/tags/{id}', TagController::class.':show')->setName('tag-detail');
+        $group->patch('/tags/{id}', TagController::class.':update');
+        $group->delete('/tags/{id}', TagController::class.':delete');
+        $group->get('/tags/{id}/{resource}', TagController::class.':showRelated')->setName('tag-related');
+        $group->get('/tags/{id}/relationships/{resource}', TagController::class.':showRelationship')->setName('tag-relationships');
+        $group->post('/tags/{id}/relationships/{resource}', TagController::class.':addRelationship');
+        $group->patch('/tags/{id}/relationships/{resource}', TagController::class.':updateRelationship');
+        $group->delete('/tags/{id}/relationships/{resource}', TagController::class.':deleteRelationship');
         
         // User resource
         $group->get('/users', UserController::class.':list')->setName('user-list');
@@ -53,6 +70,9 @@ return function (App $app) {
         $group->delete('/people/{id}', PersonController::class.':delete');
         $group->get('/people/{id}/{resource}', PersonController::class.':showRelated')->setName('person-related');
         $group->get('/people/{id}/relationships/{resource}', PersonController::class.':showRelationship')->setName('person-relationships');
+        $group->post('/people/{id}/relationships/{resource}', PersonController::class.':addRelationship');
+        $group->patch('/people/{id}/relationships/{resource}', PersonController::class.':updateRelationship');
+        $group->delete('/people/{id}/relationships/{resource}', PersonController::class.':deleteRelationship');
 
         // Accounts resource
         $group->get('/accounts', AccountController::class.':list')->setName('accounts-list');

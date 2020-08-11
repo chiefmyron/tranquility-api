@@ -21,7 +21,7 @@ class ResourceDocumentComponent extends AbstractDocumentComponent {
     public function __construct($entity, ServerRequestInterface $request) {
         // Check that we are working with a single entity
         if ($entity instanceof AbstractEntity == false) {
-            throw new Exception("Entity provided is not an instance of '" + AbstractEntity::class + "'");
+            throw new Exception("Entity provided ('" . get_class($entity) . "') is not an instance of '" . AbstractEntity::class . "'");
         }
 
         // Start populating member data

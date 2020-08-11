@@ -1,21 +1,22 @@
 <?php namespace Tranquility\ServiceProviders;
 
 // PSR standards interfaces
-use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
 
-// Library classes
+// Vendor class libraries
 use DI\ContainerBuilder;
+use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 
-// Doctrine library classes
+// ORM class libraries
 use Doctrine\ORM\Events as Events;
 use Doctrine\ORM\EntityManager as EntityManager;
 use Doctrine\ORM\Tools\Setup as Setup;
+use Doctrine\DBAL\Types\Type as Type;
 use Doctrine\Common\EventManager as EventManager;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver as StaticPhpDriver;
 
-// Tranquility classes
-use Tranquility\System\ORM\Extensions\TablePrefix\TablePrefixExtension as TablePrefixExtension;
+// Tranquility class libraries
+use Tranquility\System\Database\ORM\TablePrefix\TablePrefixExtension as TablePrefixExtension;
 
 class EntityManagerServiceProvider extends AbstractServiceProvider {
     /**
@@ -36,7 +37,7 @@ class EntityManagerServiceProvider extends AbstractServiceProvider {
                     $options['proxy_dir'],
                     $options['cache']
                 );
-    
+
                 // Create Doctrine configuration
                 $driver = new StaticPhpDriver($options['entity_dir']);
                 $config->setMetadataDriverImpl($driver);
@@ -48,6 +49,11 @@ class EntityManagerServiceProvider extends AbstractServiceProvider {
     
                 // Create Doctrine entity manager
                 $entityManager = EntityManager::create($connection, $config, $eventManager);
+
+                // Register UUID data type
+                Type::addType(UuidBinaryOrderedTimeType::NAME, UuidBinaryOrderedTimeType::class);
+                $entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping(UuidBinaryOrderedTimeType::NAME, 'binary');
+
                 return $entityManager;
             }
         ]);

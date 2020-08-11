@@ -3,25 +3,23 @@
 // PSR standards interfaces
 use Psr\Container\ContainerInterface;
 
-// Library classes
+// Vendor class libraries
+use DI;
 use DI\ContainerBuilder;
-
-// OAuth Server library
-use OAuth2\Server;
+use OAuth2\Server as OAuth2Server;
 use OAuth2\GrantType\ClientCredentials;
 use OAuth2\GrantType\UserCredentials;
 use OAuth2\GrantType\AuthorizationCode;
 use OAuth2\GrantType\RefreshToken;
 
-// Tranquility OAuth entities
-use Tranquility\Data\Entities\SystemObjects\OAuthAccessTokenSystemObject;
-use Tranquility\Data\Entities\SystemObjects\OAuthAuthorisationCodeSystemObject;
-use Tranquility\Data\Entities\SystemObjects\OAuthClientSystemObject;
-use Tranquility\Data\Entities\SystemObjects\OAuthRefreshTokenSystemObject;
-use Tranquility\Data\Entities\BusinessObjects\UserBusinessObject;
-
-// Tranquility middlewares
+// Framework class libraries
+use Tranquility\Controllers\AuthController;
 use Tranquility\Middlewares\AuthenticationMiddleware;
+use Tranquility\Data\Entities\OAuth\AccessTokenEntity;
+use Tranquility\Data\Entities\OAuth\AuthorisationCodeEntity;
+use Tranquility\Data\Entities\OAuth\ClientEntity;
+use Tranquility\Data\Entities\OAuth\RefreshTokenEntity;
+use Tranquility\Data\Entities\Business\UserEntity;
 
 class AuthenticationServiceProvider extends AbstractServiceProvider {
     /**
@@ -32,14 +30,14 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
     public function register(ContainerBuilder $containerBuilder, string $name) {
         $containerBuilder->addDefinitions([
             // Register OAuth2 server with the container
-            Server::class => function(ContainerInterface $c) {
+            OAuth2Server::class => function(ContainerInterface $c) {
                 // Get entities used to represent OAuth objects
                 $em = $c->get('em');
-                $clientStorage = $em->getRepository(OAuthClientSystemObject::class);
-                $userStorage = $em->getRepository(UserBusinessObject::class);
-                $accessTokenStorage = $em->getRepository(OAuthAccessTokenSystemObject::class);
-                $refreshTokenStorage = $em->getRepository(OAuthRefreshTokenSystemObject::class);
-                $authorisationCodeStorage = $em->getRepository(OAuthAuthorisationCodeSystemObject::class);
+                $clientStorage = $em->getRepository(ClientEntity::class);
+                $userStorage = $em->getRepository(UserEntity::class);
+                $accessTokenStorage = $em->getRepository(AccessTokenEntity::class);
+                $refreshTokenStorage = $em->getRepository(RefreshTokenEntity::class);
+                $authorisationCodeStorage = $em->getRepository(AuthorisationCodeEntity::class);
     
                 // Create OAuth2 server
                 $storage = [
@@ -49,7 +47,7 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
                     'refresh_token'      => $refreshTokenStorage,
                     'authorization_code' => $authorisationCodeStorage
                 ];
-                $server = new Server($storage, ['auth_code_lifetime' => 30, 'refresh_token_lifetime' => 30]);
+                $server = new OAuth2Server($storage, ['auth_code_lifetime' => 30, 'refresh_token_lifetime' => 30]);
     
                 // Add grant types
                 $server->addGrantType(new ClientCredentials($clientStorage));
@@ -61,11 +59,10 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
             },
 
             // Register authentication middleware with the container
-            AuthenticationMiddleware::class => function(ContainerInterface $c) {
-                $em = $c->get('em');
-                $server = $c->get(Server::class);
-                return new AuthenticationMiddleware($server);
-            }
+            AuthenticationMiddleware::class => DI\create()->constructor(DI\get(OAuth2Server::class)),
+
+            // Register authentication controller with the container
+            AuthController::class => DI\create()->constructor(DI\get(OAuth2Server::class))
         ]);
     }
 }

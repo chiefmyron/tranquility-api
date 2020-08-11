@@ -8,7 +8,7 @@ use Tranquility\App\Errors\EntityNotFoundError;
 use Tranquility\App\Errors\ValidationInvalidQueryParamError;
 use Tranquility\App\Errors\ValidationInvalidAttributeValueError;
 use Tranquility\App\Errors\RelationshipNotAllowedError;
-use Tranquility\App\Errors\ValidationRelationshipInvalidObject;
+use Tranquility\App\Errors\ValidationRelationshipInvalidObjectError;
 use Tranquility\App\Errors\RelationshipInvalidEntityTypeError;
 use Tranquility\App\Errors\ValidationInvalidRelationshipError;
 use Tranquility\App\Errors\ValidationRelationshipInvalidTypeError;
@@ -56,7 +56,7 @@ class ApplicationErrorCodeEnum extends AbstractEnum {
         self::ValidationInvalidQueryParameter         => array('errorClassname' => ValidationInvalidQueryParamError::class,       'message' => 'message_10011_invalid_query_parameter'),
         self::ValidationInvalidAttributeValue         => array('errorClassname' => ValidationInvalidAttributeValueError::class,   'message' => 'message_10012_invalid_attribute_value'),
         self::ValidationRelationshipNotAllowed        => array('errorClassname' => RelationshipNotAllowedError::class,            'message' => 'message_10013_relationship_not_allowed'),
-        self::ValidationRelationshipInvalidData       => array('errorClassname' => ValidationRelationshipInvalidObject::class,    'message' => 'message_10014_relationship_object_is_invalid'),
+        self::ValidationRelationshipInvalidData       => array('errorClassname' => ValidationRelationshipInvalidObjectError::class,    'message' => 'message_10014_relationship_object_is_invalid'),
         self::ValidationRelationshipInvalidEntityType => array('errorClassname' => RelationshipInvalidEntityTypeError::class,     'message' => 'message_10015_relationship_entity_type_is_invalid'),
         self::ValidationRelationshipInvalid           => array('errorClassname' => ValidationInvalidRelationshipError::class,     'message' => 'message_10016_relationship_resource_is_invalid'),
         self::ValidationRelationshipInvalidType       => array('errorClassname' => ValidationRelationshipInvalidTypeError::class, 'message' => 'message_10017_relationship_type_is_invalid'),

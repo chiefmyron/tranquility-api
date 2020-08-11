@@ -12,9 +12,11 @@
         "bshaffer/oauth2-server-php": "^1.10",
         "justinrainbow/json-schema": "2.0.0",
         "seld/jsonlint": "1.4.0",
-        "ramsey/uuid": "^3.9",
+        "ramsey/uuid": "4.0",
+        "ramsey/uuid-doctrine": "^1.6",
         "woohoolabs/yin": "^4.1",
-        "php-di/php-di": "^6.0"
+        "php-di/php-di": "^6.0",
+        "doctrine/migrations": "^3.0"
     },
 
     "autoload": {

@@ -1,16 +1,16 @@
 <?php namespace Tranquility\Data\Repositories;
 
 // ORM class libraries
-use Doctrine\ORM\EntityRepository as EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as Paginator;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
-// Tranquility data entities
-use Tranquility\Data\Entities\AbstractEntity as AbstractEntity;
-use Tranquility\Data\Entities\SystemObjects\TransactionSystemObject as Transaction;
+// Entity classes
+use Tranquility\Data\Entities\AbstractEntity;
+use Tranquility\Data\Entities\System\AuditTransactionEntity as AuditTransaction;
 
 // Tranquility class libraries
-use Tranquility\System\Enums\FilterOperatorEnum;
 use Tranquility\Support\ArrayHelper as Arr;
+use Tranquility\System\Enums\FilterOperatorEnum;
 
 abstract class AbstractRepository extends EntityRepository {
 
@@ -50,30 +50,29 @@ abstract class AbstractRepository extends EntityRepository {
     /**
      * Creates a new record
      * 
-     * @param  array           $attributes     Input data to create the record
-     * @param  array           $relationships  Array of related entities
-     * @param  Transaction     $transaction    Audit trail transaction entity
+     * @param  array             $attributes     Input data to create the record
+     * @param  AuditTransaction  $transaction    Audit trail transaction entity
      * @return AbstractEntity
      */
-    abstract public function create(array $attributes, array $relationships, Transaction $transaction = null);
+    abstract public function create(array $attributes, array $relationships, AuditTransaction $transaction = null);
     
     /**
      * Updates an existing record
      *
-     * @param  AbstractEntity  $entity       The updated entity to persist
-     * @param  Transaction     $transaction  Audit trail transaction entity
+     * @param  AbstractEntity    $entity       The updated entity to persist
+     * @param  AuditTransaction  $transaction  Audit trail transaction entity
      * @return AbstractEntity
      */ 
-    abstract public function update(AbstractEntity $entity, Transaction $transaction = null);
+    abstract public function update(AbstractEntity $entity, AuditTransaction $transaction = null);
     
     /**
 	 * Logically delete an existing record
 	 *
-	 * @param  AbstractEntity  $entity       The entity to logically delete
-     * @param  Transaction     $transaction  Audit trail transaction entity
+	 * @param  AbstractEntity    $entity       The entity to logically delete
+     * @param  AuditTransaction  $transaction  Audit trail transaction entity
 	 * @return AbstractEntity
 	 */
-    abstract public function delete(AbstractEntity $entity, Transaction $transaction = null);
+    abstract public function delete(AbstractEntity $entity, AuditTransaction $transaction = null);
 
     /**
 	 * Used to add additional query conditions, ordering and set limits to a selection query

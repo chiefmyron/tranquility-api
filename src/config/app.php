@@ -48,7 +48,6 @@ return [
         'logger'     => '\Tranquility\ServiceProviders\LoggingServiceProvider',
         'em'         => '\Tranquility\ServiceProviders\EntityManagerServiceProvider',
         'auth'       => '\Tranquility\ServiceProviders\AuthenticationServiceProvider',
-        'controller' => '\Tranquility\ServiceProviders\ControllerServiceProvider',
         'validator'  => '\Tranquility\ServiceProviders\ValidationServiceProvider',
         'jsonapi'    => '\Tranquility\ServiceProviders\JsonApiServiceProvider'
     ]
