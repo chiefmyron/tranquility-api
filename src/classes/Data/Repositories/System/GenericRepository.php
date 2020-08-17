@@ -8,19 +8,23 @@ use Tranquility\Data\Repositories\AbstractRepository;
 class GenericRepository extends AbstractRepository {
 
     /**
-     * Creates a new system object entity record.
+     * Creates a new record
      * 
-     * @param  array           $attributes     Input data to create the record
-     * @return \Tranquility\Data\Entities\System\AbstractSystemEntity
+     * @param  array             $attributes     Input data to create the record
+     * @param  AuditTransaction  $transaction    Audit trail transaction entity
+     * @return AbstractEntity
      */
-    public function create(array $data) {
+    public function create(array $attributes, array $relationships) {
         // Create new entity extension record
         $entityName = $this->getEntityName();
-        $entity = new $entityName($data);
+        $entity = new $entityName($attributes);
+
+        // Add related entities 
+        $entity->populate($relationships);
+
+        // Persist newly created entity and return
         $this->_em->persist($entity);
         $this->_em->flush();
-		
-		// Return newly created system object entity record
 		return $entity;
     }
 

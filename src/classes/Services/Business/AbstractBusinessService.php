@@ -14,9 +14,86 @@ use Tranquility\Data\Entities\System\AuditTransactionFieldEntity as TransactionF
 use Tranquility\Services\AbstractService;
 use Tranquility\System\Utility;
 use Tranquility\System\Enums\ApplicationErrorCodeEnum;
-use Tranquility\System\Enums\EntityRelationshipTypeEnum;
+use Tranquility\System\Enums\FilterOperatorEnum;
 
 abstract class AbstractBusinessService extends AbstractService {
+
+    /**
+	 * Retrieve all entities of this type
+	 *
+	 * @param  array  $filterConditions       Used to specify additional filters to the set of results
+	 * @param  array  $sortingConditions      Used to specify order parameters to the set of results
+	 * @param  int    $resultsPerPage         If zero or less, or null, the full result set will be returned
+	 * @param  int    $startRecordIndex       Index of the record to start the result set from. Defaults to zero.
+     * @param  bool   $includeDeletedRecords  Includes soft-deleted records if true
+	 * @return array|\Tranquility\App\Errors\Helpers\ErrorCollection  Array of entities if successful, or an error collection if validation failed
+	 */
+	public function all(array $filterConditions = array(), array $sortingConditions = array(), int $resultsPerPage = 0, int $startRecordIndex = 0, bool $includeDeletedRecords = false) {
+        // If we are not including deleted records, filter to show only active records
+        if ($includeDeletedRecords === false) {
+            $filter = ['deleted', FilterOperatorEnum::Equals, 0];
+            $filterConditions[] = $filter;
+        }
+
+        return parent::all($filterConditions, $sortingConditions, $resultsPerPage, $startRecordIndex);
+    }
+
+    /**
+     * Find a single entity by a specified field
+     *
+     * @param  string  $fieldName   Name of the field to search against
+     * @param  string  $fieldValue  Value for entity search
+     * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
+     * @return mixed Returns Tranquility\Data\Entities\AbstractEntity if found, otherwise false
+     */
+	public function findOneBy(string $fieldName, string $fieldValue, bool $includeDeletedRecords = false) {
+        // Set search filters. Unless explicitly requested, filter out deleted records.
+        $searchOptions = [$fieldName => $fieldValue];
+        if ($includeDeletedRecords == false) {
+            $searchOptions['deleted'] = false;
+        }
+
+        // Retrieve entity from repository
+        $entity = $this->getRepository()->findOneBy($searchOptions);
+
+        // If no entity found, generate error response
+        if (is_null($entity) == true) {
+            // Invalid entity type supplied for the relationship
+            $error = $this->createError(ApplicationErrorCodeEnum::RecordNotFound);
+            $this->addError($error);
+            return $this->getErrors();
+        }
+
+        // Return entity
+		return $entity;
+    }
+
+    /**
+     * Find one or more entities by a specified field
+     *
+     * @param  string  $fieldName   Name of the field to search against
+     * @param  string  $fieldValue  Value for entity search
+     * @param  bool    $includeDeletedRecords  Includes soft-deleted records if true
+     * @return array Returns array of Tranquility\Data\Entities\AbstractEntity objects
+     */
+	public function findBy(string $fieldName, string $fieldValue, bool $includeDeletedRecords = false) {
+        // Set search filters. Unless explicitly requested, filter out deleted records.
+        $searchOptions = [$fieldName => $fieldValue];
+        if ($includeDeletedRecords == false) {
+            $searchOptions['deleted'] = false;
+        }
+
+        // Retrieve entity collection from repository
+        $entities = $this->getRepository()->findBy($searchOptions);
+
+        // If no entity found, return an empty array
+        if (count($entities) <= 0) {
+            return array();
+        }
+
+        // Return entity collection
+		return $entities;
+    }
 
     /**
      * Create a new record for an entity
@@ -105,207 +182,6 @@ abstract class AbstractBusinessService extends AbstractService {
 
         // Reuse the update function to process a logical delete
         return $this->update($id, $payload);
-    }
-
-    /**
-     * Add one or more members to a relationship for an entity
-     *
-     * @param string  $id
-     * @param string  $relatedEntityName
-     * @param array   $payload
-     * @return \Tranquility\Data\Entities\AbstractEntity
-     */
-    public function addRelationshipMembers(string $id, string $relatedEntityName, array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data', array());
-        $relationships = [$relatedEntityName => $data];
-
-        // Get allowed relationships for the entity
-        $relationshipDetail = $this->getEntityPublicRelationships();
-        $relationshipCollection = $relationshipDetail[$relatedEntityName]['collection'];
-
-        // Validate relationship details
-        if (is_null($data) == true || count($data) <= 0) {
-            // No related entities supplied
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidData, "When adding entities to a relationship, at least one entity must be provided in the request.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if (array_key_exists($relatedEntityName, $relationshipDetail) == false) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotAllowed, "Cannot create or update a relationship named '".$relatedEntityName."' for this entity.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if ($relationshipCollection == true) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidType, "The relationship named '".$relatedEntityName."' is for a single entity - cannot accept a collection of entities.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-
-        // Load the existing entity
-        $entity = $this->find($id);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while retrieving the entity record
-        }
-
-        // Load related entities
-        $relatedEntities = $this->hydrateResourceLinkage($relationships);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while loading related entities
-        }
-
-        // If related entity does not already exist in the collection, add it now
-        foreach ($relatedEntities[$relatedEntityName] as $relatedEntity) {
-            if ($entity->$relatedEntityName->contains($relatedEntity) == false) {
-                $entity->addToCollection($relatedEntityName, $relatedEntity);
-            }
-        }
-
-        // Data is valid - update the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->update($entity, $transaction);
-        return $entity;
-    }
-
-    /**
-     * Update members in the relationship for an entity. This is a REPLACEMENT of any existing members
-     * in the relationship. Can also be used to clear the relationship when data is 'null' (for one-to-one relationships)
-     * or an empty array (for collection relationships).
-     *
-     * @param string  $id
-     * @param string  $relatedEntityName
-     * @param array   $payload
-     * @return \Tranquility\Data\Entities\AbstractEntity
-     */
-    public function updateRelationshipMembers(string $id, string $relatedEntityName, array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data');
-        $relationships = [$relatedEntityName => $data];
-
-        // Get allowed relationships for the entity
-        $relationshipDetail = $this->getEntityPublicRelationships();
-        $relationshipCollection = $relationshipDetail[$relatedEntityName]['collection'];
-
-        // Validate relationship details
-        if (array_key_exists($relatedEntityName, $relationshipDetail) == false) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipNotAllowed, "Cannot create or update a relationship named '".$relatedEntityName."' for this entity.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if ($relationshipCollection == true && is_null($data) == true) {
-            // Cannot clear a collection by supplying 'null'
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidData, "The relationship named '".$relatedEntityName."' is for a collection - 'data' member must contain either an array of resource identifiers (or an empty array to clear the relationship).");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if ($relationshipCollection == false && is_array($data) == true && count($data) != 1) {
-            // Cannot clear a single entity relationship by supplying an array
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidData, "The relationship named '".$relatedEntityName."' is for a single entity - 'data' member must contain either a single resource identifier (or null to clear the relationship).");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-
-        // Load the existing entity
-        $entity = $this->find($id);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while retrieving the entity record
-        }
-
-        // If we are working with a collection relationship, always clear the collection (it is either being cleared or replaced)
-        if ($relationshipCollection == true) {
-            $entity->clearCollection($relatedEntityName);
-        }
-
-        // Updating the relationship depends on what data is provided and the type of relationship
-        if ($relationshipCollection == false && is_null($data) == true) {
-            // Clear the relationship
-            $entity->$relatedEntityName = null;
-        } else {
-            // Get details of related entities
-            $relatedEntities = $this->hydrateResourceLinkage($relationships);
-            if ($this->hasErrors() == true) {
-                return $this->getErrors();  // Errors encountered while loading related entities
-            }
-
-            // Update relationship with entity details
-            foreach ($relatedEntities[$relatedEntityName] as $relatedEntity) {
-                if ($relationshipCollection == true) {
-                    // Add to collection
-                    $entity->addToCollection($relatedEntityName, $relatedEntity);
-                } else {
-                    // Replace existing relationship member
-                    $entity->$relatedEntityName = $relatedEntity;
-                }
-            }
-        }
-
-        // Data is valid - update the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->update($entity, $transaction);
-        return $entity;
-    }
-
-    /**
-     * Delete specified members in the relationship for an entity. Can only be used for deleting members of a 
-     * collection relationship.
-     *
-     * @param string  $id
-     * @param string  $relatedEntityName
-     * @param array   $payload
-     * @return \Tranquility\Data\Entities\AbstractEntity
-     */
-    public function deleteRelationshipMembers(string $id, string $relatedEntityName, array $payload) {
-        // Get input attributes from data
-        $meta = Utility::extractValue($payload, 'meta', array());
-        $data = Utility::extractValue($payload, 'data', array());
-        $relationships = [$relatedEntityName => $data];
-
-        // Get allowed relationships for the entity
-        $relationshipDetail = $this->getEntityPublicRelationships();
-        $relationshipCollection = $relationshipDetail[$relatedEntityName]['collection'];
-
-        // Validate relationship details
-        if (is_null($data) == true || count($data) <= 0) {
-            // No related entities supplied
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidData, "When deleting entities from a relationship, at least one entity must be provided in the request.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-        if ($relationshipCollection == true) {
-            // Invalid relationship error
-            $error = $this->createError(ApplicationErrorCodeEnum::ValidationRelationshipInvalidType, "The relationship named '".$relatedEntityName."' is for a single entity - cannot accept a collection of entities.");
-            $this->addError($error);
-            return $this->getErrors();
-        }
-
-        // Load the existing entity
-        $entity = $this->find($id);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while retrieving the entity record
-        }
-
-        // Load related entities
-        $relatedEntities = $this->hydrateResourceLinkage($relationships);
-        if ($this->hasErrors() == true) {
-            return $this->getErrors();  // Errors encountered while loading related entities
-        }
-
-        // If related entity does not already exist in the collection, add it now
-        foreach ($relatedEntities[$relatedEntityName] as $relatedEntity) {
-            if ($entity->$relatedEntityName->contains($relatedEntity) == false) {
-                $entity->removeFromCollection($relatedEntityName, $relatedEntity);
-            }
-        }
-
-        // Data is valid - update the entity
-        $transaction = $this->createTransaction($meta);
-        $entity = $this->getRepository()->update($entity, $transaction);
-        return $entity;
     }
 
     /**

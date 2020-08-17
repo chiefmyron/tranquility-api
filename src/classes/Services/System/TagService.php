@@ -31,6 +31,6 @@ class TagService extends AbstractSystemService {
      */
     public function registerValidationRules() {
         // Common validation rules for a Tag entity
-        $this->validationRuleGroups['default'][] = array('field' => 'text', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
+        $this->validationRuleGroups['default'][] = array('field' => 'label', 'ruleType' => 'required', 'params' => [], 'message' => MessageCodes::ValidationMandatoryFieldMissing);
     }
 }

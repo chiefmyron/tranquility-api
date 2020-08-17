@@ -8,10 +8,11 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Entity classes
-use Tranquility\Data\Entities\AbstractEntity as Entity;
-use Tranquility\Data\Repositories\SystemObjects\SystemObjectRepository;
+use Tranquility\Data\Entities\Business\AbstractBusinessEntity;
+use Tranquility\Data\Repositories\System\GenericRepository;
 
 // Tranquility class libraries
+use Tranquility\System\Utility;
 use Tranquility\System\Enums\EntityTypeEnum;
 
 class TagEntity extends AbstractSystemEntity {
@@ -32,6 +33,23 @@ class TagEntity extends AbstractSystemEntity {
     protected static $_entityRelationshipDefinitions = [
         'entities' => ['type' => EntityTypeEnum::Entity, 'visibility' => 'public', 'collection' => true]
     ];
+
+    /**
+     * Create a new instance of the entity
+     *
+     * @var array $data     [Optional] Initial values for entity fields
+     * @var array $options  [Optional] Configuration options for the object
+     * @return void
+     */
+    public function __construct($data = array(), $options = array()) {
+        // Set values for valid properties
+        parent::__construct($data, $options);
+
+        // Ensure entity identifiers are set
+        if (!isset($this->id)) {
+            $this->id = Utility::generateUuid(1);
+        }
+    }
 
     /**
      * Retrieves the type code used to describe the entity throughout the system
@@ -71,13 +89,13 @@ class TagEntity extends AbstractSystemEntity {
         
         // Define table name
         $builder->setTable('sys_tags');
-        $builder->setCustomRepositoryClass(SystemObjectRepository::class);
+        $builder->setCustomRepositoryClass(GenericRepository::class);
         
         // Define fields
         $builder->createField('id', UuidBinaryOrderedTimeType::NAME)->makePrimaryKey()->build();
         $builder->addField('label', 'string');
 
         // Add relationships
-        $builder->createManyToMany('entities', Entity::class)->setJoinTable('entity_tags_xref')->mappedBy('tags')->build();
+        $builder->createManyToMany('entities', AbstractBusinessEntity::class)->mappedBy('tags')->build();
     }
 }

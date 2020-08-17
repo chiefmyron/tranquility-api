@@ -2,6 +2,7 @@
 
 use ArrayAccess;
 use InvalidArgumentException;
+use Tranquility\System\Utility;
 
 class ArrayHelper {
 
@@ -324,9 +325,11 @@ class ArrayHelper {
      * @return bool
      */
     public static function isAssoc(array $array) {
-        $keys = array_keys($array);
-
-        return array_keys($keys) !== $keys;
+        if (array() === $array) {
+            return false;
+        }
+    
+        return array_keys($array) !== range(0, count($array) - 1);
     }
 
     /**
@@ -354,7 +357,7 @@ class ArrayHelper {
         list($value, $key) = static::explodePluckParameters($value, $key);
 
         foreach ($array as $item) {
-            $itemValue = data_get($item, $value);
+            $itemValue = Utility::extractValue($item, $value);
 
             // If the key is "null", we will just append the value to the array and keep
             // looping. Otherwise we will key the array using the value of the key we
@@ -362,7 +365,7 @@ class ArrayHelper {
             if (is_null($key)) {
                 $results[] = $itemValue;
             } else {
-                $itemKey = data_get($item, $key);
+                $itemKey = Utility::extractValue($item, $key);
 
                 if (is_object($itemKey) && method_exists($itemKey, '__toString')) {
                     $itemKey = (string) $itemKey;

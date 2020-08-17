@@ -45,9 +45,12 @@ class TablePrefixExtension {
                 }
 
                 // Apply prefix to the joining table (if not already applied)
-                $mappedTableName = $classMetadata->associationMappings[$fieldName]['joinTable']['name'];
-                if (strpos($mappedTableName, $this->prefix) !== 0) {
-                    $classMetadata->associationMappings[$fieldName]['joinTable']['name'] = $this->prefix.$mappedTableName;
+                $mappingJoinTable = $classMetadata->associationMappings[$fieldName]['joinTable']; 
+                if (count($mappingJoinTable) > 0) {
+                    $mappedTableName = $classMetadata->associationMappings[$fieldName]['joinTable']['name'];
+                    if (strpos($mappedTableName, $this->prefix) !== 0) {
+                        $classMetadata->associationMappings[$fieldName]['joinTable']['name'] = $this->prefix.$mappedTableName;
+                    }
                 }
             }
         }

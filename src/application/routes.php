@@ -29,15 +29,6 @@ return function (App $app) {
 
     // Version 1 API route group (authenticated)
     $routeGroup = $app->group('/v1', function(RouteCollectorProxy $group) {
-        // Audit trail resource
-        $group->get('/auditTransactions', UserController::class.':list')->setName('auditTransaction-list');
-        $group->post('/auditTransactions', UserController::class.':create');
-        $group->get('/auditTransactions/{id}', UserController::class.':show')->setName('auditTransaction-detail');
-        $group->patch('/auditTransactions/{id}', UserController::class.':update');
-        $group->delete('/auditTransactions/{id}', UserController::class.':delete');
-        $group->get('/auditTransactions/{id}/{resource}', UserController::class.':showRelated')->setName('auditTransaction-related');
-        $group->get('/auditTransactions/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('auditTransaction-relationships');
-
         // Tag resource
         $group->get('/tags', TagController::class.':list')->setName('tag-list');
         $group->post('/tags', TagController::class.':create');
