@@ -1,4 +1,16 @@
 {
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Tranquility\\": "src/classes/"
+        },
+        "files": [
+            "src/application/helpers.php"
+        ]
+    },
     "require": {
         "slim/slim": "^4.0",
         "slim/psr7": "^0.6.0",
@@ -18,13 +30,7 @@
         "php-di/php-di": "^6.0",
         "doctrine/migrations": "^3.0"
     },
-
-    "autoload": {
-        "psr-4": {
-            "Tranquility\\": "src/classes/"
-        },
-        "files": [
-            "src/application/helpers.php"
-        ]
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
     }
 }
