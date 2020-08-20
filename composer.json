@@ -1,4 +1,6 @@
 {
+    "name": "tranquility/tranquility-api",
+    "description": "Tranquility REST API",
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true
