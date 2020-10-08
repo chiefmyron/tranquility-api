@@ -13,9 +13,9 @@ use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\Mapping\Driver\StaticPHPDriver;
 use Doctrine\ORM\Tools\Setup;
 
-// Tranquility classes
-use Tranquility\App\Config;
-use Tranquility\System\ORM\Extensions\TablePrefix\TablePrefixExtension;
+// Application classes
+use Tranquillity\App\Config;
+use Tranquillity\System\ORM\Extensions\TablePrefix\TablePrefixExtension;
 
 // Setup autoloader
 require_once( TRANQUIL_PATH_BASE.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php' );

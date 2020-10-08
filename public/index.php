@@ -1,17 +1,16 @@
-<?php 
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
+// Import framework dependencies
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Slim\Handlers\Strategies\RequestResponse;
 
 // Initialise the autoloader
-define('TRANQUIL_PATH_BASE', realpath(__DIR__.'/../'));
-require(TRANQUIL_PATH_BASE.'/vendor/autoload.php');
+define('APP_BASE_PATH', realpath(__DIR__.'/../'));
+require(APP_BASE_PATH.'/vendor/autoload.php');
 
-// Load configuration
-$configLoader = require(TRANQUIL_PATH_BASE.'/src/application/config.php');
+// Load application configuration
+$configLoader = require(APP_BASE_PATH.'/config/config.php');
 $config = $configLoader();
 
 // Set up dependencies
@@ -19,7 +18,7 @@ $containerBuilder = new ContainerBuilder();
 if ($config->has('app.di_compliation_path')) {
     $containerBuilder->enableCompilation($config->get('app.di_compilation_path'));
 }
-$dependencyLoader = require(TRANQUIL_PATH_BASE.'/src/application/dependencies.php');
+$dependencyLoader = require(APP_BASE_PATH.'/config/dependencies.php');
 $dependencyLoader($containerBuilder, $config);
 
 // Initialise application
@@ -30,11 +29,11 @@ $app = AppFactory::create();
 $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponse(true));
 
 // Register middleware
-$middlewareLoader = require(TRANQUIL_PATH_BASE.'/src/application/middleware.php');
+$middlewareLoader = require(APP_BASE_PATH.'/config/middleware.php');
 $middlewareLoader($app);
 
 // Register routes
-$routeLoader = require(TRANQUIL_PATH_BASE.'/src/application/routes.php');
+$routeLoader = require(APP_BASE_PATH.'/config/routes.php');
 $routeLoader($app);
 
 // Run app

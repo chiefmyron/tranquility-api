@@ -32,7 +32,7 @@ $em = $container->get('em');
 $dependencyFactory = DependencyFactory::fromEntityManager($migrationConfig, new ExistingEntityManager($em));
 
 // Setup command line application
-$cli = new Application('Tranquility DB Migrations');
+$cli = new Application('Tranquillity DB Migrations');
 $cli->setCatchExceptions(true);
 $cli->addCommands([
     new Command\DiffCommand($dependencyFactory),

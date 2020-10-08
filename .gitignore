@@ -1,6 +1,4 @@
 .env
-.vscode/*
-cache/*
-logs/*
-vendor/*
-public/php_errors.log
+.vscode
+/var/
+/vendor/
