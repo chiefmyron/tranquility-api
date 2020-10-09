@@ -1,0 +1,77 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+
+// Import framework dependencies
+use DI\ContainerBuilder;
+use Doctrine\Migrations\Tools\Console\Command\CurrentCommand;
+use Doctrine\Migrations\Tools\Console\Command\DiffCommand;
+use Doctrine\Migrations\Tools\Console\Command\DumpSchemaCommand;
+use Doctrine\Migrations\Tools\Console\Command\ExecuteCommand;
+use Doctrine\Migrations\Tools\Console\Command\GenerateCommand;
+use Doctrine\Migrations\Tools\Console\Command\LatestCommand;
+use Doctrine\Migrations\Tools\Console\Command\ListCommand;
+use Doctrine\Migrations\Tools\Console\Command\MigrateCommand;
+use Doctrine\Migrations\Tools\Console\Command\RollupCommand;
+use Doctrine\Migrations\Tools\Console\Command\StatusCommand;
+use Doctrine\Migrations\Tools\Console\Command\SyncMetadataCommand;
+use Doctrine\Migrations\Tools\Console\Command\UpToDateCommand;
+use Doctrine\Migrations\Tools\Console\Command\VersionCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
+
+// Application classes
+use Tranquillity\Console\App\ServerStartCommand;
+use Tranquillity\Console\DatabasePingCommand;
+
+// Check that we are running on the command line
+if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
+    echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
+}
+
+// Initialise the autoloader
+define('APP_BASE_PATH', realpath(__DIR__.'/../'));
+require(APP_BASE_PATH.'/vendor/autoload.php');
+
+// Load application configuration
+$configLoader = require(APP_BASE_PATH.'/config/config.php');
+$config = $configLoader();
+
+// Set up dependencies
+$containerBuilder = new ContainerBuilder();
+if ($config->has('app.di_compliation_path')) {
+    $containerBuilder->enableCompilation($config->get('app.di_compilation_path'));
+}
+$dependencyLoader = require(APP_BASE_PATH.'/config/dependencies.php');
+$dependencyLoader($containerBuilder, $config);
+$dependencyLoader = require(APP_BASE_PATH.'/config/dependencies-cli.php');
+$dependencyLoader($containerBuilder);
+$container = $containerBuilder->build();
+
+// Get list of registered commands
+$commandMap = [
+    // Application commands
+    ServerStartCommand::getDefaultName() => ServerStartCommand::class,
+
+    // Database commands
+    DatabasePingCommand::getDefaultName() => DatabasePingCommand::class,
+
+    // Migration commands
+    CurrentCommand::getDefaultName() => CurrentCommand::class,
+    DiffCommand::getDefaultName() => DiffCommand::class,
+    DumpSchemaCommand::getDefaultName() => DumpSchemaCommand::class,
+    ExecuteCommand::getDefaultName() => ExecuteCommand::class,
+    GenerateCommand::getDefaultName() => GenerateCommand::class,
+    LatestCommand::getDefaultName() => LatestCommand::class,
+    ListCommand::getDefaultName() => ListCommand::class,
+    MigrateCommand::getDefaultName() => MigrateCommand::class,
+    RollupCommand::getDefaultName() => RollupCommand::class,
+    StatusCommand::getDefaultName() => StatusCommand::class,
+    SyncMetadataCommand::getDefaultName() => SyncMetadataCommand::class,
+    UpToDateCommand::getDefaultName() => UpToDateCommand::class,
+    VersionCommand::getDefaultName() => VersionCommand::class
+];
+
+// Start the console application
+$app = new Application();
+$app->setCommandLoader(new ContainerCommandLoader($container, $commandMap));
+$app->run();

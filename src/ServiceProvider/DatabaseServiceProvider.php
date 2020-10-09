@@ -1,35 +1,36 @@
-<?php namespace Tranquillity\ServiceProviders;
+<?php namespace Tranquillity\ServiceProvider;
 
 // PSR standards interfaces
 use Psr\Container\ContainerInterface;
 
-// Vendor class libraries
+// Library clases
 use DI\ContainerBuilder;
+use Doctrine\ORM\Events;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
+use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 
-// ORM class libraries
-use Doctrine\ORM\Events as Events;
-use Doctrine\ORM\EntityManager as EntityManager;
-use Doctrine\ORM\Tools\Setup as Setup;
-use Doctrine\DBAL\Types\Type as Type;
-use Doctrine\Common\EventManager as EventManager;
-use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver as StaticPhpDriver;
-
-// Tranquillity class libraries
+// Application classes
 use Tranquillity\System\Database\ORM\TablePrefix\TablePrefixExtension as TablePrefixExtension;
 
-class EntityManagerServiceProvider extends AbstractServiceProvider {
+class DatabaseServiceProvider extends AbstractServiceProvider {
     /**
      * Registers the service with the application container
      * 
      * @return void
      */
-    public function register(ContainerBuilder $containerBuilder, string $name) {
+    public function register(ContainerBuilder $containerBuilder) {
         $containerBuilder->addDefinitions([
-            $name => function(ContainerInterface $c) {
+            EntityManagerInterface::class => function(ContainerInterface $c) {
                 // Get connection and options from config
-                $options = $c->get('config')->get('database.options', array());
-                $connection = $c->get('config')->get('database.connection', array());
+                $config = $c->get('config');
+                $options = $config->get('database.options', []);
+                $connection = $config->get('database.connection', []);
     
                 // Create Doctrine configuration
                 $config = Setup::createConfiguration(
@@ -55,6 +56,11 @@ class EntityManagerServiceProvider extends AbstractServiceProvider {
                 $entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping(UuidBinaryOrderedTimeType::NAME, 'binary');
 
                 return $entityManager;
+            },
+
+            Connection::class => function(ContainerInterface $c) {
+                $entityManager = $c->get(EntityManagerInterface::class);
+                return $entityManager->getConnection();
             }
         ]);
     }

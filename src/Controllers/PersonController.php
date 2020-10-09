@@ -4,7 +4,20 @@
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+// Application classes
+use Tranquillity\Services\Business\PersonService;
+
 class PersonController extends AbstractController {
+
+    /**
+     * Constructor
+     *
+     * @param PersonService  $service  Service used to interact with the primary entity data
+     * @return void
+     */
+    public function __construct(PersonService $service) {
+        $this->service = $service;
+    }
 
     /**
      * Create a new Person entity

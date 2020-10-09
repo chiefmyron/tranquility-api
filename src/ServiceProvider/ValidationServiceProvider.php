@@ -1,14 +1,12 @@
-<?php namespace Tranquillity\ServiceProviders;
+<?php namespace Tranquillity\ServiceProvider;
 
 // PSR standards interfaces
 use Psr\Container\ContainerInterface;
 
 // Library classes
 use DI\ContainerBuilder;
+use Doctrine\ORM\EntityManagerInterface;
 use Valitron\Validator;
-
-// Tranquillity services
-use Tranquillity\Services\UserService;
 
 // Custom validation classes
 use Tranquillity\Validators\EntityExistsValidator;
@@ -21,11 +19,11 @@ class ValidationServiceProvider extends AbstractServiceProvider {
      * 
      * @return void
      */
-    public function register(ContainerBuilder $containerBuilder, string $name) {
+    public function register(ContainerBuilder $containerBuilder) {
         $containerBuilder->addDefinitions([
-            $name => function(ContainerInterface $c) {
+            Validator::class => function(ContainerInterface $c) {
                 // ORM entity manager
-                $em = $c->get('em');
+                $em = $c->get(EntityManagerInterface::class);
 
                 // Register custom validation rules with the main validation class
                 Validator::addRule('entityExists', [new EntityExistsValidator($em), 'validate'], "Error occurred in EntityExistsValidator class.");

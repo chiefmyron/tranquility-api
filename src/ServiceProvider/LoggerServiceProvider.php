@@ -1,4 +1,4 @@
-<?php namespace Tranquillity\ServiceProviders;
+<?php namespace Tranquillity\ServiceProvider;
 
 // PSR standards interfaces
 use Psr\Log\LoggerInterface;
@@ -14,10 +14,10 @@ class LoggerServiceProvider extends AbstractServiceProvider {
     /**
      * @inheritDoc
      */
-    public function register(ContainerBuilder $containerBuilder, string $name) {
+    public function register(ContainerBuilder $containerBuilder) {
         $containerBuilder->addDefinitions([
             // Register logging library
-            $name => function(ContainerInterface $c) {
+            LoggerInterface::class => function(ContainerInterface $c) {
                 $config = $c->get('config')->get('logger');
                 $logger = new Logger($config['name']);
 

@@ -1,20 +1,18 @@
-<?php namespace Tranquillity\ServiceProviders;
+<?php namespace Tranquillity\ServiceProvider;
 
 // PSR standards interfaces
 use Psr\Container\ContainerInterface;
 
-// Vendor class libraries
-use DI;
+// Library classes
 use DI\ContainerBuilder;
+use Doctrine\ORM\EntityManagerInterface;
 use OAuth2\Server as OAuth2Server;
 use OAuth2\GrantType\ClientCredentials;
 use OAuth2\GrantType\UserCredentials;
 use OAuth2\GrantType\AuthorizationCode;
 use OAuth2\GrantType\RefreshToken;
 
-// Framework class libraries
-use Tranquillity\Controllers\AuthController;
-use Tranquillity\Middlewares\AuthenticationMiddleware;
+// Application classes
 use Tranquillity\Data\Entities\OAuth\AccessTokenEntity;
 use Tranquillity\Data\Entities\OAuth\AuthorisationCodeEntity;
 use Tranquillity\Data\Entities\OAuth\ClientEntity;
@@ -27,12 +25,12 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
      * 
      * @return void
      */
-    public function register(ContainerBuilder $containerBuilder, string $name) {
+    public function register(ContainerBuilder $containerBuilder) {
         $containerBuilder->addDefinitions([
             // Register OAuth2 server with the container
             OAuth2Server::class => function(ContainerInterface $c) {
                 // Get entities used to represent OAuth objects
-                $em = $c->get('em');
+                $em = $c->get(EntityManagerInterface::class);
                 $clientStorage = $em->getRepository(ClientEntity::class);
                 $userStorage = $em->getRepository(UserEntity::class);
                 $accessTokenStorage = $em->getRepository(AccessTokenEntity::class);
@@ -56,13 +54,7 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
                 $server->addGrantType(new RefreshToken($refreshTokenStorage, ['always_issue_new_refresh_token' => true]));
     
                 return $server;
-            },
-
-            // Register authentication middleware with the container
-            AuthenticationMiddleware::class => DI\create()->constructor(DI\get(OAuth2Server::class)),
-
-            // Register authentication controller with the container
-            AuthController::class => DI\create()->constructor(DI\get(OAuth2Server::class))
+            }
         ]);
     }
 }

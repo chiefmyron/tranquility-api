@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 // Library classes
+use OAuth2\Server as OAuth2Server;
 use OAuth2\Request as OAuthRequest;
 
 // Application classes
@@ -23,7 +24,7 @@ class AuthenticationMiddleware extends AbstractMiddleware {
     // OAuth server instance
     private $server;
 
-    public function __construct($server) {
+    public function __construct(OAuth2Server $server) {
         $this->server = $server;
     }
 

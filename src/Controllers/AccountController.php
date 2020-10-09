@@ -7,6 +7,16 @@ use Psr\Http\Message\ResponseInterface;
 class AccountController extends AbstractController {
 
     /**
+     * Constructor
+     *
+     * @param AccountService  $service  Service used to interact with the primary entity data
+     * @return void
+     */
+    public function __construct(AccountService $service) {
+        $this->service = $service;
+    }
+
+    /**
      * Create a new Account entity
      *
      * @param \Psr\Http\Message\ServerRequestInterface  $request   PSR-7 HTTP request object

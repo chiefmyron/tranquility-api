@@ -4,7 +4,20 @@
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+// Application classes
+use Tranquillity\Services\System\TagService;
+
 class TagController extends AbstractController {
+
+    /**
+     * Constructor
+     *
+     * @param TagService  $service  Service used to interact with the primary entity data
+     * @return void
+     */
+    public function __construct(TagService $service) {
+        $this->service = $service;
+    }
 
     /**
      * Create a new Tag entity
