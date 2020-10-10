@@ -49,7 +49,8 @@ abstract class AbstractEntity {
             // Make sure we are only setting values for publicly available fields and relationships
             if (array_key_exists($field, $entityFields) == true) {
                 // Assign data to entity field
-                $this->$field = $value;
+                $this->__set($field, $value);
+                //$this->$field = $value;
             } elseif (array_key_exists($field, $entityRelationships)) {
                 // Assign object(s) to entity relationships
                 $relationshipCollection = (bool)$entityRelationships[$field]['collection'];

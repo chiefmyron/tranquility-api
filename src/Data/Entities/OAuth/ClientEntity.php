@@ -77,12 +77,22 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
     }
 
     /**
-     * Sets the secret for the entity as a hashed value
+     * Sets the secret for the entity as a hashed value (wrapper required for OAuthServer)
      *
      * @param string $clientSecret
      * @return ClientEntity
      */
     public function setClientSecret($clientSecret) {
+        $this->_setClientSecret($clientSecret);
+    }
+
+    /**
+     * Sets the secret for the entity as a hashed value
+     *
+     * @param string $clientSecret
+     * @return ClientEntity
+     */
+    protected function _setClientSecret($clientSecret) {
         $this->clientSecret = $this->hashField($clientSecret);
         return $this;
     }

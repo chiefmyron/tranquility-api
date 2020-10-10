@@ -21,6 +21,8 @@ use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 // Application classes
 use Tranquillity\Console\App\ServerStartCommand;
+use Tranquillity\Console\Auth\ClientAddCommand;
+use Tranquillity\Console\Auth\ClientListCommand;
 use Tranquillity\Console\DatabasePingCommand;
 
 // Check that we are running on the command line
@@ -51,6 +53,10 @@ $container = $containerBuilder->build();
 $commandMap = [
     // Application commands
     ServerStartCommand::getDefaultName() => ServerStartCommand::class,
+
+    // OAuth commands
+    ClientListCommand::getDefaultName() => ClientListCommand::class,
+    ClientAddCommand::getDefaultName() => ClientAddCommand::class,
 
     // Database commands
     DatabasePingCommand::getDefaultName() => DatabasePingCommand::class,
