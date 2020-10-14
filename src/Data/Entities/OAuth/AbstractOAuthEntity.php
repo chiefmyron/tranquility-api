@@ -1,5 +1,7 @@
-<?php namespace Tranquillity\Data\Entities\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Entities\OAuth;
 
-// Entity classes
-use Tranquillity\Data\Entities\AbstractEntity as AbstractEntity;
+// Application classes
+use Tranquillity\Data\Entities\AbstractEntity;
+
 abstract class AbstractOAuthEntity extends AbstractEntity {}

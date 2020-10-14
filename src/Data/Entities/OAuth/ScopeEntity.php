@@ -7,23 +7,21 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
 // Application classes
-use Tranquillity\Data\Repositories\OAuth\ClientRepository;
+use Tranquillity\Data\Repositories\OAuth\ScopeRepository;
 use Tranquillity\System\Utility;
-use Tranquillity\System\Enums\EntityTypeEnum;
+use Tranquillity\System\Enums\EntityTypeEnum as EntityTypeEnum;
 
-class ClientEntity extends AbstractHashableFieldOAuthEntity {
+class ScopeEntity extends AbstractOAuthEntity {
     // Entity properties
     protected $id;
-    protected $clientName;
-    protected $clientSecret;
-    protected $redirectUri;
+    protected $scope;
+    protected $isDefault;
 
     // Entity field definitions
     protected static $_entityFieldDefinitions = [
-        'id'           => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
-        'clientName'   => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
-        'clientSecret' => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
-        'redirectUrl'  => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
+        'id'        => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
+        'scope'     => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
+        'isDefault' => ['type' => 'boolean', 'visibility' => 'public', 'auditable' => false],
     ];
 
     // Entity relationship definitions
@@ -52,7 +50,7 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
      * @return string
      */
     public static function getEntityType() {
-        return EntityTypeEnum::OAuthClient;
+        return EntityTypeEnum::OAuthScope;
     }
 
     /** 
@@ -73,47 +71,17 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
         return self::$_entityRelationshipDefinitions;
     }
 
-    /**
-     * Sets the secret for the entity as a hashed value (wrapper required for OAuthServer)
-     *
-     * @param string $clientSecret
-     * @return ClientEntity
-     */
-    public function setClientSecret($clientSecret) {
-        $this->_setClientSecret($clientSecret);
-    }
+
 
     /**
-     * Sets the secret for the entity as a hashed value
-     *
-     * @param string $clientSecret
-     * @return ClientEntity
-     */
-    protected function _setClientSecret($clientSecret) {
-        $this->clientSecret = $this->hashField($clientSecret);
-        return $this;
-    }
-
-    /**
-     * Verify that the supplied secret matches the secret for this client
-     *
-     * @param string $clientSecret
-     * @return bool
-     */
-    public function verifyClientSecret($clientSecret) {
-        return $this->verifyHashedFieldValue($this->clientSecret, $clientSecret);
-    }
-
-    /**
-     * Cast client to an array for use in the OAuth library
+     * Cast scope to an array for use in the OAuth library
      *
      * @return array
      */
     public function toArray() {
         return [
-            'clientId' => $this->clientName,
-            'clientSecret' => $this->clientSecret,
-            'redirectUri' => $this->redirectUri
+            'scope' => $this->scope,
+            'isDefault' => $this->isDefault
         ];
     }
 
@@ -127,13 +95,12 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
         $builder = new ClassMetadataBuilder($metadata);
 
         // Define table name
-        $builder->setTable('auth_clients');
-        $builder->setCustomRepositoryClass(ClientRepository::class);
+        $builder->setTable('auth_scopes');
+        $builder->setCustomRepositoryClass(ScopeRepository::class);
         
         // Define fields
         $builder->createField('id', UuidBinaryOrderedTimeType::NAME)->makePrimaryKey()->build();
-        $builder->addField('clientName', 'string');
-        $builder->addField('clientSecret', 'string');
-        $builder->addField('redirectUri', 'string');
+        $builder->addField('scope', 'string');
+        $builder->addField('isDefault', 'boolean');
     }
 }

@@ -11,13 +11,14 @@ use OAuth2\GrantType\ClientCredentials;
 use OAuth2\GrantType\UserCredentials;
 use OAuth2\GrantType\AuthorizationCode;
 use OAuth2\GrantType\RefreshToken;
-
+use OAuth2\Scope;
 // Application classes
 use Tranquillity\Data\Entities\OAuth\AccessTokenEntity;
 use Tranquillity\Data\Entities\OAuth\AuthorisationCodeEntity;
 use Tranquillity\Data\Entities\OAuth\ClientEntity;
 use Tranquillity\Data\Entities\OAuth\RefreshTokenEntity;
 use Tranquillity\Data\Entities\Business\UserEntity;
+use Tranquillity\Data\Entities\OAuth\ScopeEntity;
 
 class AuthenticationServiceProvider extends AbstractServiceProvider {
     /**
@@ -36,6 +37,7 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
                 $accessTokenStorage = $em->getRepository(AccessTokenEntity::class);
                 $refreshTokenStorage = $em->getRepository(RefreshTokenEntity::class);
                 $authorisationCodeStorage = $em->getRepository(AuthorisationCodeEntity::class);
+                $scopeStorage = $em->getRepository(ScopeEntity::class);
     
                 // Create OAuth2 server
                 $storage = [
@@ -46,6 +48,10 @@ class AuthenticationServiceProvider extends AbstractServiceProvider {
                     'authorization_code' => $authorisationCodeStorage
                 ];
                 $server = new OAuth2Server($storage, ['auth_code_lifetime' => 30, 'refresh_token_lifetime' => 30]);
+                
+                // Create scope storage manager
+                $scope = new Scope($scopeStorage);
+                $server->setScopeUtil($scope);
     
                 // Add grant types
                 $server->addGrantType(new ClientCredentials($clientStorage));

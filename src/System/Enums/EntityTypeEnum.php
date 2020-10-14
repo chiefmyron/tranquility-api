@@ -41,6 +41,7 @@ class EntityTypeEnum extends AbstractEnum {
     const OAuthTokenAccess  = 'oauthTokenAccess';
     const OAuthTokenRefresh = 'oauthTokenRefresh';
     const OAuthCode         = 'oauthCode';
+    const OAuthScope        = 'oauthScope';
 
     private static $_entityClasses = array(
         // Business objects

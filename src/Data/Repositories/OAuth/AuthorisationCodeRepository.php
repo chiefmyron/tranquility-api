@@ -1,15 +1,14 @@
-<?php namespace Tranquillity\Data\Repositories\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Repositories\OAuth;
 
-// ORM class libraries
+// Library classes
 use Doctrine\ORM\EntityRepository;
-
-// Vendor class libraries
 use OAuth2\Storage\AuthorizationCodeInterface;
 
-// Entity classes
-use Tranquillity\Data\Entities\OAuth\AuthorisationCodeEntity as AuthorisationCode;
-use Tranquillity\Data\Entities\OAuth\ClientEntity as Client;
-use Tranquillity\Data\Entities\Business\UserEntity as User;
+// Application classes
+use Tranquillity\Data\Entities\OAuth\AuthorisationCodeEntity;
+use Tranquillity\Data\Entities\OAuth\ClientEntity;
+use Tranquillity\Data\Entities\Business\UserEntity;
 
 class AuthorisationCodeRepository extends EntityRepository implements AuthorizationCodeInterface {
     public function getAuthorizationCode($code) {
@@ -22,8 +21,8 @@ class AuthorisationCodeRepository extends EntityRepository implements Authorizat
     }
 
     public function setAuthorizationCode($code, $clientId, $userId, $redirectUri, $expires, $scope = null) {
-        $client = $this->_em->getRepository(Client::class)->findOneBy(['clientId' => $clientId]);
-        $user = $this->_em->getRepository(User::class)->findOneBy(['id' => $userId]);
+        $client = $this->_em->getRepository(ClientEntity::class)->findOneBy(['clientId' => $clientId]);
+        $user = $this->_em->getRepository(UserEntity::class)->findOneBy(['id' => $userId]);
 
         // Generate and store authorisation code
         $authCodeDetails = [
@@ -34,7 +33,7 @@ class AuthorisationCodeRepository extends EntityRepository implements Authorizat
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
         ];
-        $authCode = new AuthorisationCode($authCodeDetails);
+        $authCode = new AuthorisationCodeEntity($authCodeDetails);
         $this->_em->persist($authCode);
         $this->_em->flush();
     }

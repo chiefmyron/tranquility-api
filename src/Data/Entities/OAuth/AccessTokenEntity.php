@@ -1,20 +1,17 @@
-<?php namespace Tranquillity\Data\Entities\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Entities\OAuth;
 
-// Vendor class libraries
+// Library classes
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
-
-// ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
-// Entity classes
-use Tranquillity\Data\Entities\OAuth\ClientEntity as Client;
-use Tranquillity\Data\Entities\Business\UserEntity as User;
+// Application classes
+use Tranquillity\Data\Entities\OAuth\ClientEntity;
+use Tranquillity\Data\Entities\Business\UserEntity;
 use Tranquillity\Data\Repositories\OAuth\AccessTokenRepository;
-
-// Tranquillity class libraries
 use Tranquillity\System\Utility;
-use Tranquillity\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquillity\System\Enums\EntityTypeEnum;
 
 class AccessTokenEntity extends AbstractOAuthEntity {
     // Entity properties
@@ -90,12 +87,12 @@ class AccessTokenEntity extends AbstractOAuthEntity {
         return $this;
     }
 
-    public function setClient(Client $client = null) {
+    public function setClient(ClientEntity $client = null) {
         $this->client = $client;
         return $this;
     }
 
-    public function setUser(User $user = null) {
+    public function setUser(UserEntity $user = null) {
         $this->user = $user;
         return $this;
     }
@@ -116,13 +113,19 @@ class AccessTokenEntity extends AbstractOAuthEntity {
      * @return array
      */
     public function toArray() {
-        return [
+        $token = [
             'token' => $this->token,
             'client_id' => $this->client->clientName,  // Key needs to be in underscore format for OAuth library
-            'user_id' => $this->user->id,              // Key needs to be in underscore format for OAuth library
             'expires' => $this->expires,
             'scope' => $this->scope
         ];
+
+        // If token is associated with a specific user, add the user ID as well
+        if (isset($this->user) == true) {
+            $token['user_id'] = $this->user->id;      // Key needs to be in underscore format for OAuth library
+        }
+        
+        return $token;
     }
 
     /**
@@ -145,7 +148,7 @@ class AccessTokenEntity extends AbstractOAuthEntity {
         $builder->addField('expires', 'datetime');
 
         // Define relationships
-        $builder->createManyToOne('client', Client::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
-        $builder->createManyToOne('user', User::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('client', ClientEntity::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('user', UserEntity::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
     }
 }

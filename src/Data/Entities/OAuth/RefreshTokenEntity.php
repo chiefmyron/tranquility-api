@@ -1,20 +1,17 @@
-<?php namespace Tranquillity\Data\Entities\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Entities\OAuth;
 
-// Vendor class libraries
+// Library classes
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
-
-// ORM class libraries
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 
-// Entity classes
-use Tranquillity\Data\Entities\OAuth\ClientEntity as Client;
-use Tranquillity\Data\Entities\Business\UserEntity as User;
+// Application classes
+use Tranquillity\Data\Entities\OAuth\ClientEntity;
+use Tranquillity\Data\Entities\Business\UserEntity;
 use Tranquillity\Data\Repositories\OAuth\RefreshTokenRepository;
-
-// Tranquillity class libraries
 use Tranquillity\System\Utility;
-use Tranquillity\System\Enums\EntityTypeEnum as EntityTypeEnum;
+use Tranquillity\System\Enums\EntityTypeEnum;
 
 class RefreshTokenEntity extends AbstractOAuthEntity {
     // Entity properties
@@ -120,7 +117,7 @@ class RefreshTokenEntity extends AbstractOAuthEntity {
         $builder->addField('expires', 'datetime');
 
         // Define relationships
-        $builder->createManyToOne('client', Client::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
-        $builder->createManyToOne('user', User::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('client', ClientEntity::class)->addJoinColumn('clientId', 'id')->mappedBy('id')->build();
+        $builder->createManyToOne('user', UserEntity::class)->addJoinColumn('userId', 'id')->mappedBy('id')->build();
     }
 }

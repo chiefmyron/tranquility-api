@@ -1,10 +1,11 @@
-<?php namespace Tranquillity\Data\Repositories\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Repositories\OAuth;
 
-// ORM class libraries
+// Library classes
 use Doctrine\ORM\EntityRepository;
-
-// Vendor class libraries
 use OAuth2\Storage\ClientCredentialsInterface;
+
+// Application classes
 use Tranquillity\Data\Entities\OAuth\ClientEntity;
 
 class ClientRepository extends EntityRepository implements ClientCredentialsInterface {

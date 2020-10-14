@@ -9,9 +9,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 // Library classes
 use OAuth2\Server as OAuth2Server;
 use OAuth2\Request as OAuthRequest;
+use Slim\Routing\RouteContext;
 
 // Application classes
 use Tranquillity\System\Utility as Utility;
+use Tranquillity\Utility\ArrayHelper;
 
 /**
  * Middleware to ensure only authenticated users can access protected routes
@@ -36,8 +38,13 @@ class AuthenticationMiddleware extends AbstractMiddleware {
      * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+        // Extract the required scope for this route
+        $route = RouteContext::fromRequest($request)->getRoute();
+        $args = $route->getArguments();
+        $scope = ArrayHelper::get($args, 'auth-scope', '');
+
         $req = OAuthRequest::createFromGlobals();
-        if ($this->server->verifyResourceRequest($req) != true) {
+        if ($this->server->verifyResourceRequest($req, $this->server->getResponse(), $scope) != true) {
             $this->server->getResponse()->send();
             exit();
         }

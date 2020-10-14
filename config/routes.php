@@ -42,7 +42,7 @@ return function (App $app) {
         $group->delete('/tags/{id}/relationships/{resource}', TagController::class.':deleteRelationship');
         
         // User resource
-        $group->get('/users', UserController::class.':list')->setName('user-list');
+        $group->get('/users', UserController::class.':list')->setName('user-list')->setArgument('auth-scope', 'users:read');
         $group->post('/users', UserController::class.':create');
         $group->get('/users/{id}', UserController::class.':show')->setName('user-detail');
         $group->patch('/users/{id}', UserController::class.':update');

@@ -1,15 +1,14 @@
-<?php namespace Tranquillity\Data\Repositories\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Repositories\OAuth;
 
-// ORM class libraries
+// Library classes
 use Doctrine\ORM\EntityRepository;
-
-// Vendor class libraries
 use OAuth2\Storage\RefreshTokenInterface;
 
-// Entity classes
-use Tranquillity\Data\Entities\OAuth\RefreshTokenEntity as RefreshToken;
-use Tranquillity\Data\Entities\OAuth\ClientEntity as Client;
-use Tranquillity\Data\Entities\Business\UserEntity as User;
+// Application classes
+use Tranquillity\Data\Entities\OAuth\RefreshTokenEntity;
+use Tranquillity\Data\Entities\OAuth\ClientEntity;
+use Tranquillity\Data\Entities\Business\UserEntity;
 
 class RefreshTokenRepository extends EntityRepository implements RefreshTokenInterface {
     public function getRefreshToken($refreshToken) {
@@ -22,8 +21,8 @@ class RefreshTokenRepository extends EntityRepository implements RefreshTokenInt
     }
 
     public function setRefreshToken($refreshToken, $clientId, $userId, $expires, $scope = null) {
-        $client = $this->_em->getRepository(Client::class)->findOneBy(['clientName' => $clientId]);
-        $user = $this->_em->getRepository(User::class)->findOneBy(['id' => $userId]);
+        $client = $this->_em->getRepository(ClientEntity::class)->findOneBy(['clientName' => $clientId]);
+        $user = $this->_em->getRepository(UserEntity::class)->findOneBy(['id' => $userId]);
 
         // Generate and store token
         $tokenDetails = [
@@ -33,7 +32,7 @@ class RefreshTokenRepository extends EntityRepository implements RefreshTokenInt
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
         ];
-        $token = new RefreshToken($tokenDetails);
+        $token = new RefreshTokenEntity($tokenDetails);
         $this->_em->persist($token);
         $this->_em->flush();
     }

@@ -1,4 +1,5 @@
-<?php namespace Tranquillity\Data\Repositories\OAuth;
+<?php declare(strict_types=1);
+namespace Tranquillity\Data\Repositories\OAuth;
 
 // ORM class libraries
 use Doctrine\ORM\EntityRepository;
@@ -7,9 +8,9 @@ use Doctrine\ORM\EntityRepository;
 use OAuth2\Storage\AccessTokenInterface;
 
 // Entity classes
-use Tranquillity\Data\Entities\OAuth\AccessTokenEntity as AccessToken;
-use Tranquillity\Data\Entities\OAuth\ClientEntity as Client;
-use Tranquillity\Data\Entities\Business\UserEntity as User;
+use Tranquillity\Data\Entities\OAuth\AccessTokenEntity;
+use Tranquillity\Data\Entities\OAuth\ClientEntity;
+use Tranquillity\Data\Entities\Business\UserEntity;
 
 class AccessTokenRepository extends EntityRepository implements AccessTokenInterface {
     public function getAccessToken($oauthToken) {
@@ -22,8 +23,8 @@ class AccessTokenRepository extends EntityRepository implements AccessTokenInter
     }
 
     public function setAccessToken($oauthToken, $clientId, $userId, $expires, $scope = null) {
-        $client = $this->_em->getRepository(Client::class)->findOneBy(['clientName' => $clientId]);
-        $user = $this->_em->getRepository(User::class)->findOneBy(['id' => $userId]);
+        $client = $this->_em->getRepository(ClientEntity::class)->findOneBy(['clientName' => $clientId]);
+        $user = $this->_em->getRepository(UserEntity::class)->findOneBy(['id' => $userId]);
 
         // Generate and store token
         $tokenDetails = [
@@ -33,7 +34,7 @@ class AccessTokenRepository extends EntityRepository implements AccessTokenInter
             'expires' => (new \DateTime())->setTimestamp($expires),
             'scope' => $scope
         ];
-        $token = new AccessToken($tokenDetails);
+        $token = new AccessTokenEntity($tokenDetails);
         $this->_em->persist($token);
         $this->_em->flush();
     }
