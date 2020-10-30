@@ -23,7 +23,7 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
         'id'           => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
         'clientName'   => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
         'clientSecret' => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
-        'redirectUrl'  => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
+        'redirectUri'  => ['type' => 'string', 'visibility' => 'public', 'auditable' => false],
     ];
 
     // Entity relationship definitions
@@ -134,6 +134,6 @@ class ClientEntity extends AbstractHashableFieldOAuthEntity {
         $builder->createField('id', UuidBinaryOrderedTimeType::NAME)->makePrimaryKey()->build();
         $builder->addField('clientName', 'string');
         $builder->addField('clientSecret', 'string');
-        $builder->addField('redirectUri', 'string');
+        $builder->createField('redirectUri', 'string')->nullable(true)->build();
     }
 }

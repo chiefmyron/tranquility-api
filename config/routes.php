@@ -43,15 +43,15 @@ return function (App $app) {
         
         // User resource
         $group->get('/users', UserController::class.':list')->setName('user-list')->setArgument('auth-scope', 'users:read');
-        $group->post('/users', UserController::class.':create');
-        $group->get('/users/{id}', UserController::class.':show')->setName('user-detail');
-        $group->patch('/users/{id}', UserController::class.':update');
-        $group->delete('/users/{id}', UserController::class.':delete');
-        $group->get('/users/{id}/{resource}', UserController::class.':showRelated')->setName('user-related');
-        $group->get('/users/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('user-relationships');
-        $group->post('/users/{id}/relationships/{resource}', UserController::class.':addRelationship');
-        $group->patch('/users/{id}/relationships/{resource}', UserController::class.':updateRelationship');
-        $group->delete('/users/{id}/relationships/{resource}', UserController::class.':deleteRelationship');
+        $group->post('/users', UserController::class.':create')->setArgument('auth-scope', 'users:write');
+        $group->get('/users/{id}', UserController::class.':show')->setName('user-detail')->setArgument('auth-scope', 'users:write');
+        $group->patch('/users/{id}', UserController::class.':update')->setArgument('auth-scope', 'users:write');
+        $group->delete('/users/{id}', UserController::class.':delete')->setArgument('auth-scope', 'users:write');
+        $group->get('/users/{id}/{resource}', UserController::class.':showRelated')->setName('user-related')->setArgument('auth-scope', 'users:write');;
+        $group->get('/users/{id}/relationships/{resource}', UserController::class.':showRelationship')->setName('user-relationships')->setArgument('auth-scope', 'users:write');;
+        $group->post('/users/{id}/relationships/{resource}', UserController::class.':addRelationship')->setArgument('auth-scope', 'users:write');
+        $group->patch('/users/{id}/relationships/{resource}', UserController::class.':updateRelationship')->setArgument('auth-scope', 'users:write');
+        $group->delete('/users/{id}/relationships/{resource}', UserController::class.':deleteRelationship')->setArgument('auth-scope', 'users:write');
         
         // People resource
         $group->get('/people', PersonController::class.':list')->setName('person-list');

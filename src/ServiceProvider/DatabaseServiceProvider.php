@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
+use Exception;
 use Ramsey\Uuid\Doctrine\UuidBinaryOrderedTimeType;
 
 // Application classes
@@ -49,13 +50,17 @@ class DatabaseServiceProvider extends AbstractServiceProvider {
                 $eventManager->addEventListener(Events::loadClassMetadata, $tablePrefixEventManager);
     
                 // Create Doctrine entity manager
-                $entityManager = EntityManager::create($connection, $config, $eventManager);
+                try {
+                    $entityManager = EntityManager::create($connection, $config, $eventManager);
 
-                // Register UUID data type
-                Type::addType(UuidBinaryOrderedTimeType::NAME, UuidBinaryOrderedTimeType::class);
-                $entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping(UuidBinaryOrderedTimeType::NAME, 'binary');
+                    // Register UUID data type
+                    Type::addType(UuidBinaryOrderedTimeType::NAME, UuidBinaryOrderedTimeType::class);
+                    $entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping(UuidBinaryOrderedTimeType::NAME, 'binary');
 
-                return $entityManager;
+                    return $entityManager;
+                } catch (Exception $e) {
+                    throw new Exception("An error occurred while trying to connect to the database: ". $e->getMessage());
+                }
             },
 
             Connection::class => function(ContainerInterface $c) {

@@ -4,12 +4,14 @@
 use DI\ContainerBuilder;
 
 // Application classes
+use Tranquillity\ServiceProvider\FixtureServiceProvider;
 use Tranquillity\ServiceProvider\MigrationServiceProvider;
 
 return static function (ContainerBuilder $containerBuilder) {
     // Use application service providers to register additional dependencies that are specific to Console applications
     $serviceProviders = [
-        MigrationServiceProvider::class
+        MigrationServiceProvider::class,
+        FixtureServiceProvider::class
     ];
     foreach ($serviceProviders as $name => $providerClassname) {
         $provider = new $providerClassname();

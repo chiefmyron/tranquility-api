@@ -23,7 +23,8 @@ use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 use Tranquillity\Console\App\ServerStartCommand;
 use Tranquillity\Console\Auth\ClientAddCommand;
 use Tranquillity\Console\Auth\ClientListCommand;
-use Tranquillity\Console\DatabasePingCommand;
+use Tranquillity\Console\Database\PingCommand;
+use Tranquillity\Console\Fixture\RunCommand;
 
 // Check that we are running on the command line
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
@@ -59,9 +60,10 @@ $commandMap = [
     ClientAddCommand::getDefaultName() => ClientAddCommand::class,
 
     // Database commands
-    DatabasePingCommand::getDefaultName() => DatabasePingCommand::class,
+    PingCommand::getDefaultName() => PingCommand::class,
+    RunCommand::getDefaultName() => RunCommand::class,
 
-    // Migration commands
+    // Database migration commands
     CurrentCommand::getDefaultName() => CurrentCommand::class,
     DiffCommand::getDefaultName() => DiffCommand::class,
     DumpSchemaCommand::getDefaultName() => DumpSchemaCommand::class,

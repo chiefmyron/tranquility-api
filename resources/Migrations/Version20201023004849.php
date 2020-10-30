@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20201009123845 extends AbstractMigration
+final class Version20201023004849 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,7 @@ final class Version20201009123845 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE tql_auth_authorisation_codes (id BINARY(16) NOT NULL, code VARCHAR(40) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, clientId BINARY(16) NOT NULL, userId BINARY(16) DEFAULT NULL, redirectUri TINYTEXT CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, expires DATETIME NOT NULL, scope VARCHAR(4000) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE tql_auth_authorisation_codes (id INT AUTO_INCREMENT NOT NULL, code VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_unicode_ci`, clientId BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid_binary_ordered_time)\', userId BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid_binary_ordered_time)\', redirectUri VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_unicode_ci`, expires DATETIME NOT NULL, scope VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_unicode_ci`, INDEX IDX_D8C3BB9E64B64DCC (userId), INDEX IDX_D8C3BB9EEA1CE9BE (clientId), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE tql_auth_clients (id BINARY(16) NOT NULL, clientName VARCHAR(80) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, clientSecret VARCHAR(80) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, redirectUri TINYTEXT CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, grantTypes VARCHAR(80) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, scope TINYTEXT CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, userId BINARY(16) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
@@ -49,9 +49,6 @@ final class Version20201009123845 extends AbstractMigration
         $this->addSql('CREATE TABLE tql_bus_users (id BINARY(16) NOT NULL, username VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, password VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, timezoneCode VARCHAR(30) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, localeCode VARCHAR(30) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, active TINYINT(1) NOT NULL, securityGroupId BIGINT NOT NULL, registeredDateTime DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE tql_db_migrations (version BIGINT NOT NULL, migration_name VARCHAR(100) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, start_time DATETIME DEFAULT NULL, end_time DATETIME DEFAULT NULL, breakpoint TINYINT(1) DEFAULT \'0\' NOT NULL, PRIMARY KEY(version)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE TABLE tql_ref_countries (code VARCHAR(30) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, description VARCHAR(100) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, ordering INT NOT NULL, effectiveFrom DATETIME NOT NULL, effectiveUntil DATETIME DEFAULT NULL, PRIMARY KEY(code)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
@@ -61,19 +58,13 @@ final class Version20201009123845 extends AbstractMigration
         $this->addSql('CREATE TABLE tql_ref_timezones (code VARCHAR(30) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, description VARCHAR(100) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, daylightSavings TINYINT(1) NOT NULL, ordering INT NOT NULL, effectiveFrom DATETIME NOT NULL, effectiveUntil DATETIME DEFAULT NULL, PRIMARY KEY(code)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE tql_sys_audit_txn (id BINARY(16) NOT NULL, clientId BINARY(16) NOT NULL, userId BINARY(16) NOT NULL, timestamp DATETIME NOT NULL, updateReason VARCHAR(100) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE tql_sys_audit_txn (id BINARY(16) NOT NULL, clientId BINARY(16) NOT NULL, userId BINARY(16) DEFAULT NULL, timestamp DATETIME NOT NULL, updateReason VARCHAR(100) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE tql_sys_audit_txn_fields (transactionId BINARY(16) NOT NULL, entityId BINARY(16) NOT NULL, fieldName VARCHAR(45) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, dataType VARCHAR(45) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, oldValue VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, newValue VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(transactionId, entityId, fieldName)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE tql_sys_locks_entity (entityId BINARY(16) NOT NULL, lockedByUserId BINARY(16) NOT NULL, lockedDateTime DATETIME NOT NULL, PRIMARY KEY(entityId)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('CREATE TABLE tql_sys_tags (id BINARY(16) NOT NULL, label VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
-        $this->addSql('CREATE TABLE tql_xref_account_people (accountId BINARY(16) NOT NULL, personId BINARY(16) NOT NULL, primaryContact TINYINT(1) NOT NULL, PRIMARY KEY(accountId, personId)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE tql_xref_entity_tags (entityId BINARY(16) NOT NULL, tagId BINARY(16) NOT NULL, PRIMARY KEY(entityId, tagId)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
@@ -111,9 +102,6 @@ final class Version20201009123845 extends AbstractMigration
         $this->addSql('DROP TABLE tql_bus_users');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DROP TABLE tql_db_migrations');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP TABLE tql_ref_countries');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
@@ -129,13 +117,7 @@ final class Version20201009123845 extends AbstractMigration
         $this->addSql('DROP TABLE tql_sys_audit_txn_fields');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DROP TABLE tql_sys_locks_entity');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
         $this->addSql('DROP TABLE tql_sys_tags');
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-
-        $this->addSql('DROP TABLE tql_xref_account_people');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('DROP TABLE tql_xref_entity_tags');

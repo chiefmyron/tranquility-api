@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
-namespace Tranquillity\Console;
+namespace Tranquillity\Console\Database;
 
+// Library classes
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DatabasePingCommand extends Command {
+class PingCommand extends Command {
 
     protected static $defaultName = 'db:ping';
 

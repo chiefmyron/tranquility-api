@@ -11,11 +11,16 @@ class ScopeRepository extends EntityRepository implements ScopeInterface {
      * {@inheritDoc}
      */
     public function scopeExists($scope) {
-        $scope = $this->findOneBy(['scope' => $scope]);
-        if ($scope) {
-            return true;
+        // Check that each scope requested actually exists
+        $scopes = explode(" ", $scope);
+        foreach ($scopes as $scopeName) {
+            $scope = $this->findOneBy(['scope' => $scopeName]);
+            if (is_null($scope) === true) {
+                return false;
+            }
         }
-        return false;
+
+        return true;
     }
 
     /**

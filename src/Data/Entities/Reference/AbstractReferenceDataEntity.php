@@ -63,6 +63,6 @@ abstract class AbstractReferenceDataEntity extends AbstractEntity {
         $builder->addField('description', 'string');
         $builder->addField('ordering', 'integer');
         $builder->addField('effectiveFrom', 'datetime');
-        $builder->addField('effectiveUntil', 'datetime');
+        $builder->createField('effectiveUntil', 'datetime')->nullable(true)->build();
     }
 }

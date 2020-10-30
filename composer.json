@@ -15,6 +15,7 @@
     },
     "require": {
         "bshaffer/oauth2-server-php": "^1.10",
+        "doctrine/data-fixtures": "^1.4",
         "doctrine/migrations": "^3.0",
         "doctrine/orm": "^2.6",
         "guzzlehttp/psr7": "^1.6",

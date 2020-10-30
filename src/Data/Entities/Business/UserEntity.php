@@ -94,6 +94,16 @@ class UserEntity extends AbstractBusinessEntity {
     }
 
     /**
+     * Set the password for the user
+     *
+     * @param string $password
+     * @return void
+     */
+    public function setPassword($password) {
+        return $this->_setPassword($password);
+    }
+
+    /**
      * Get the password for the user. 
      * NOTE: Required for OAuth implementation.
      * @see Tranquillity\Data\Repositories\BusinessObjects\UserRepository
@@ -127,5 +137,9 @@ class UserEntity extends AbstractBusinessEntity {
         $data = parent::toArray();
         $data['user_id'] = $this->id;
         return $data;
+    }
+
+    protected function _setPassword($password) {
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 }
